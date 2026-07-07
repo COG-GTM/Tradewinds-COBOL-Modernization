@@ -6,7 +6,6 @@ package com.ibm.cics.cip.bank.springboot.transferfunds.jsonclasses.transferfunds
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -37,8 +36,12 @@ public class TransferFundsForm
 	@Size(max = 6)
 	private String toSortCode;
 
+	// NOTE: no @Positive here. The COBOL XFRFUN checks COMM-AMT <= ZERO in
+	// its own logic and returns COMM-SUCCESS='N' / COMM-FAIL-CODE='4'. To
+	// preserve that contract, amount <= 0 is handled by the service (which
+	// returns a structured 422 response), not rejected as a 400 by bean
+	// validation.
 	@NotNull
-	@Positive
 	private BigDecimal amount;
 
 

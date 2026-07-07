@@ -19,7 +19,6 @@ import com.ibm.cics.cip.bank.springboot.transferfunds.jsonclasses.transferfunds.
 import com.ibm.cics.cip.bank.springboot.transferfunds.jsonclasses.transferfunds.TransferFundsResponse;
 import com.ibm.cics.cip.bank.springboot.transferfunds.service.SameAccountTransferException;
 import com.ibm.cics.cip.bank.springboot.transferfunds.service.TransferFundsService;
-import com.ibm.cics.cip.bank.springboot.transferfunds.service.TransferRollbackException;
 
 import jakarta.validation.Valid;
 
@@ -81,15 +80,5 @@ public class TransferFundsController
 		log.error("Same-account transfer rejected: {}", ex.getMessage());
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.body(Map.of("error", ex.getMessage(), "failCode", "SAME"));
-	}
-
-
-	@ExceptionHandler(TransferRollbackException.class)
-	public ResponseEntity<Map<String, String>> handleRollback(
-			TransferRollbackException ex)
-	{
-		log.error("Transfer rolled back: {}", ex.getMessage());
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-				Map.of("error", ex.getMessage(), "failCode", "ROLLBACK"));
 	}
 }

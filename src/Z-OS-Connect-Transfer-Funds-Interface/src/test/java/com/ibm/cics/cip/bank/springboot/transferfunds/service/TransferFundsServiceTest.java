@@ -299,7 +299,7 @@ class TransferFundsServiceTest
 
 
 		@Test
-		@DisplayName("TO account not found (FROM < TO) -> transaction rolls back (COBOL SYNCPOINT ROLLBACK)")
+		@DisplayName("TO account not found (FROM < TO) -> fail code '2', transaction rolls back (COBOL SYNCPOINT ROLLBACK)")
 		void toAccountNotFoundRollsBack()
 		{
 			// Create only the FROM account.
@@ -307,7 +307,8 @@ class TransferFundsServiceTest
 			// FROM succeeds, TO not found -> rollback.
 			// COBOL: UPDATE-ACCOUNT-DB2-TO / UADT010
 			// IF SQLCODE = +100 -> MOVE '2' TO COMM-FAIL-CODE
-			// then EXEC CICS SYNCPOINT ROLLBACK
+			// then EXEC CICS SYNCPOINT ROLLBACK, then return COMMAREA with
+			// COMM-SUCCESS='N' and the specific COMM-FAIL-CODE.
 			createAccount("987654", "00000001", new BigDecimal("1000.00"),
 					new BigDecimal("1000.00"));
 
@@ -315,16 +316,21 @@ class TransferFundsServiceTest
 					"987654", "99999999", "987654",
 					new BigDecimal("100.00"));
 
-			// The @Transactional rollback means the FROM debit is undone
-			assertThrows(TransferRollbackException.class,
-					() -> service.transferFunds(form));
+			// COBOL: the specific fail code '2' (TO not found) is preserved,
+			// not replaced by a generic error.
+			TransferFundsResponse response = service.transferFunds(form);
+			assertEquals("N", response.getSuccess());
+			assertEquals("2", response.getFailCode());
 
-			// Verify the FROM account balance was NOT changed (rollback)
+			// The @Transactional rollback means the FROM debit is undone.
 			AccountEntity fromAccount = accountRepository
 					.findBySortcodeAndAccountNumber("987654", "00000001")
 					.orElseThrow();
 			assertEquals(new BigDecimal("1000.00"),
 					fromAccount.getAvailableBalance());
+
+			// No PROCTRAN should exist
+			assertEquals(0, proctranRepository.count());
 		}
 	}
 
@@ -348,8 +354,10 @@ class TransferFundsServiceTest
 					"987654", "00000002", "987654",
 					new BigDecimal("100.00"));
 
-			assertThrows(TransferRollbackException.class,
-					() -> service.transferFunds(form));
+			// Specific fail code '2' preserved; transaction rolls back.
+			TransferFundsResponse response = service.transferFunds(form);
+			assertEquals("N", response.getSuccess());
+			assertEquals("2", response.getFailCode());
 
 			// FROM account balance must be unchanged due to rollback
 			AccountEntity fromAccount = accountRepository

@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import com.ibm.cics.cip.bank.springboot.transferfunds.jsonclasses.transferfunds.TransferFundsForm;
 import com.ibm.cics.cip.bank.springboot.transferfunds.jsonclasses.transferfunds.TransferFundsResponse;
@@ -154,8 +155,14 @@ public class TransferFundsService
 					response);
 			if (toAccount == null)
 			{
-				throw new TransferRollbackException(
-						"TO account not found or update failed, rolling back FROM debit");
+				// COBOL: TO not found after FROM debit succeeded ->
+				// EXEC CICS SYNCPOINT ROLLBACK, then return COMM-SUCCESS='N'
+				// with the specific COMM-FAIL-CODE ('2') already set on the
+				// response. Marking the transaction rollback-only undoes the
+				// FROM debit while preserving the structured failure contract.
+				TransactionAspectSupport.currentTransactionStatus()
+						.setRollbackOnly();
+				return response;
 			}
 		}
 		else
@@ -170,8 +177,14 @@ public class TransferFundsService
 					form.getAmount(), response);
 			if (fromAccount == null)
 			{
-				throw new TransferRollbackException(
-						"FROM account not found or update failed, rolling back TO credit");
+				// COBOL: FROM not found after TO credit succeeded ->
+				// EXEC CICS SYNCPOINT ROLLBACK, then return COMM-SUCCESS='N'
+				// with the specific COMM-FAIL-CODE ('1') already set on the
+				// response. Marking the transaction rollback-only undoes the
+				// TO credit while preserving the structured failure contract.
+				TransactionAspectSupport.currentTransactionStatus()
+						.setRollbackOnly();
+				return response;
 			}
 		}
 
