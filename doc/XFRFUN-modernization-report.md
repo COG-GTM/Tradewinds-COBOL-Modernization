@@ -245,8 +245,8 @@ Per the program header (line 20–21): *"This program needs to be able to cope w
 | `HOST-PROCTRAN-ROW` | 86–95 | `ProcessedTransactionEntity` | JPA entity |
 | `DFHCOMMAREA` / `XFRFUN.cpy` | 262–266 | `TransferFundsForm` / `TransferFundsResponse` | Request/response DTOs |
 | `SORTCODE` copybook | — | `TransferFundsService` | `DEFAULT_SORT_CODE = "987654"` |
-| `EXEC CICS SYNCPOINT ROLLBACK` | various | Spring `@Transactional` | RuntimeException triggers rollback |
-| `EXEC CICS ABEND` | various | Custom exceptions | `SameAccountTransferException`, `TransferRollbackException` |
+| `EXEC CICS SYNCPOINT ROLLBACK` (second leg not found) | various | Spring `@Transactional` + `setRollbackOnly()` | Rolls back the first leg while returning the structured response with the specific fail code ('1'/'2') |
+| `EXEC CICS ABEND` (same-account) | various | Custom exception | `SameAccountTransferException` (unchecked → rolls back the transaction) |
 
 ---
 
