@@ -54,7 +54,8 @@ CREATE TABLE ACCOUNT (
                     ACCOUNT_LAST_STATEMENT         DATE,
                     ACCOUNT_NEXT_STATEMENT         DATE,
                     ACCOUNT_AVAILABLE_BALANCE      DECIMAL(12, 2),
-                    ACCOUNT_ACTUAL_BALANCE         DECIMAL(12, 2)
+                    ACCOUNT_ACTUAL_BALANCE         DECIMAL(12, 2),
+                    PRIMARY KEY (ACCOUNT_SORTCODE, ACCOUNT_NUMBER)
                    )
 IN CBSA.ACCOUNT   NOT VOLATILE
 CARDINALITY  AUDIT NONE  DATA CAPTURE NONE;
@@ -66,6 +67,33 @@ CREATE UNIQUE INDEX ACCTINDX
 CREATE INDEX ACCTCUST
    ON ACCOUNT(ACCOUNT_SORTCODE,ACCOUNT_CUSTOMER_NUMBER)
    USING STOGROUP ACCOUNT;
+
+CREATE STOGROUP ACCTBAL VOLUMES('*','*','*','*','*') VCAT DSNV12DP;
+
+CREATE TABLESPACE ACCTBAL IN CBSA USING STOGROUP ACCTBAL;
+
+CREATE TABLE ACCOUNT_BALANCE (
+                    ACCOUNT_SORTCODE               CHAR(6) NOT NULL,
+                    ACCOUNT_NUMBER                 CHAR(8) NOT NULL,
+                    ACCOUNT_CURRENCY               CHAR(3) NOT NULL,
+                    AVAILABLE_BALANCE              DECIMAL(12, 2) NOT NULL
+                                                   WITH DEFAULT,
+                    ACTUAL_BALANCE                 DECIMAL(12, 2) NOT NULL
+                                                   WITH DEFAULT,
+                    PRIMARY KEY (ACCOUNT_SORTCODE,
+                                 ACCOUNT_NUMBER,
+                                 ACCOUNT_CURRENCY),
+                    CONSTRAINT ACCTBAL_FK
+                       FOREIGN KEY (ACCOUNT_SORTCODE, ACCOUNT_NUMBER)
+                       REFERENCES ACCOUNT (ACCOUNT_SORTCODE, ACCOUNT_NUMBER)
+                       ON DELETE CASCADE
+                   )
+IN CBSA.ACCTBAL   NOT VOLATILE
+CARDINALITY  AUDIT NONE  DATA CAPTURE NONE;
+
+CREATE UNIQUE INDEX ACCBALIX
+  ON ACCOUNT_BALANCE(ACCOUNT_SORTCODE,ACCOUNT_NUMBER,ACCOUNT_CURRENCY)
+  USING STOGROUP ACCTBAL;
 
 CREATE STOGROUP PROCTRAN VOLUMES('*','*','*','*','*') VCAT DSNV12DP;
 
@@ -81,7 +109,9 @@ CREATE TABLE PROCTRAN
                     PROCTRAN_REF                   CHAR(12),
                     PROCTRAN_TYPE                  CHAR(3),
                     PROCTRAN_DESC                  CHAR(40),
-                    PROCTRAN_AMOUNT                DECIMAL(12, 2)
+                    PROCTRAN_AMOUNT                DECIMAL(12, 2),
+                    PROCTRAN_CURRENCY             CHAR(3) NOT NULL
+                                                  WITH DEFAULT 'GBP'
                    )
 IN CBSA.PROCTRAN  NOT VOLATILE
 CARDINALITY  AUDIT NONE  DATA CAPTURE NONE;

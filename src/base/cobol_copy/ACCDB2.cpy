@@ -18,3 +18,11 @@
                 ACCOUNT_AVAILABLE_BALANCE      DECIMAL(10, 2),
                 ACCOUNT_ACTUAL_BALANCE         DECIMAL(10, 2) )
            END-EXEC.
+
+           EXEC SQL DECLARE ACCOUNT_BALANCE TABLE
+              ( ACCOUNT_SORTCODE               CHAR(6) NOT NULL,
+                ACCOUNT_NUMBER                 CHAR(8) NOT NULL,
+                ACCOUNT_CURRENCY               CHAR(3) NOT NULL,
+                AVAILABLE_BALANCE              DECIMAL(12, 2),
+                ACTUAL_BALANCE                 DECIMAL(12, 2) )
+           END-EXEC.

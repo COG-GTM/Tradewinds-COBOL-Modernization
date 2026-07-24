@@ -14,6 +14,7 @@
                PROCTRAN_REF                    CHAR(12),
                PROCTRAN_TYPE                   CHAR(3),
                PROCTRAN_DESC                   CHAR(40),
-               PROCTRAN_AMOUNT                 DECIMAL(12, 2)
+               PROCTRAN_AMOUNT                 DECIMAL(12, 2),
+               PROCTRAN_CURRENCY               CHAR(3)
               )
            END-EXEC.
