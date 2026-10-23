@@ -1,7 +1,7 @@
 {
  "round": "3",
- "generated": "2026-10-23T06:35:51Z",
- "head": "a393eb789df3ad764d78f5fee10a9b6c90993fa0",
+ "generated": "2026-10-23T07:26:33Z",
+ "head": "f75e2bb474a4776175c50486f5aadc88e3a96323",
  "databases": [
   "h2",
   "postgres"
@@ -130,6 +130,7 @@
  "migration_defects": {},
  "known_limitations": {
   "other": [
+   "Authentication/authorization: the legacy CBSA delegated access control to CICS/RACF (transaction security), so the REST endpoints carry no auth for parity; the Java 21 target needs Spring Security in front of them, tracked as a follow-up (Devin Review security findings on #12, #14, #20, #21 declined with this justification).",
    "Legacy ran under GnuCOBOL 3.1.2 + the C/SQLite CICS/DB2/VSAM stub runtime (legacy/), not on z/OS CICS/DB2/VSAM. Parity is against that harness (107/107 baseline transcripts replay with no golden fixtures).",
    "The migrated side is driven through a parity-only test seam (parity/tools/ParityServer.java: /__parity reset, EIBTASKN restart, exec, dump); all business beans are the unmodified target/classes. ABNDPROC/record uses the property-gated, token-protected POST/GET /banking/admin/abend, enabled only on the parity server (disabled by default).",
    "BANKDATA (batch) is not replayed per flow: its output is the canonical seed, and the seeded CUSTOMER/ACCOUNT/PROCTRAN/CONTROL dumps of both sides were verified identical before every flow on both databases.",
@@ -349,10 +350,10 @@
    "command": "CI=true corepack yarn test --watchAll=false",
    "exit_code": 0,
    "suites": "6 passed, 6 total",
-   "tests": "22 passed, 22 total",
-   "tests_passed": 22,
+   "tests": "23 passed, 23 total",
+   "tests_passed": 23,
    "tests_failed": 0,
-   "tests_total": 22,
+   "tests_total": 23,
    "suites_total": 6,
    "test_files": [
     "src/App.test.js",
@@ -366,10 +367,10 @@
     "command": "GENERATE_SOURCEMAP=false corepack yarn build",
     "exit_code": 0,
     "bundle": [
-     "main.7be3e4d9.js"
+     "main.2ffdac3e.js"
     ],
     "served_by_core_service": [
-     "main.7be3e4d9.js"
+     "main.2ffdac3e.js"
     ],
     "bundle_matches_served": true
    }
@@ -411,8 +412,8 @@
    },
    {
     "round": "round3 H2",
-    "head": "a393eb7",
-    "generated": "2026-10-23T06:35:51Z",
+    "head": "f75e2bb",
+    "generated": "2026-10-23T07:26:33Z",
     "flows_total": 125,
     "flows_comparable": 125,
     "flows_matching": 125,
@@ -421,13 +422,13 @@
     "migration_defects": [],
     "known_difference_flows": 0,
     "proctran_ref": "compared",
-    "react_unit_tests": "22 passed, 22 total",
+    "react_unit_tests": "23 passed, 23 total",
     "database": "H2"
    },
    {
     "round": "round3 PostgreSQL",
-    "head": "a393eb7",
-    "generated": "2026-10-23T06:35:51Z",
+    "head": "f75e2bb",
+    "generated": "2026-10-23T07:26:33Z",
     "flows_total": 125,
     "flows_comparable": 125,
     "flows_matching": 125,
@@ -436,7 +437,7 @@
     "migration_defects": [],
     "known_difference_flows": 0,
     "proctran_ref": "compared",
-    "react_unit_tests": "22 passed, 22 total",
+    "react_unit_tests": "23 passed, 23 total",
     "database": "PostgreSQL"
    }
   ],
