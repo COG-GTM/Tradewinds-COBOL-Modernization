@@ -113,3 +113,11 @@ z/OS Connect APIs are **not** mirrored; `Z-OS-Connect-Customer-Services-Interfac
 | `GET /banking/processedTransaction?limit=&offset=` | `200 {"numberOfProcessedTransactions", "processedTransactions": [{"sortCode","accountNumber","date","time","reference","type","description","amount"}]}` |
 |---|---|
 | `GET /banking/abend?limit=` | `200 [AbendEvent…]` (ABNDPROC records) |
+
+`GET /banking/processedTransaction` is served by `proctran.ProcessedTransactionController` (port of Liberty
+`ProcessedTransactionResource`): rows of this bank's sort code ordered by `PROCTRAN_DATE, PROCTRAN_TIME`
+(then `PROCTRAN_REF, PROCTRAN_NUMBER`); `limit` defaults to 250000 and `offset` to 0, negative values are `400`.
+Each row also carries `timestamp`, and the description-decoded Liberty fields where the type has them: `customer`,
+`customerName`, `dateOfBirth` (OCC/ICC/ODC/IDC), `accountType`, `lastStatement`, `nextStatement` (OCA/ICA/ODA/IDA),
+`targetSortcode`, `targetAccount` (TFR). The body also keeps the Liberty keys `numberOfProcessedTransactionRecords` and
+`success: "Y"`. An unreadable PROCTRAN table returns `500 {"errorMessage":"Proctran DB2 table not accessible. Please contact your system administrator."}`.
