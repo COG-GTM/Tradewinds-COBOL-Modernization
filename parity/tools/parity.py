@@ -51,7 +51,7 @@ def db_args(name):
     if DB == 'postgres':
         schema = 'parity_' + re.sub(r'\W', '_', name).lower()
         pg_recreate_schema(schema)
-        return ['--spring.profiles.active=postgres', '--spring.datasource.url=%s?currentSchema=%s' % (PG_URL, schema),
+        return ['--spring.profiles.active=postgres', '--spring.datasource.url=%s%scurrentSchema=%s' % (PG_URL, '&' if '?' in PG_URL else '?', schema),
                 '--spring.datasource.username=' + PG_USER, '--spring.datasource.password=' + PG_PASSWORD]
     raise ValueError('PARITY_DB must be h2 or postgres, not %r' % DB)
 

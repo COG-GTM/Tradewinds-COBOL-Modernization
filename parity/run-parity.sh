@@ -76,7 +76,9 @@ json.dump({'command': 'CI=true corepack yarn test --watchAll=false', 'exit_code'
                      'served_by_core_service': served, 'bundle_matches_served': bool(built) and built == served},
            'log_tail': log[-3000:]}, open(out, 'w'), indent=1)
 print('react tests exit', rc, g(r'Tests:\s*(.*)', log), '| build exit', rcb, built, 'served', served)
-sys.exit(0 if rc == 0 and rcb == 0 else 1)
+if rcb == 0 and not (built and built == served):
+    print('built bundle %s != bundle served by cbsa-core-service %s: browser checks would exercise a stale UI' % (built, served))
+sys.exit(0 if rc == 0 and rcb == 0 and built and built == served else 1)
 PY
 
 echo "== 4. side-by-side flow parity (parity/tools/parity.py)"
