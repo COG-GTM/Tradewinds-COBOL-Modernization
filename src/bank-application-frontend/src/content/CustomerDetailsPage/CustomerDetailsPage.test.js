@@ -98,3 +98,38 @@ it('opens the "No customers found!" modal on a 404 from the contract', async () 
   await waitFor(() => expect(isModalOpen('No customers found!')).toBe(true));
   expect(axios.get).not.toHaveBeenCalledWith(expect.stringContaining('retrieveByCustomerNumber'));
 });
+
+it('shows each customer only their own accounts even when account lookups resolve out of order', async () => {
+  const customer20 = { ...customer1, id: '0000000020', customerName: 'Mr Ef Smith' };
+  const account51 = { ...accountsOfCustomer1.accounts[0], id: '00000051', customerNumber: '0000000020', accountType: 'MORTGAGE' };
+  let releaseCustomer20Accounts;
+  routeGets({
+    [`${CUSTOMER_URL}/name?name=Smith&limit=10`]: () =>
+      ok({ numberOfCustomers: 2, customers: [customer1, customer20] }),
+    [`${ACCOUNT_URL}/retrieveByCustomerNumber/1`]: () => ok(accountsOfCustomer1),
+    [`${ACCOUNT_URL}/retrieveByCustomerNumber/20`]: () =>
+      new Promise(resolve => {
+        releaseCustomer20Accounts = () =>
+          resolve({
+            status: 200,
+            data: { customerNumber: '0000000020', customerFound: true, numberOfAccounts: 1, accounts: [account51] },
+          });
+      }),
+  });
+  render(<CustomerDetailsPage />);
+
+  await userEvent.type(screen.getByLabelText(/customer's name/i), 'Smith');
+  await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+  let tables = await screen.findAllByRole('table');
+  expect(await within(tables[1]).findByText('00000002')).toBeInTheDocument();
+  await waitFor(() => expect(releaseCustomer20Accounts).toBeDefined());
+  releaseCustomer20Accounts();
+
+  await waitFor(() => expect(within(screen.getAllByRole('table')[2]).getByText('00000051')).toBeInTheDocument());
+  tables = screen.getAllByRole('table');
+  expect(within(tables[1]).getByText('00000001')).toBeInTheDocument();
+  expect(within(tables[1]).getByText('00000002')).toBeInTheDocument();
+  expect(within(tables[1]).queryByText('00000051')).not.toBeInTheDocument();
+  expect(within(tables[2]).queryByText('00000002')).not.toBeInTheDocument();
+});

@@ -203,7 +203,7 @@ let newDateOfBirth = currentDateOfBirth.substring(6,10) + "-" + currentDateOfBir
    * Called when the table requires the expanded rows
    * - maps the data using the accountNumber as the sorting key
    */
-  function getExpandedRows(row) {
+  function getExpandedRows(customerRow) {
     return (
       <TableExpandedRow colSpan={headers.length + 2}>
         <p className="account-details">Accounts belonging to this customer</p>
@@ -218,7 +218,7 @@ let newDateOfBirth = currentDateOfBirth.substring(6,10) + "-" + currentDateOfBir
             </TableRow>
           </TableHead>
           <TableBody>
-            {(accountDetailsRows).map(row => (
+            {(accountDetailsRows[customerRow.id] || []).map(row => (
               <TableRow key={row.accountNumber}>
                 {Object.keys(row)
                   .filter(key => key !== "id")
