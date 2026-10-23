@@ -87,8 +87,9 @@ LEGACY_DEFECTS = [
 
 # ------------------------------------------------------------------ only differences present in this run are reported
 STATUS = {r['id']: r['status'] for r in flows}
-nonmatch = [r for r in flows if r['status'] in ('DIFF', 'ERROR')]
-CLASS = {k: v for k, v in CLASS.items() if STATUS.get(k) in ('DIFF', 'ERROR')}
+nonmatch = [r for r in flows if r['status'] == 'DIFF']
+exec_errors = [r for r in flows if r['status'] == 'ERROR']
+CLASS = {k: v for k, v in CLASS.items() if STATUS.get(k) == 'DIFF'}
 for r in nonmatch:
     if r['id'] not in CLASS:
         CLASS[r['id']] = 'MD-UNTRIAGED-' + r['id']
@@ -107,14 +108,15 @@ by_kind = {}
 for r in flows:
     by_kind.setdefault(r['kind'], {}).setdefault(r['status'], 0)
     by_kind[r['kind']][r['status']] += 1
-comparable = [r for r in flows if r['status'] in ('MATCH', 'DIFF', 'ERROR')]
+comparable = [r for r in flows if r['status'] in ('MATCH', 'DIFF')]
 matching = [r for r in comparable if r['status'] == 'MATCH']
 unclassified = [r['id'] for r in comparable if r['status'] != 'MATCH' and r['id'] not in CLASS]
 summary = {
     'generated': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
     'head': subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT, capture_output=True, text=True).stdout.strip(),
     'flows_total': len(flows), 'flows_comparable': len(comparable), 'flows_matching': len(matching),
-    'flows_not_comparable': len(flows) - len(comparable), 'by_kind': by_kind,
+    'flows_not_comparable': len(flows) - len(comparable) - len(exec_errors), 'by_kind': by_kind,
+    'execution_errors': [{'id': r['id'], 'error': r.get('error')} for r in exec_errors],
     'classification': CLASS, 'unclassified_differences': unclassified,
     'migration_defects': DEFECTS, 'known_limitations': {**LIMITS, 'other': OTHER_LIMITS},
     'pre_existing_legacy_defects': [{'ref': a, 'text': b} for a, b in LEGACY_DEFECTS],
@@ -272,6 +274,10 @@ for k, d in DEFECTS.items():
 H.append('<p>%s</p></section>' % ('No migration defect observed.' if not DEFECTS else
          'No other difference was observed in this run that is attributable to the migration.'))
 
+if exec_errors:
+    H.append('<section class="def"><h2>Parity execution failures (not compared - neither parity nor defect)</h2><table>'
+             '<tr><th>Flow</th><th>Error</th></tr>' + ''.join('<tr><td>%s</td><td><code>%s</code></td></tr>' % (
+                 E(r['id']), E(r.get('error'))) for r in exec_errors) + '</table></section>')
 H.append('<section class="lim"><h2>6. KNOWN LIMITATIONS (documented / intentional differences and coverage gaps)</h2>')
 for k, d in LIMITS.items():
     ids = [f for f, c in CLASS.items() if c == k]

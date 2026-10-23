@@ -365,7 +365,9 @@ def expected_http(prog, lo, path=None):
     if prog == 'DELACC':
         return {'3': {500}}.get(c, {404})
     if prog == 'CRECUST':
-        return {500} if c == 'G' else {400}
+        return {500} if c in ('F', 'G') else {400}
+    if prog == 'CREACC' and c in ('3', '5', '7', '9'):
+        return {500}
     if prog in ('INQACC', 'INQCUST', 'DELCUS', 'INQACCCU') or c == '1':
         return {404}
     if prog == 'UPDACC':

@@ -1,6 +1,6 @@
 {
- "generated": "2026-10-23T05:23:23Z",
- "head": "13edccaa80256f0ddacc99f6b7849aaa99484fca",
+ "generated": "2026-10-23T05:27:06Z",
+ "head": "a90f973aaf787fd29858cc6a71f4f88cf3cbc12b",
  "flows_total": 124,
  "flows_comparable": 123,
  "flows_matching": 114,
@@ -26,6 +26,7 @@
    "DIFF": 1
   }
  },
+ "execution_errors": [],
  "classification": {
   "CREACC/type-isa": "KL-CREACC-BAL",
   "CREACC/type-loan": "KL-CREACC-BAL",
