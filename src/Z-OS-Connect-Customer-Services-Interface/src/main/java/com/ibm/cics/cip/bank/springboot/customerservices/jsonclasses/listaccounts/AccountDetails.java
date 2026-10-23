@@ -17,16 +17,16 @@ public class AccountDetails
 	private static final String FLOAT_FORMAT = "%.02f";
 
 	@JsonProperty("CommActualBal")
-	private float commActualBalance;
+	private double commActualBalance;
 
 	@JsonProperty("CommAvailBal")
-	private float commAvailableBalance;
+	private double commAvailableBalance;
 
 	// @JsonProperty("COMM_SCODE")
 	// private int commSortcode;
 
 	@JsonProperty("CommIntRate")
-	private float commInterestRate;
+	private double commInterestRate;
 
 	@JsonProperty("CommEye")
 	private String commEye;
@@ -35,7 +35,7 @@ public class AccountDetails
 	private int commOpened;
 
 	@JsonProperty("CommCustno")
-	private int commCustno;
+	private long commCustno;
 
 	@JsonProperty("CommNextStmtDt")
 	private int commNextStatementDate;
@@ -53,25 +53,25 @@ public class AccountDetails
 	private int commLastStatementDate;
 
 
-	public float getCommActualBalance()
+	public double getCommActualBalance()
 	{
 		return commActualBalance;
 	}
 
 
-	public void setCommActualBalance(float commActualBalanceIn)
+	public void setCommActualBalance(double commActualBalanceIn)
 	{
 		commActualBalance = commActualBalanceIn;
 	}
 
 
-	public float getCommAvailableBalance()
+	public double getCommAvailableBalance()
 	{
 		return commAvailableBalance;
 	}
 
 
-	public void setCommAvailableBalance(float commAvailableBalanceIn)
+	public void setCommAvailableBalance(double commAvailableBalanceIn)
 	{
 		commAvailableBalance = commAvailableBalanceIn;
 	}
@@ -89,13 +89,13 @@ public class AccountDetails
 	// }
 
 
-	public float getCommInterestRate()
+	public double getCommInterestRate()
 	{
 		return commInterestRate;
 	}
 
 
-	public void setCommInterestRate(float commInterestRateIn)
+	public void setCommInterestRate(double commInterestRateIn)
 	{
 		commInterestRate = commInterestRateIn;
 	}
@@ -125,13 +125,13 @@ public class AccountDetails
 	}
 
 
-	public int getCommCustno()
+	public long getCommCustno()
 	{
 		return commCustno;
 	}
 
 
-	public void setCommCustno(int commCustnoIn)
+	public void setCommCustno(long commCustnoIn)
 	{
 		commCustno = commCustnoIn;
 	}

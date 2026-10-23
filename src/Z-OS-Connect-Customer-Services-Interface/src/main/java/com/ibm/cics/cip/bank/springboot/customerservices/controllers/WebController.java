@@ -11,24 +11,16 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import com.ibm.cics.cip.bank.springboot.customerservices.ConnectionInfo;
+import com.ibm.cics.cip.bank.springboot.customerservices.core.CbsaCoreClient;
 import com.ibm.cics.cip.bank.springboot.customerservices.jsonclasses.accountenquiry.AccountEnquiryForm;
 import com.ibm.cics.cip.bank.springboot.customerservices.jsonclasses.accountenquiry.AccountEnquiryJson;
 import com.ibm.cics.cip.bank.springboot.customerservices.jsonclasses.createaccount.AccountType;
@@ -46,9 +38,9 @@ import com.ibm.cics.cip.bank.springboot.customerservices.jsonclasses.updateaccou
 import com.ibm.cics.cip.bank.springboot.customerservices.jsonclasses.updatecustomer.UpdateCustomerForm;
 import com.ibm.cics.cip.bank.springboot.customerservices.jsonclasses.updatecustomer.UpdateCustomerJson;
 
-// The code in this file is quite repetitive, however a case/swich block would've required too much over-engineering to do
-// Ideally I'd only need to send off one class and I'd only get either an account or customer object back to deserialise,
-// but all of the objects returned have slightly different formats and/or fields.
+// Each action calls cbsa-core-service through CbsaCoreClient, which maps the
+// /banking/customer and /banking/account JSON back onto the legacy COMMAREA
+// classes, so the fail-code checks and messages below are unchanged.
 
 @Controller
 public class WebController implements WebMvcConfigurer
@@ -94,12 +86,17 @@ public class WebController implements WebMvcConfigurer
 
 	private static final String ACCOUNT_TYPES = "accountTypes";
 
-	private static final String CONTENT_TYPE = "content-type";
-
-	private static final String APPLICATION_JSON = "application/json";
 
 	private static final Logger log = LoggerFactory
 			.getLogger(WebController.class);
+
+	private final CbsaCoreClient cbsaCoreClient;
+
+
+	public WebController(CbsaCoreClient cbsaCoreClient)
+	{
+		this.cbsaCoreClient = cbsaCoreClient;
+	}
 
 
 	// Customer and account services screen
@@ -150,30 +147,12 @@ public class WebController implements WebMvcConfigurer
 		if (!bindingResult.hasErrors())
 		{
 
-			// Instantiating a WebClient at either the specified address or the
-			// default one
-			WebClient client = WebClient.create(ConnectionInfo.getAddressAndPort() + "/inqaccz/enquiry/"
-							+ accountEnquiryForm.getAcctNumber());
+			
 
 			try
 			{
-				ResponseSpec response = client.get().retrieve();
-				// Serialise the object and get a response. This would usually
-				// run
-				// async, however as it's done during a page load it should be
-				// synchronous, hence it's appended with .block()
-				String responseBody = response.bodyToMono(String.class).block();
-				log.info(responseBody);
-				// Deserialise the response so it can be interacted with as a
-				// plain
-				// Java class
-				ObjectMapper myObjectMapper = new ObjectMapper();
-
-				myObjectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
-
-
-
-				AccountEnquiryJson responseObj = myObjectMapper.readValue(responseBody, AccountEnquiryJson.class);
+				AccountEnquiryJson responseObj = cbsaCoreClient
+					.inquireAccount(accountEnquiryForm.getAcctNumber());
 				log.info("{}", responseObj);
 
 				// Run through the checks on error codes in the method shown
@@ -193,7 +172,7 @@ public class WebController implements WebMvcConfigurer
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
 				model.addAttribute(SMALL_TEXT, e.getMessage());
 			}
-			catch (WebClientRequestException e)
+			catch (ResourceAccessException e)
 			{
 				log.info(e.toString());
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
@@ -246,18 +225,12 @@ public class WebController implements WebMvcConfigurer
 		if (!bindingResult.hasErrors())
 		{
 
-			WebClient client = WebClient.create(ConnectionInfo.getAddressAndPort() + "/inqcustz/enquiry/"
-							+ customerEnquiryForm.getCustNumber());
+			
 
 			try
 			{
-				ResponseSpec response = client.get().retrieve();
-
-				String responseBody = response.bodyToMono(String.class).block();
-
-
-				CustomerEnquiryJson responseObj = new ObjectMapper()
-						.readValue(responseBody, CustomerEnquiryJson.class);
+				CustomerEnquiryJson responseObj = cbsaCoreClient
+					.inquireCustomer(customerEnquiryForm.getCustNumber());
 				checkIfResponseValidEnqCust(responseObj);
 				model.addAttribute(LARGE_TEXT, "Customer Details");
 				model.addAttribute(SMALL_TEXT, responseObj.toPrettyString());
@@ -268,7 +241,7 @@ public class WebController implements WebMvcConfigurer
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
 				model.addAttribute(SMALL_TEXT, e.getMessage());
 			}
-			catch (WebClientRequestException e)
+			catch (ResourceAccessException e)
 			{
 				log.info(e.toString());
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
@@ -315,17 +288,12 @@ public class WebController implements WebMvcConfigurer
 		if (!bindingResult.hasErrors())
 		{
 
-			WebClient client = WebClient.create(
-					ConnectionInfo.getAddressAndPort() + "/inqacccz/list/"
-							+ customerEnquiryForm.getCustNumber());
+			
 
 			try
 			{
-				ResponseSpec response = client.get().retrieve();
-				String responseBody = response.bodyToMono(String.class).block();
-				log.info(responseBody);
-				ListAccJson responseObj = new ObjectMapper()
-						.readValue(responseBody, ListAccJson.class);
+				ListAccJson responseObj = cbsaCoreClient
+					.listAccounts(customerEnquiryForm.getCustNumber());
 				log.info("{}", responseObj);
 				checkIfResponseValidListAcc(responseObj);
 				model.addAttribute(LARGE_TEXT, "Accounts belonging to customer "
@@ -339,7 +307,7 @@ public class WebController implements WebMvcConfigurer
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
 				model.addAttribute(SMALL_TEXT, e.getMessage());
 			}
-			catch (WebClientRequestException e)
+			catch (ResourceAccessException e)
 			{
 				log.info(e.toString());
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
@@ -388,31 +356,13 @@ public class WebController implements WebMvcConfigurer
 			model.addAttribute(ACCOUNT_TYPES, AccountType.values());
 			return CREATE_ACCOUNT_FORM;
 		}
-		CreateAccountJson transferjson = new CreateAccountJson(createAccForm);
 
-		// Serialise the object to JSON
-		log.info("{}", transferjson);
-		String jsonString = new ObjectMapper().writeValueAsString(transferjson);
-		log.info(jsonString);
-
-		WebClient client = WebClient
-				.create(ConnectionInfo.getAddressAndPort() + "/creacc/insert");
+		
 
 		try
 		{
-			// Create a response object - body of json, accept json back, and
-			// insert the
-			// request body created a couple lines up
-			ResponseSpec response = client.post()
-					.header(CONTENT_TYPE, APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(jsonString)).retrieve();
-			String responseBody = response.bodyToMono(String.class).block();
-			log.info(responseBody);
-
-			// Deserialise into a POJO
-			CreateAccountJson responseObj = new ObjectMapper()
-					.readValue(responseBody, CreateAccountJson.class);
+			CreateAccountJson responseObj = cbsaCoreClient
+					.createAccount(createAccForm);
 			log.info("{}", responseObj);
 
 			// Throws out different exceptions depending on the contents
@@ -431,7 +381,7 @@ public class WebController implements WebMvcConfigurer
 			model.addAttribute(LARGE_TEXT, "Account Error");
 			model.addAttribute(SMALL_TEXT, e.getMessage());
 		}
-		catch (WebClientRequestException e)
+		catch (ResourceAccessException e)
 		{
 			log.info(e.toString());
 			model.addAttribute(LARGE_TEXT, CONNECTION_ERROR);
@@ -496,34 +446,12 @@ public class WebController implements WebMvcConfigurer
 		{
 			return CREATE_CUSTOMER_FORM;
 		}
-
-		CreateCustomerJson transferjson = new CreateCustomerJson(
-				createCustForm);
-
-		// Serialise the object to JSON
-		log.info("{}", transferjson);
-		String jsonString = new ObjectMapper().writeValueAsString(transferjson);
-		log.info("Json to be sent:\n{}", jsonString);
-
-		// The port is set elsewhere as it changes frequently
-		WebClient client = WebClient
-				.create(ConnectionInfo.getAddressAndPort() + "/crecust/insert");
+		
 
 		try
 		{
-			// Create a response object - body of json, accept json back, and
-			// insert the
-			// request body created a couple lines up
-			ResponseSpec response = client.post()
-					.header(CONTENT_TYPE, APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(jsonString)).retrieve();
-			String responseBody = response.bodyToMono(String.class).block();
-			log.info("Response Body: \n{}", responseBody);
-
-			// Deserialise into a POJO
-			CreateCustomerJson responseObj = new ObjectMapper()
-					.readValue(responseBody, CreateCustomerJson.class);
+			CreateCustomerJson responseObj = cbsaCoreClient
+					.createCustomer(createCustForm);
 			log.info("Response Json:\n{}", responseObj);
 
 			// Throws out different exceptions depending on the contents
@@ -541,7 +469,7 @@ public class WebController implements WebMvcConfigurer
 			model.addAttribute(LARGE_TEXT, "Create Error");
 			model.addAttribute(SMALL_TEXT, e.getMessage());
 		}
-		catch (WebClientRequestException e)
+		catch (ResourceAccessException e)
 		{
 			log.info(e.toString());
 			model.addAttribute(LARGE_TEXT, CONNECTION_ERROR);
@@ -603,34 +531,12 @@ public class WebController implements WebMvcConfigurer
 			model.addAttribute(ACCOUNT_TYPES, AccountType.values());
 			return UPDATE_ACCOUNT_FORM;
 		}
-
-		UpdateAccountJson transferjson = new UpdateAccountJson(
-				updateAccountForm);
-
-		// Serialise the object to JSON
-		log.info("{}", transferjson);
-		String jsonString = new ObjectMapper().writeValueAsString(transferjson);
-		log.info("{}", jsonString);
-
-		// The port is set elsewhere as it changes frequently
-		WebClient client = WebClient
-				.create(ConnectionInfo.getAddressAndPort() + "/updacc/update");
+		
 
 		try
 		{
-			// Create a response object - body of json, accept json back, and
-			// insert the
-			// request body created a couple lines up
-			ResponseSpec response = client.put()
-					.header(CONTENT_TYPE, APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(jsonString)).retrieve();
-			String responseBody = response.bodyToMono(String.class).block();
-			log.info(responseBody);
-
-			// Deserialise into a POJO
-			UpdateAccountJson responseObj = new ObjectMapper()
-					.readValue(responseBody, UpdateAccountJson.class);
+			UpdateAccountJson responseObj = cbsaCoreClient
+					.updateAccount(updateAccountForm);
 			log.info("{}", responseObj);
 
 			// Throws out different exceptions depending on the contents
@@ -648,7 +554,7 @@ public class WebController implements WebMvcConfigurer
 			model.addAttribute(LARGE_TEXT, "Update Error");
 			model.addAttribute(SMALL_TEXT, e.getMessage());
 		}
-		catch (WebClientRequestException e)
+		catch (ResourceAccessException e)
 		{
 			log.info(e.toString());
 			model.addAttribute(LARGE_TEXT, CONNECTION_ERROR);
@@ -701,34 +607,12 @@ public class WebController implements WebMvcConfigurer
 		{
 			return UPDATE_CUSTOMER_FORM;
 		}
-
-		UpdateCustomerJson transferjson = new UpdateCustomerJson(
-				updateCustomerForm);
-
-		// Serialise the object to JSON
-		log.info("{}", transferjson);
-		String jsonString = new ObjectMapper().writeValueAsString(transferjson);
-		log.info(jsonString);
-
-		// The port is set elsewhere as it changes frequently
-		WebClient client = WebClient
-				.create(ConnectionInfo.getAddressAndPort() + "/updcust/update");
+		
 
 		try
 		{
-			// Create a response object - body of json, accept json back, and
-			// insert the
-			// request body created a couple lines up
-			ResponseSpec response = client.put()
-					.header(CONTENT_TYPE, APPLICATION_JSON)
-					.accept(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(jsonString)).retrieve();
-			String responseBody = response.bodyToMono(String.class).block();
-			log.info(responseBody);
-
-			// Deserialise into a POJO
-			UpdateCustomerJson responseObj = new ObjectMapper()
-					.readValue(responseBody, UpdateCustomerJson.class);
+			UpdateCustomerJson responseObj = cbsaCoreClient
+					.updateCustomer(updateCustomerForm);
 			log.info("{}", responseObj);
 
 			// Throws out different exceptions depending on the contents
@@ -746,7 +630,7 @@ public class WebController implements WebMvcConfigurer
 			model.addAttribute(LARGE_TEXT, "Update Error");
 			model.addAttribute(SMALL_TEXT, e.getMessage());
 		}
-		catch (WebClientRequestException e)
+		catch (ResourceAccessException e)
 		{
 			log.info(e.toString());
 			model.addAttribute(LARGE_TEXT, CONNECTION_ERROR);
@@ -801,16 +685,12 @@ public class WebController implements WebMvcConfigurer
 	{
 		if (!bindingResult.hasErrors())
 		{
-			WebClient client = WebClient.create(ConnectionInfo.getAddressAndPort() + "/delacc/remove/"
-							+ accountEnquiryForm.getAcctNumber());
+			
 
 			try
 			{
-				ResponseSpec response = client.delete().retrieve();
-				String responseBody = response.bodyToMono(String.class).block();
-				log.info(responseBody);
-				DeleteAccountJson responseObj = new ObjectMapper()
-						.readValue(responseBody, DeleteAccountJson.class);
+				DeleteAccountJson responseObj = cbsaCoreClient
+					.deleteAccount(accountEnquiryForm.getAcctNumber());
 				log.info("{}", responseObj);
 				checkIfResponseValidDeleteAcc(responseObj);
 				model.addAttribute(LARGE_TEXT, "Account Deleted");
@@ -822,7 +702,7 @@ public class WebController implements WebMvcConfigurer
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
 				model.addAttribute(SMALL_TEXT, e.getMessage());
 			}
-			catch (WebClientRequestException e)
+			catch (ResourceAccessException e)
 			{
 				log.info(e.toString());
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
@@ -866,22 +746,12 @@ public class WebController implements WebMvcConfigurer
 	{
 		if (!bindingResult.hasErrors())
 		{
-			WebClient client = WebClient
-					.create(ConnectionInfo.getAddressAndPort()
-							+ "/delcus/remove/" + String
-									.format(String
-											.format("%10s",
-													customerEnquiryForm
-															.getCustNumber())
-											.replace(" ", "0")));
+			
 
 			try
 			{
-				ResponseSpec response = client.delete().retrieve();
-				String responseBody = response.bodyToMono(String.class).block();
-				log.info(responseBody);
-				DeleteCustomerJson responseObj = new ObjectMapper()
-						.readValue(responseBody, DeleteCustomerJson.class);
+				DeleteCustomerJson responseObj = cbsaCoreClient
+					.deleteCustomer(customerEnquiryForm.getCustNumber());
 				log.info("{}", responseObj);
 				checkIfResponseValidDeleteCust(responseObj);
 				model.addAttribute(LARGE_TEXT,
@@ -894,7 +764,7 @@ public class WebController implements WebMvcConfigurer
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);
 				model.addAttribute(SMALL_TEXT, e.getMessage());
 			}
-			catch (WebClientRequestException e)
+			catch (ResourceAccessException e)
 			{
 				log.info(e.toString());
 				model.addAttribute(LARGE_TEXT, REQUEST_ERROR);

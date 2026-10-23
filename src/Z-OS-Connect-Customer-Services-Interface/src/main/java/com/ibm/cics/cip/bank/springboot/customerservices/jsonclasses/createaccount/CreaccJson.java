@@ -26,13 +26,13 @@ public class CreaccJson
 	private CreaccKeyJson commKey;
 
 	@JsonProperty("CommIntRt")
-	private float commInterestRate;
+	private double commInterestRate;
 
 	@JsonProperty("CommOpened")
 	private int commOpened;
 
 	@JsonProperty("CommOverdrLim")
-	private float commOverdraftLimit;
+	private double commOverdraftLimit;
 
 	@JsonProperty("CommLastStmtDt")
 	private int commLastStatementDate;
@@ -41,10 +41,10 @@ public class CreaccJson
 	private int commNextStatementDate;
 
 	@JsonProperty("CommAvailBal")
-	private float commAvailableBalance;
+	private double commAvailableBalance;
 
 	@JsonProperty("CommActBal")
-	private float commActualBalance;
+	private double commActualBalance;
 
 	@JsonProperty("CommSuccess")
 	private String commSuccess;
@@ -54,7 +54,7 @@ public class CreaccJson
 
 
 	public CreaccJson(String accountType, String accountNumber,
-			float overdraftLimit, float interestRate)
+			double overdraftLimit, double interestRate)
 	{
 		commAccType = String.format("%-8s", accountType);
 		commCustno = String.format("%8s", accountNumber).replace(" ", "0");
@@ -122,13 +122,13 @@ public class CreaccJson
 	}
 
 
-	public float getCommInterestRate()
+	public double getCommInterestRate()
 	{
 		return commInterestRate;
 	}
 
 
-	public void setCommInterestRate(float commInterestRateIn)
+	public void setCommInterestRate(double commInterestRateIn)
 	{
 		commInterestRate = commInterestRateIn;
 	}
@@ -146,13 +146,13 @@ public class CreaccJson
 	}
 
 
-	public float getCommOverdraftLimit()
+	public double getCommOverdraftLimit()
 	{
 		return commOverdraftLimit;
 	}
 
 
-	public void setCommOverdraftLimit(float commOverdraftLimitIn)
+	public void setCommOverdraftLimit(double commOverdraftLimitIn)
 	{
 		commOverdraftLimit = commOverdraftLimitIn;
 	}
@@ -182,25 +182,25 @@ public class CreaccJson
 	}
 
 
-	public float getCommAvailableBalance()
+	public double getCommAvailableBalance()
 	{
 		return commAvailableBalance;
 	}
 
 
-	public void setCommAvailableBalance(float commAvailableBalanceIn)
+	public void setCommAvailableBalance(double commAvailableBalanceIn)
 	{
 		commAvailableBalance = commAvailableBalanceIn;
 	}
 
 
-	public float getCommActualBalance()
+	public double getCommActualBalance()
 	{
 		return commActualBalance;
 	}
 
 
-	public void setCommActualBalance(float commActualBalanceIn)
+	public void setCommActualBalance(double commActualBalanceIn)
 	{
 		commActualBalance = commActualBalanceIn;
 	}

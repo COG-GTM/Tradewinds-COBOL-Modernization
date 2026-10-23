@@ -25,7 +25,7 @@ public class InqaccJson
 	private int inqaccSortcode;
 
 	@JsonProperty("InqAccActualBal")
-	private float inqaccActualBalance;
+	private double inqaccActualBalance;
 
 	@JsonProperty("InqAccAccno")
 	private int inqaccAccno;
@@ -34,7 +34,7 @@ public class InqaccJson
 	private int inqaccOpened;
 
 	@JsonProperty("InqAccCustno")
-	private int inqaccCustno;
+	private long inqaccCustno;
 
 	@JsonProperty("InqAccAccType")
 	private String inqaccAccType;
@@ -43,7 +43,7 @@ public class InqaccJson
 	private int inqaccNextStatementDate;
 
 	@JsonProperty("InqAccAvailBal")
-	private float inqaccAvailableBalance;
+	private double inqaccAvailableBalance;
 
 	@JsonProperty("InqAccEye")
 	private String inqaccEyecatcher;
@@ -52,7 +52,7 @@ public class InqaccJson
 	private String inqaccSuccess;
 
 	@JsonProperty("InqAccIntRate")
-	private float inqaccInterestRate;
+	private double inqaccInterestRate;
 
 
 	public String getInqaccPcb1Pointer()
@@ -103,13 +103,13 @@ public class InqaccJson
 	}
 
 
-	public float getInqaccActualBalance()
+	public double getInqaccActualBalance()
 	{
 		return inqaccActualBalance;
 	}
 
 
-	public void setInqaccActualBalance(float inqaccActualBalanceIn)
+	public void setInqaccActualBalance(double inqaccActualBalanceIn)
 	{
 		inqaccActualBalance = inqaccActualBalanceIn;
 	}
@@ -139,13 +139,13 @@ public class InqaccJson
 	}
 
 
-	public int getInqaccCustno()
+	public long getInqaccCustno()
 	{
 		return inqaccCustno;
 	}
 
 
-	public void setInqaccCustno(int inqaccCustnoIn)
+	public void setInqaccCustno(long inqaccCustnoIn)
 	{
 		inqaccCustno = inqaccCustnoIn;
 	}
@@ -175,13 +175,13 @@ public class InqaccJson
 	}
 
 
-	public float getInqaccAvailableBalance()
+	public double getInqaccAvailableBalance()
 	{
 		return inqaccAvailableBalance;
 	}
 
 
-	public void setInqaccAvailableBalance(float inqaccAvailableBalanceIn)
+	public void setInqaccAvailableBalance(double inqaccAvailableBalanceIn)
 	{
 		inqaccAvailableBalance = inqaccAvailableBalanceIn;
 	}
@@ -211,13 +211,13 @@ public class InqaccJson
 	}
 
 
-	public float getInqaccInterestRate()
+	public double getInqaccInterestRate()
 	{
 		return inqaccInterestRate;
 	}
 
 
-	public void setInqaccInterestRate(float inqaccInterestRateIn)
+	public void setInqaccInterestRate(double inqaccInterestRateIn)
 	{
 		inqaccInterestRate = inqaccInterestRateIn;
 	}
