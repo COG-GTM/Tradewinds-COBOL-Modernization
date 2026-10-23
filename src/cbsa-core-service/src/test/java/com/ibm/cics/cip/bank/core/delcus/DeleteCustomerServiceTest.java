@@ -123,4 +123,21 @@ class DeleteCustomerServiceTest extends DelcusTestSupport {
         assertThat(count("SELECT COUNT(*) FROM ACCOUNT")).isEqualTo(accounts);
         assertThat(count("SELECT COUNT(*) FROM CUSTOMER WHERE CUSTOMER_NUMBER = '0000000001'")).isOne();
     }
+
+    @Test
+    void accountCreatedAfterGetAccountsIsAlsoDeleted() throws Exception {
+        jdbc.update("DELETE FROM PROCTRAN");
+        delacc.onDelete(26, () -> jdbc.update("INSERT INTO ACCOUNT (ACCOUNT_EYECATCHER, ACCOUNT_CUSTOMER_NUMBER, "
+                + "ACCOUNT_SORTCODE, ACCOUNT_NUMBER, ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE, ACCOUNT_OPENED, "
+                + "ACCOUNT_OVERDRAFT_LIMIT, ACCOUNT_LAST_STATEMENT, ACCOUNT_NEXT_STATEMENT, "
+                + "ACCOUNT_AVAILABLE_BALANCE, ACCOUNT_ACTUAL_BALANCE) VALUES ('ACCT', '0000000009', '987654', "
+                + "'00009999', 'CURRENT', 0, DATE '2026-01-15', 0, DATE '2026-01-15', DATE '2026-02-15', 5, 5)"));
+
+        mvc.perform(delete("/banking/customer/9")).andExpect(status().isOk());
+
+        assertThat(delacc.calls()).containsExactly(26L, 9999L);
+        assertThat(count("SELECT COUNT(*) FROM ACCOUNT WHERE ACCOUNT_CUSTOMER_NUMBER = '0000000009'")).isZero();
+        assertThat(jdbc.queryForList("SELECT PROCTRAN_TYPE FROM PROCTRAN ORDER BY _ROWID_", String.class))
+                .containsExactly("ODA", "ODA", "ODC");
+    }
 }

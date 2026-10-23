@@ -25,7 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
  *   <li>{@code GET-ACCOUNTS}: LINK INQACCCU - the customer's accounts ordered by account number.</li>
  *   <li>{@code DELETE-ACCOUNTS}: LINK DELACC for each account (each writes PROCTRAN {@code ODA}).</li>
  *   <li>{@code DEL-CUST-VSAM}: READ UPDATE + DELETE of the customer record (abends {@code WPV6} / {@code WPV7});
- *       a record that has vanished in the meantime ({@code NOTFND}) skips the delete and the PROCTRAN row.</li>
+ *       a record that has vanished in the meantime ({@code NOTFND}) skips the delete and the PROCTRAN row.
+ *       Accounts that appeared since {@code GET-ACCOUNTS} (concurrent CREACC) are then swept through DELACC too.</li>
  *   <li>{@code WRITE-PROCTRAN-CUST-DB2}: PROCTRAN {@code ODC} (abend {@code HWPT} if the insert fails).</li>
  * </ol>
  * The whole operation is one transaction (CICS unit of work): any failure rolls back every account delete.
@@ -68,10 +69,7 @@ public class DeleteCustomerService {
                 .orElseThrow(() -> CbsaException.notFound("Customer number " + customerNumber + " not found.", "1"));
 
         // GET-ACCOUNTS / DELETE-ACCOUNTS
-        List<Account> owned = accounts.findByCustomer(sortCode, customerNumber);
-        for (Account account : owned) {
-            deleteAccount(customerNumber, account.accountNumber());
-        }
+        deleteAccounts(sortCode, customerNumber);
 
         // DEL-CUST-VSAM
         Optional<Customer> current = readForDelete(sortCode, customerNumber);
@@ -82,9 +80,19 @@ public class DeleteCustomerService {
         if (!deleteRecord(sortCode, customerNumber)) {
             return inquired;
         }
+        // Accounts committed by a concurrent CREACC after GET-ACCOUNTS ran would otherwise be orphaned.
+        deleteAccounts(sortCode, customerNumber);
 
         writeProctran(deleted);
         return deleted;
+    }
+
+    /** GET-ACCOUNTS + DELETE-ACCOUNTS: every account of the customer, in account-number order. */
+    private void deleteAccounts(String sortCode, long customerNumber) {
+        List<Account> owned = accounts.findByCustomer(sortCode, customerNumber);
+        for (Account account : owned) {
+            deleteAccount(customerNumber, account.accountNumber());
+        }
     }
 
     /** DA010: LINK DELACC for one account. */

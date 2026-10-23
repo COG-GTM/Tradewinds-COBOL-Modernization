@@ -25,6 +25,7 @@ class StubDeleteAccountService implements AccountDeletion {
     private final BankIdentity bank;
     private final List<Long> calls = new ArrayList<>();
     private final Map<Long, RuntimeException> failures = new HashMap<>();
+    private final Map<Long, Runnable> hooks = new HashMap<>();
 
     StubDeleteAccountService(AccountRepository accounts, ProctranWriter proctran, BankIdentity bank) {
         this.accounts = accounts;
@@ -38,6 +39,10 @@ class StubDeleteAccountService implements AccountDeletion {
         RuntimeException failure = failures.get(accountNumber);
         if (failure != null) {
             throw failure;
+        }
+        Runnable hook = hooks.remove(accountNumber);
+        if (hook != null) {
+            hook.run();
         }
         Account account = accounts.findByKey(bank.sortCode(), accountNumber)
                 .orElseThrow(() -> CbsaException.notFound("Account number " + accountNumber + " not found.", "1"));
@@ -58,8 +63,14 @@ class StubDeleteAccountService implements AccountDeletion {
         failures.put(accountNumber, failure);
     }
 
+    /** Runs {@code action} (once) when DELACC is called for {@code accountNumber}. */
+    void onDelete(long accountNumber, Runnable action) {
+        hooks.put(accountNumber, action);
+    }
+
     void reset() {
         calls.clear();
         failures.clear();
+        hooks.clear();
     }
 }
