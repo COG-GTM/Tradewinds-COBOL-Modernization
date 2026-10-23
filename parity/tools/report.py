@@ -9,6 +9,13 @@ ROOT = os.path.dirname(PARITY)
 RES = os.path.join(PARITY, 'results')
 load = lambda n: json.load(open(os.path.join(RES, n)))
 flows, legacy, mvn, react = load('flows.json'), load('legacy-replay-all.json'), load('tests-migrated.json'), load('tests-react.json')
+ROUND = os.environ.get('PARITY_ROUND', '2')
+ui = load('react-ui.json') if os.path.exists(os.path.join(RES, 'react-ui.json')) else {'results': [], 'screenshots': []}
+prev_dir = os.path.join(RES, 'round1')
+prev = json.load(open(os.path.join(prev_dir, 'summary.json'))) if os.path.exists(os.path.join(prev_dir, 'summary.json')) else None
+prev_status = json.load(open(os.path.join(prev_dir, 'flow-status.json'))) if os.path.exists(os.path.join(prev_dir, 'flow-status.json')) else {}
+poly = react.get('polyfill_attempt') or {}
+broken_imports = [i for i in react.get('test_file_imports', []) if not i['resolves']]
 
 # ------------------------------------------------------------------ classification of every observed difference
 CLASS = {
@@ -63,10 +70,14 @@ OTHER_LIMITS = [
     'subclass + /__parity reset/exec/dump endpoints); all business beans are the unmodified target/classes.',
     '3270 screen flows have no REST surface: they are driven in-process through com.ibm.cics.cip.bank.core.screens handlers '
     '(parity/tools/ScreenParity.java). RETURN COMMAREA bytes are not compared (Java keeps a symbolic state map).',
-    'React unit tests are not runnable in this environment: ' + str(react.get('first_error')) +
-    ' (enzyme -> cheerio -> undici needs Web APIs absent from the CRA jsdom env; fails in src/setupTests.js before any test).',
-    'React UI was not driven end-to-end against the migrated service in this round; REST flows use the exact payloads in '
-    'api-contract.md that the UI sends.',
+    'React unit tests: 0 executed. As committed: ' + str(react.get('first_error')) + ' (src/setupTests.js -> enzyme -> cheerio '
+    '-> undici). With a parity-only TextEncoder/TextDecoder polyfill: ' + str(poly.get('first_error')) + ' (enzyme 3.11 vs cheerio 1.x). '
+    'The only test file, src/App.test.js, is the Carbon template test and also imports modules that do not exist in this app: ' +
+    (', '.join(i['import'] for i in broken_imports) or 'none') + '. The suite cannot run without changing frontend code '
+    '(out of scope for parity/**); the React UI was instead driven end to end in Chromium (section 6b).',
+    'React UI end-to-end coverage is read-only (customer by number, accounts of a customer, name search, account by number); '
+    'create/update/delete screens were not driven in the browser. Their REST calls are covered by the API flows, which use '
+    'the payloads from api-contract.md that the UI sends.',
     'Single-node H2 only; the postgres profile was not exercised by this parity run.',
 ]
 LEGACY_DEFECTS = [
@@ -121,8 +132,22 @@ summary = {
     'migration_defects': DEFECTS, 'known_limitations': {**LIMITS, 'other': OTHER_LIMITS},
     'pre_existing_legacy_defects': [{'ref': a, 'text': b} for a, b in LEGACY_DEFECTS],
     'tests': {'legacy_transcripts': legacy['totals'] | {'total': legacy['total']}, 'migrated_mvn': mvn['totals'] | {'classes': mvn['classes']},
-              'react': {k: react[k] for k in ('exit_code', 'suites', 'tests', 'first_error')}},
+              'react': {k: react[k] for k in ('exit_code', 'suites', 'tests', 'first_error')} | {
+                  'polyfill_attempt': poly, 'unresolved_test_imports': broken_imports},
+              'react_ui_browser': {'checks': len(ui['results']), 'matching': sum(1 for r in ui['results'] if r['status'] == 'MATCH'),
+                                   'results': [{k: r[k] for k in ('id', 'status')} for r in ui['results']]}},
+    'round': ROUND,
+    'delta_vs_previous_round': None,
 }
+if prev:
+    cur_status = {r['id']: r['status'] for r in flows}
+    summary['delta_vs_previous_round'] = {
+        'previous': {k: prev[k] for k in ('head', 'flows_total', 'flows_comparable', 'flows_matching')},
+        'changed': [{'id': k, 'previous': prev_status.get(k), 'current': v} for k, v in cur_status.items()
+                    if k in prev_status and prev_status[k] != v],
+        'new_flows': [{'id': k, 'current': v} for k, v in cur_status.items() if k not in prev_status],
+        'removed_flows': [k for k in prev_status if k not in cur_status],
+        'defects_previous': sorted(prev.get('migration_defects', {})), 'defects_current': sorted(DEFECTS)}
 json.dump(summary, open(os.path.join(RES, 'summary.json'), 'w'), indent=1)
 
 
@@ -191,11 +216,12 @@ th{background:#e8e8e8}.MATCH{color:#0e6027;font-weight:600}.DIFF{color:#a2191f;f
 code,pre{font-family:Menlo,Consolas,monospace;font-size:12px}pre{background:#f4f4f4;padding:8px;overflow:auto;max-height:260px}
 img{max-width:100%;border:1px solid #393939}.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}small{color:#525252}'''
 
-H = ['<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>CBSA parity report - round 1</title><style>%s</style></head><body>' % css]
-H.append('<header><h1>CBSA legacy (COBOL/CICS) vs Java 21 migration &mdash; end-to-end parity, round 1</h1>'
+H = ['<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>CBSA parity report - round %s</title><style>%s</style></head><body>' % (ROUND, css)]
+H.append('<header><h1>CBSA legacy (COBOL/CICS) vs Java 21 migration &mdash; end-to-end parity, round %s</h1>'
          '<p>devin/java21-cbsa-core @ %s &middot; generated %s &middot; produced by parity/run-parity.sh</p></header><main>'
-         % (E(summary['head'][:12]), E(summary['generated'])))
+         % (E(ROUND), E(summary['head'][:12]), E(summary['generated'])))
 diffs_total = len(comparable) - len(matching)
+ui_ok = sum(1 for r in ui['results'] if r['status'] == 'MATCH')
 H.append('<div class="cards">'
          '<div class="card ok"><b>%d / %d</b>comparable flows identical</div>' % (len(matching), len(comparable)) +
          '<div class="card bad"><b>%d</b>migration defects</div>' % len(DEFECTS) +
@@ -203,7 +229,27 @@ H.append('<div class="cards">'
          '<div class="card"><b>%d</b>not comparable</div>' % summary['flows_not_comparable'] +
          '<div class="card ok"><b>%d/%d</b>legacy transcripts replay</div>' % (legacy['totals']['match'], legacy['total']) +
          '<div class="card ok"><b>%d</b>mvn tests (%d F, %d E, %d skipped)</div>' % (mvn['totals']['tests'], mvn['totals']['failures'], mvn['totals']['errors'], mvn['totals']['skipped']) +
-         '<div class="card warn"><b>n/a</b>React tests (setup error)</div></div><br>')
+         '<div class="card warn"><b>0 run</b>React unit tests (suite broken)</div>' +
+         '<div class="card %s"><b>%d / %d</b>React UI browser checks identical</div></div><br>' % (
+             'ok' if ui_ok == len(ui['results']) and ui['results'] else 'bad', ui_ok, len(ui['results'])))
+
+dl = summary['delta_vs_previous_round']
+if dl:
+    H.append('<section><h2>0. Change since round 1</h2><table><tr><th></th><th>Round 1 (%s)</th><th>Round %s (%s)</th></tr>'
+             % (E(dl['previous']['head'][:7]), E(ROUND), E(summary['head'][:7])) +
+             '<tr><td>Flows (total / comparable / identical)</td><td>%d / %d / %d</td><td>%d / %d / %d</td></tr>' % (
+                 dl['previous']['flows_total'], dl['previous']['flows_comparable'], dl['previous']['flows_matching'],
+                 summary['flows_total'], summary['flows_comparable'], summary['flows_matching']) +
+             '<tr><td>Migration defects</td><td>%s</td><td>%s</td></tr></table>' % (
+                 E(', '.join(dl['defects_previous']) or 'none'), E(', '.join(dl['defects_current']) or 'none')))
+    H.append('<br><table><tr><th>Flow</th><th>Round 1</th><th>Round %s</th></tr>' % E(ROUND) + ''.join(
+        '<tr><td>%s</td><td class="%s">%s</td><td class="%s">%s</td></tr>' % (E(c['id']), c['previous'], c['previous'], c['current'], c['current'])
+        for c in dl['changed']) + ''.join(
+        '<tr><td>%s <small>(new check in round %s)</small></td><td>-</td><td class="%s">%s</td></tr>' % (E(c['id']), E(ROUND), c['current'], c['current'])
+        for c in dl['new_flows']) + ''.join(
+        '<tr><td>%s</td><td>present</td><td>removed</td></tr>' % E(k) for k in dl['removed_flows']) +
+        ('' if dl['changed'] or dl['new_flows'] or dl['removed_flows'] else '<tr><td colspan="3">no flow changed status</td></tr>') +
+        '</table><p><small>Every other flow has the same status as in round 1.</small></p></section>')
 
 H.append('<section><h2>1. Scope</h2><ul>'
          '<li><b>All 107 baseline transcripts</b> (baseline/transcripts): 76 LINK/COMMAREA transcripts replayed on legacy via the harness '
@@ -212,10 +258,14 @@ H.append('<section><h2>1. Scope</h2><ul>'
          '<li><b>5 API variants</b>: every DBCRFUN teller transcript re-run through <code>PUT /banking/account/{debit|credit}/{id}</code>.</li>'
          '<li><b>6 multi-step user journeys</b> (parity/flows/user-flows.json): onboarding, payments, maintenance+close, error paths, '
          'customer lifecycle, REST teller - 31 steps, one database per journey, compared after <i>every</i> step.</li>'
-         '<li><b>6 React read endpoints</b> on the Liberty layer (no COBOL program) cross-checked against the same query on the legacy seeded DB.</li>'
+         '<li><b>%d React read endpoints</b> on the Liberty layer (no COBOL program) cross-checked against the same query on the legacy seeded DB.</li>'
          '<li>Per flow: outcome (success / fail code / ABEND code), every business response field, DB delta of CUSTOMER, ACCOUNT, PROCTRAN, '
          'CONTROL, and SHA-256 of the full table dumps after the flow. Normalisation: CHAR right-trim, numbers to 2dp, row order, and '
-         'PROCTRAN_REF (documented exclusion) &mdash; nothing else.</li></ul></section>')
+         'PROCTRAN_REF (documented exclusion) &mdash; nothing else.</li>'
+         '<li><b>React UI in a real browser</b> (new in round 2): the committed Carbon React build served by the migrated service, '
+         'driven in headless Chromium; every rendered value compared with the legacy seeded DB (%d checks, section 6b).</li>'
+         '<li><b>Round-over-round delta</b> against the round-1 results (section 0).</li></ul></section>'
+         % (by_kind.get('api-crosscheck', {}) and sum(by_kind['api-crosscheck'].values()), len(ui['results'])))
 
 H.append('<section><h2>2. Environment and how each side ran</h2><table><tr><th>Component</th><th>Version</th></tr>')
 for k, v in env_versions():
@@ -249,9 +299,14 @@ H.append('<section><h2>3. Test suites</h2><table><tr><th>Suite</th><th>Result</t
          '<tr><td>Legacy harness (107 baseline transcripts, legacy/run-transcript.sh)</td><td>%d match / %d diff / %d golden fixtures</td></tr>'
          '<tr><td>Legacy other tests</td><td>none exist in the repository (COBOL estate has no unit tests)</td></tr>'
          '<tr><td>Migrated mvn -B verify</td><td>%d tests in %d classes: %d failures, %d errors, %d skipped</td></tr>'
-         '<tr><td>React (react-scripts test)</td><td>exit %s, %s &mdash; <code>%s</code></td></tr></table>'
+         '<tr><td>React (react-scripts test), as committed</td><td>exit %s, %s &mdash; <code>%s</code></td></tr>'
+         '<tr><td>React, with parity-only Web API polyfill (parity/tools/react-jest-polyfill.js)</td><td>exit %s, %s &mdash; <code>%s</code></td></tr>'
+         '<tr><td>React test-file imports that do not resolve</td><td>%s</td></tr>'
+         '<tr><td>React UI browser checks (Chromium, section 6b)</td><td>%d of %d identical to legacy data</td></tr></table>'
          % (legacy['totals']['match'], legacy['totals']['diff'], legacy['totals']['fixture'], mvn['totals']['tests'], mvn['classes'],
-            mvn['totals']['failures'], mvn['totals']['errors'], mvn['totals']['skipped'], E(react['exit_code']), E(react['suites']), E(react['first_error'])))
+            mvn['totals']['failures'], mvn['totals']['errors'], mvn['totals']['skipped'], E(react['exit_code']), E(react['suites']), E(react['first_error']),
+            E(poly.get('exit_code')), E(poly.get('suites')), E(poly.get('first_error')),
+            E(', '.join('%s: %s' % (i['test'], i['import']) for i in broken_imports) or 'none'), ui_ok, len(ui['results'])))
 H.append('<details><summary>mvn counts per class</summary><table><tr><th>Class</th><th>Tests</th><th>Fail</th><th>Err</th><th>Skip</th></tr>')
 for c in mvn['per_class']:
     H.append('<tr><td>%s</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td></tr>' % (E(c['class']), c['tests'], c['failures'], c['errors'], c['skipped']))
@@ -284,6 +339,25 @@ for k, d in LIMITS.items():
     ids = [f for f, c in CLASS.items() if c == k]
     H.append('<h3>%s &mdash; %s</h3><p>%s</p><p><small>Flows: %s</small></p>' % (E(k), E(d['title']), E(d['detail']), E(', '.join(ids))))
 H.append('<h3>Coverage notes</h3><ul>' + ''.join('<li>%s</li>' % E(x) for x in OTHER_LIMITS) + '</ul></section>')
+
+H.append('<section class="%s"><h2>6b. React UI end-to-end (Chromium, migrated service)</h2><p>%s served by the migrated '
+         'service on H2 (cbsa.clock.fixed and cbsa.random.seed=42 as the harness), driven with %s. Expected values come from the '
+         'legacy harness&#39;s seeded SQLite database, formatted the way the React row builders format them (dd-mm-yyyy dates, '
+         'unpadded customer number). Numbers are compared numerically.</p><table><tr><th>Check</th><th>Status</th><th>Field</th>'
+         '<th>Legacy (seeded DB)</th><th>Migrated (rendered in UI)</th><th>Equal</th></tr>' % (
+             'ver' if ui_ok == len(ui['results']) and ui['results'] else 'def', E(ui.get('base', '')), E(ui.get('browser', ''))))
+for r in ui['results']:
+    fl = r.get('fields') or [{'field': r.get('error', ''), 'legacy': '', 'migrated_ui': '', 'equal': False}]
+    for i, f in enumerate(fl):
+        H.append('<tr>%s<td>%s</td><td><code>%s</code></td><td><code>%s</code></td><td>%s</td></tr>' % (
+            ('<td rowspan="%d">%s<br><small>%s</small></td><td rowspan="%d" class="%s">%s</td>' % (
+                len(fl), E(r['id']), E(r['title']), len(fl), r['status'], r['status'])) if i == 0 else '',
+            E(f['field']), J(f['legacy']), J(f['migrated_ui']), 'yes' if f['equal'] else '<b class="DIFF">no</b>'))
+H.append('</table><details><summary>REST calls the UI made</summary><pre>%s</pre></details>' % E('\n'.join(
+    '%s  %s %s' % (r['id'], c['status'], c['url']) for r in ui['results'] for c in r.get('api_calls', []))))
+for sh in ui['screenshots']:
+    H.append('<h3>%s</h3><img alt="%s" src="data:image/jpeg;base64,%s">' % (E(sh['name']), E(sh['name']), sh['jpeg_b64']))
+H.append('</section>')
 
 H.append('<section class="leg"><h2>7. PRE-EXISTING LEGACY DEFECTS</h2><table><tr><th>Ref (baseline/README.md)</th><th>Defect / parity status</th></tr>')
 for a, b in LEGACY_DEFECTS:
