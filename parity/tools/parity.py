@@ -37,9 +37,11 @@ def nv(v):
     return v
 
 
-# docs/migration/inventory.md: "PROCTRAN_REF is the CICS task number (Java: per-JVM sequence) and is excluded
-# from parity comparisons." -> the only documented data normalisation besides trim/rounding.
-EXCLUDED = {('PROCTRAN', 'PROCTRAN_REF')}
+# No column is excluded: PROCTRAN_REF (EIBTASKN) is compared. Java runs every request as one CICS task numbered from
+# CBSA_TASKN (TaskNumberSupplier, reset per flow/step through /__parity/{reset,taskn}), as the legacy harness does.
+EXCLUDED = set()
+ADMIN_TOKEN = 'parity-admin-token'
+ABNDINFO = harness.cobcopy.load('ABNDINFO')
 
 
 def canon(snap):
@@ -101,7 +103,7 @@ def legacy_run(steps, setup_sql):
             case.setdefault('description', '')
             t = harness.run_case(case, db=dbp)
             res.append({'out': t['commarea_out'], 'abend': t['abend'], 'stderr': t.get('runtime_stderr'),
-                        'after': canon(harness.snapshot(dbp))})
+                        'after': canon(harness.snapshot(dbp)), 'trace': t.get('trace') or []})
         return before, res
     finally:
         shutil.rmtree(work, ignore_errors=True)
@@ -112,7 +114,8 @@ def http(method, path, body=None, ctype='application/json'):
     data = None
     if body is not None:
         data = body.encode() if isinstance(body, str) else json.dumps(body).encode()
-    req = urllib.request.Request(BASE + path, data=data, method=method, headers={'Content-Type': ctype})
+    req = urllib.request.Request(BASE + path, data=data, method=method,
+                                 headers={'Content-Type': ctype, 'X-CBSA-Admin-Token': ADMIN_TOKEN})
     try:
         with urllib.request.urlopen(req, timeout=60) as r:
             status, raw = r.status, r.read().decode()
@@ -180,6 +183,14 @@ def rest_request(prog, ci):
     if prog == 'XFRFUN':
         return 'PUT', '/banking/account/transfer/%d' % n(ci.get('COMM-FACCNO')), {
             'targetAccount': '%08d' % n(ci.get('COMM-TACCNO')), 'amount': ci.get('COMM-AMT', 0)}
+    if prog == 'ABNDPROC':  # property-gated admin endpoint (cbsa.abndproc.endpoint.enabled), ABNDINFO COMMAREA
+        k = ci.get('ABND-VSAM-KEY', {})
+        return 'POST', '/banking/admin/abend', {
+            'utimeKey': n(k.get('ABND-UTIME-KEY')), 'taskNoKey': n(k.get('ABND-TASKNO-KEY')),
+            'applid': ci.get('ABND-APPLID', ''), 'tranid': ci.get('ABND-TRANID', ''), 'date': ci.get('ABND-DATE', ''),
+            'time': ci.get('ABND-TIME', ''), 'code': ci.get('ABND-CODE', ''), 'program': ci.get('ABND-PROGRAM', ''),
+            'respCode': n(ci.get('ABND-RESPCODE')), 'resp2Code': n(ci.get('ABND-RESP2CODE')),
+            'sqlCode': n(ci.get('ABND-SQLCODE')), 'freeform': ci.get('ABND-FREEFORM', '')}
     if prog == 'TELLER':  # REST teller debit/credit endpoints (same DBCRFUN business rule, facility type 0)
         kind = 'debit' if ci['COMM-AMT'] < 0 else 'credit'
         return 'PUT', '/banking/account/%s/%d' % (kind, n(ci['COMM-ACCNO'])), {'amount': abs(ci['COMM-AMT'])}
@@ -299,6 +310,35 @@ def M_account(b):
             'availableBalance': nv(b.get('availableBalance')), 'actualBalance': nv(b.get('actualBalance'))}
 
 
+def L_abend(o):
+    k = o.get('ABND-VSAM-KEY', {})
+    return {'utimeKey': int(k.get('ABND-UTIME-KEY') or 0), 'taskNoKey': int(k.get('ABND-TASKNO-KEY') or 0),
+            'applid': nv(o.get('ABND-APPLID')), 'tranid': nv(o.get('ABND-TRANID')), 'date': nv(o.get('ABND-DATE')),
+            'time': nv(o.get('ABND-TIME')), 'code': nv(o.get('ABND-CODE')), 'program': nv(o.get('ABND-PROGRAM')),
+            'respCode': int(o.get('ABND-RESPCODE') or 0), 'resp2Code': int(o.get('ABND-RESP2CODE') or 0),
+            'sqlCode': int(o.get('ABND-SQLCODE') or 0), 'freeform': nv(o.get('ABND-FREEFORM'))}
+
+
+def M_abend(b):
+    b = b if isinstance(b, dict) else {}
+    return {'utimeKey': int(b.get('utimeKey') or 0), 'taskNoKey': int(b.get('taskNoKey') or 0),
+            'applid': nv(b.get('applid')), 'tranid': nv(b.get('tranid')), 'date': nv(b.get('date')),
+            'time': nv(b.get('time')), 'code': nv(b.get('code')), 'program': nv(b.get('program')),
+            'respCode': int(b.get('respCode') or 0), 'resp2Code': int(b.get('resp2Code') or 0),
+            'sqlCode': int(b.get('sqlCode') or 0), 'freeform': nv(b.get('freeform'))}
+
+
+def legacy_abndfile(trace):
+    """ABNDFILE records the legacy run wrote (stub trace event ABNDFILE, raw record bytes) -> canonical fields."""
+    import codecs
+    recs = []
+    for e in trace:
+        if e and e[0] == 'ABNDFILE':
+            raw = codecs.escape_decode(e[2].encode('latin-1'))[0]
+            recs.append(L_abend(harness.cobcopy.decode(ABNDINFO, raw)))
+    return recs
+
+
 def fields_legacy(prog, o):
     if prog == 'GETCOMPY':
         return {'companyName': nv(o['GETCompanyOperation']['company-name'])}
@@ -313,6 +353,8 @@ def fields_legacy(prog, o):
                 'accounts': [L_account(a) for a in o.get('ACCOUNT-DETAILS', [])[:int(o.get('NUMBER-OF-ACCOUNTS') or 0)]]}
     if prog in ('DBCRFUN', 'TELLER'):
         return {'availableBalance': nv(o.get('COMM-AV-BAL')), 'actualBalance': nv(o.get('COMM-ACT-BAL'))}
+    if prog == 'ABNDPROC':
+        return L_abend(o)
     if prog == 'XFRFUN':
         return {'from.availableBalance': nv(o.get('COMM-FAVBAL')), 'from.actualBalance': nv(o.get('COMM-FACTBAL')),
                 'to.availableBalance': nv(o.get('COMM-TAVBAL')), 'to.actualBalance': nv(o.get('COMM-TACTBAL'))}
@@ -338,6 +380,8 @@ def fields_migrated(prog, b):
         return {'availableBalance': nv(p.get('CommAvBal')), 'actualBalance': nv(p.get('CommActBal'))}
     if prog == 'TELLER':
         return {'availableBalance': nv(b.get('availableBalance')), 'actualBalance': nv(b.get('actualBalance'))}
+    if prog == 'ABNDPROC':
+        return M_abend(b)
     if prog == 'XFRFUN':
         f, t = b.get('fromAccount', {}) or {}, b.get('toAccount', {}) or {}
         return {'from.availableBalance': nv(f.get('availableBalance')), 'from.actualBalance': nv(f.get('actualBalance')),
@@ -346,7 +390,7 @@ def fields_migrated(prog, b):
 
 
 # ---------------------------------------------------------------- comparison
-CREATE_PROGS = {'CRECUST', 'CREACC'}
+CREATE_PROGS = {'CRECUST', 'CREACC', 'ABNDPROC'}
 
 
 def expected_http(prog, lo, path=None):
@@ -390,6 +434,11 @@ def compare_step(prog, lres, lbefore, mstatus, mbody, mbefore, mafter):
     if lo['kind'] == mo['kind'] == 'OK' or (prog == 'DBCRFUN' and lo['kind'] == mo['kind']):
         for p, a, b in diff(fields_legacy(prog, lres['out']), fields_migrated(prog, mbody)):
             diffs.append({'area': 'response', 'field': p, 'legacy': a, 'migrated': b})
+    if prog == 'ABNDPROC':  # the ABNDFILE (VSAM) contents after the step: legacy trace vs GET /banking/admin/abend
+        st, recs = http('GET', '/banking/admin/abend')
+        for p, a, b in diff(legacy_abndfile(lres.get('trace', [])),
+                            [M_abend(r) for r in recs] if st == 200 and isinstance(recs, list) else {'http': st}):
+            diffs.append({'area': 'abndfile', 'field': p, 'legacy': a, 'migrated': b})
     ld, md = harness.delta(lbefore, lres['after']), harness.delta(mbefore, mafter)
     for p, a, b in diff(ld, md):
         diffs.append({'area': 'db_delta', 'field': p, 'legacy': a, 'migrated': b})
@@ -505,7 +554,7 @@ def run_crosschecks():
          lambda b: b.get('numberOfAccounts'), q("SELECT COUNT(*) FROM ACCOUNT WHERE ACCOUNT_CUSTOMER_NUMBER='0000000001'")[0]),
         ('processed-transactions', '/banking/processedTransaction?limit=1000',
          lambda b: b.get('numberOfProcessedTransactions'), q('SELECT COUNT(*) FROM PROCTRAN')[0]),
-        # row-level: every PROCTRAN column the endpoint exposes (PROCTRAN_REF excluded as documented), as a sorted
+        # row-level: every PROCTRAN column the endpoint exposes (PROCTRAN_REF is not exposed), as a sorted
         # multiset because Liberty orders by date+time only and ties have no defined order
         ('processed-transactions-rows', '/banking/processedTransaction?limit=1000',
          lambda b: sorted([p.get('sortCode'), p.get('accountNumber'), p.get('date'), p.get('time'), p.get('type'),
@@ -538,6 +587,7 @@ def start_servers(seeds, java_cp):
         procs.append(subprocess.Popen(
             [JAVA, '-cp', java_cp, 'ParityServer', '--server.address=127.0.0.1', '--server.port=%d' % port, '--cbsa.clock.fixed=' + FIXED_TIME,
              '--cbsa.random.seed=' + seed, '--cbsa.seed.location=file:../../baseline/seed/seed.sql',
+             '--cbsa.abndproc.endpoint.enabled=true', '--cbsa.abndproc.endpoint.token=' + ADMIN_TOKEN,
              '--spring.datasource.url=jdbc:h2:mem:parity%s;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE' % seed],
             cwd=os.path.join(ROOT, 'src', 'cbsa-core-service'), stdout=log, stderr=subprocess.STDOUT))
         SERVERS[seed] = 'http://127.0.0.1:%d/webui-1.0' % port
@@ -565,7 +615,7 @@ def main():
         rel = os.path.relpath(p, tdir)[:-5]
         if t.get('mode') == 'term':
             term.append(p)
-        elif t['program'] in ('ABNDPROC', 'BANKDATA') or rest_request(t['program'], t['commarea_in']) is None:
+        elif t['program'] == 'BANKDATA' or rest_request(t['program'], t['commarea_in']) is None:
             na.append({'id': rel, 'kind': 'transcript-link', 'program': t['program'], 'title': t['description'],
                        'status': 'NOT_COMPARABLE', 'diffs': [], 'steps': []})
         else:

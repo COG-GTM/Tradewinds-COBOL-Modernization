@@ -58,7 +58,7 @@ UI reads all of the above (`accountType` trimmed, no trailing blanks).
 | Method & path | Request | 2xx response | Errors | Ticket |
 |---|---|---|---|---|
 | `POST /banking/customer` | `{"customerName","customerAddress","dateOfBirth":"yyyy-MM-dd","sortCode":"987654"}` | `201` Customer JSON (UI reads `id`) | `400` name/address/sortCode/DOB missing; `400 failCode T` "Customer title X is not valid"; `400` "Sortcode X not valid for this bank (987654)"; `400 failCode O/Y/Z` DOB rules; `500 failCode G` credit check failed; `500` counter/write failures | T-01 |
-| `GET /banking/customer/{id}` | — | `200` Customer JSON | `400` negative id; `404 failCode 1` "Customer number {id} not found." | T-02 |
+| `GET /banking/customer/{id}` | — | `200` Customer JSON; `0` = random customer (INQCUST GENERATE-RANDOM-CUSTOMER: `FUNCTION RANDOM(EIBTASKN)` seeded with `cbsa.random.seed` + task number, COMPUTE evaluated as the legacy GnuCOBOL runtime does per `cbsa.inqcust.random-arithmetic`), `9999999999` = last customer | `400` negative id; `404 failCode 1` "Customer number {id} not found." | T-02 |
 | `GET /banking/customer/name?name=&limit=&offset=&countOnly=` | UI sends `limit=10` | `200 {"numberOfCustomers": n, "customers": [Customer…]}` (`countOnly=true` → only `numberOfCustomers`) | `404` no customer matches (UI shows "no results"); `400` missing name | T-02 |
 | `GET /banking/customer?limit=&offset=&countOnly=` | — | `200 {"numberOfCustomers", "customers"}` | — | T-02 |
 | `PUT /banking/customer/{id}` | `{"customerName","customerAddress","sortCode", "dateOfBirth"?, "creditScore"?}` — only name and address are applied (UPDCUST) | `200` updated Customer JSON | `400` name null / `failCode T` title / sortCode invalid / address null / `failCode 4` both blank; `404 failCode 1` | T-03 |
@@ -68,11 +68,11 @@ UI reads all of the above (`accountType` trimmed, no trailing blanks).
 
 | Method & path | Request | 2xx response | Errors | Ticket |
 |---|---|---|---|---|
-| `POST /banking/account` | `{"customerNumber","accountType","interestRate","overdraft","sortCode","dateOpened"?}` (UI sends all; `dateOpened` ignored — CREACC uses today) | `201` Account JSON (UI reads `id`) | `400 failCode A` "Account type X is not valid"; `400` interest rate < 0, > 9999.99 or > 2 dp; `400` sortCode invalid; `400` overdraft < 0; `404 failCode 1` customer not found; `400 failCode 8` "Customer number N cannot have more than ten accounts."; `500 failCode 3/5/7/9` | T-05 |
+| `POST /banking/account` | `{"customerNumber","accountType","interestRate","overdraft","sortCode","dateOpened"?,"availableBalance"?,"actualBalance"?}` (UI sends all but the balances; `dateOpened` ignored — CREACC uses today; optional `availableBalance`/`actualBalance` = COMMAREA `COMM-AVAIL-BAL`/`COMM-ACT-BAL`, written to the new account as passed, default `0`) | `201` Account JSON (UI reads `id`) | `400 failCode A` "Account type X is not valid"; `400` interest rate < 0, > 9999.99 or > 2 dp; `400` sortCode invalid; `400` overdraft < 0; `404 failCode 1` customer not found; `400 failCode 8` "Customer number N cannot have more than ten accounts."; `500 failCode 3/5/7/9` | T-05 |
 | `GET /banking/account/{id}` | — | `200` Account JSON | `404` "Account number {id} not found." | T-06 |
 | `GET /banking/account/retrieveByCustomerNumber/{customerNumber}?countOnly=` | — | `200 {"customerFound": true, "numberOfAccounts": n, "accounts": [Account…]}` (ordered by account number; `numberOfAccounts` is what the UI checks before deleting a customer) | `404 failCode 1` customer not found | T-06 |
 | `GET /banking/account?limit=&offset=&countOnly=` | — | `200 {"numberOfAccounts", "accounts"}` | — | T-06 |
-| `PUT /banking/account/{id}` | Full Account JSON as the UI sends (`id, customerNumber, sortCode, accountType, interestRate, overdraft, dateOpened, lastStatementDate, nextStatementDate, availableBalance, actualBalance`); only `accountType`, `interestRate`, `overdraft` are applied (UPDACC) | `200` updated Account JSON | `400` blank/invalid type, rate rules, sortCode; `404` not found | T-07 |
+| `PUT /banking/account/{id}` | Full Account JSON as the UI sends (`id, customerNumber, sortCode, accountType, interestRate, overdraft, dateOpened, lastStatementDate, nextStatementDate, availableBalance, actualBalance`); only `accountType`, `interestRate`, `overdraft` are applied (UPDACC); `accountType` follows UPDACC: any value not blank and not starting with a space is written as sent (first 8 characters, case kept) | `200` updated Account JSON | `400` blank type (or leading space), rate rules, sortCode; `404` not found | T-07 |
 | `DELETE /banking/account/{id}` | — | `200` deleted Account JSON | `404 failCode 1`; `500 failCode 3` / `abendCode HWPT` | T-08 |
 | `PUT /banking/account/debit/{id}` | `{"amount": 10.00}` (positive; debits) | `200` Account JSON with new balances | `400` amount missing/≤ 0; `404 failCode 1`; `500 failCode 2` | T-09 |
 | `PUT /banking/account/credit/{id}` | `{"amount": 10.00}` | `200` Account JSON | as debit | T-09 |
@@ -112,7 +112,9 @@ z/OS Connect APIs are **not** mirrored; `Z-OS-Connect-Customer-Services-Interfac
 ## Optional read APIs (T-12)
 | `GET /banking/processedTransaction?limit=&offset=` | `200 {"numberOfProcessedTransactions", "processedTransactions": [{"sortCode","accountNumber","date","time","reference","type","description","amount"}]}` |
 |---|---|
-| `GET /banking/abend?limit=` | `200 [AbendEvent…]` (ABNDPROC records) |
+| `GET /banking/abend?limit=` | `200 [AbendEvent…]` (abends raised by the service) |
+| `POST /banking/admin/abend` | ABNDPROC (only when `cbsa.abndproc.endpoint.enabled=true`, header `X-CBSA-Admin-Token` = `cbsa.abndproc.endpoint.token`, else `403`; absent → `404`). Body = ABNDINFO COMMAREA `{"utimeKey","taskNoKey","applid","tranid","date","time","code","program","respCode","resp2Code","sqlCode","freeform"}`; `201` the record as written to ABNDFILE (PIC widths applied), `409` duplicate key (DUPREC) |
+| `GET /banking/admin/abend` | ABNDFILE records in key order (same gating) |
 
 `GET /banking/processedTransaction` is served by `proctran.ProcessedTransactionController` (port of Liberty
 `ProcessedTransactionResource`): rows of this bank's sort code ordered by `PROCTRAN_DATE, PROCTRAN_TIME`
@@ -123,3 +125,9 @@ Each row also carries `timestamp`, and the description-decoded Liberty fields wh
 fields keep Liberty's `DateFormat` MEDIUM rendering under `Locale.US` (`timestamp` e.g. `Jan 10, 2026, 9:00:00 AM`,
 decoded dates e.g. `Feb 1, 1980`). The body also keeps the Liberty keys `numberOfProcessedTransactionRecords` and
 `success: "Y"`. An unreadable PROCTRAN table returns `500 {"errorMessage":"Proctran DB2 table not accessible. Please contact your system administrator."}`.
+
+### Task number (EIBTASKN) and `PROCTRAN_REF`
+Every HTTP request runs as one CICS task (`TaskNumberSupplier.inTask`, `CicsTaskFilter`): the first use of the task
+number in a request allocates the next number of a region-wide counter, and every PROCTRAN row written by that request
+carries it as `PROCTRAN_REF` (12 digits). CRECUST's credit agencies run as child tasks EIBTASKN + 1..5 and later
+tasks are numbered after them.
