@@ -259,12 +259,13 @@ H.append('</table></details></section>')
 
 H.append('<section class="ver"><h2>4. VERIFIED PARITY</h2><p>%d of %d comparable flows are identical on outcome, every compared '
          'response field, DB delta and full table dumps (only the documented normalisation applied). By kind:</p><table>'
-         '<tr><th>Kind</th><th>MATCH</th><th>DIFF</th><th>NOT_COMPARABLE</th></tr>' % (len(matching), len(comparable)))
+         '<tr><th>Kind</th><th>MATCH</th><th>DIFF</th><th>ERROR (not run)</th><th>NOT_COMPARABLE</th></tr>' % (len(matching), len(comparable)))
 for k, v in by_kind.items():
-    H.append('<tr><td>%s</td><td>%d</td><td>%d</td><td>%d</td></tr>' % (E(k), v.get('MATCH', 0), v.get('DIFF', 0) + v.get('ERROR', 0), v.get('NOT_COMPARABLE', 0)))
+    H.append('<tr><td>%s</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td></tr>' % (E(k), v.get('MATCH', 0), v.get('DIFF', 0), v.get('ERROR', 0), v.get('NOT_COMPARABLE', 0)))
 H.append('</table><p>Notable verified behaviour: credit-check scores and review dates for seeds 42, 7 and 1234/taskn 500; all DBCRFUN, XFRFUN '
          '(incl. ABEND SAME, rollback fail code 2), DELCUS cascades with PROCTRAN, CREACC 9th/10th account rule, CONTROL counters, '
-         'all BNKMENU routing and 30 of 31 3270 screens field by field.</p></section>')
+         'all BNKMENU routing and %d of %d 3270 screens field by field.</p></section>' % (
+             by_kind.get('transcript-terminal', {}).get('MATCH', 0), sum(by_kind.get('transcript-terminal', {}).values())))
 
 H.append('<section class="def"><h2>5. MIGRATION DEFECTS</h2>')
 for k, d in DEFECTS.items():
