@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.ibm.cics.cip.bank.core.common.domain.Account;
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
 
@@ -58,6 +59,8 @@ public class ListAccountsScreen extends AbstractScreen {
         }
         try {
             accounts = ports.accounts().accountsForCustomer(Long.parseLong(custno));
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             if ("1".equals(failCode(e))) {
                 out.message("Unable to find customer " + custno);

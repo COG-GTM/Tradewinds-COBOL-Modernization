@@ -13,6 +13,7 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import com.ibm.cics.cip.bank.core.common.domain.Customer;
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
 
@@ -186,6 +187,8 @@ public class CreateCustomerScreen extends AbstractScreen {
                 throw CbsaException.badRequest("Invalid date of birth", "Z");
             }
             created = ports.customers().createCustomer(pic(name, 60).stripTrailing(), address, dob);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             out.message(switch (failCode(e)) {
                 case "O" -> "Sorry, customer is too old. Please check D.O.B.";

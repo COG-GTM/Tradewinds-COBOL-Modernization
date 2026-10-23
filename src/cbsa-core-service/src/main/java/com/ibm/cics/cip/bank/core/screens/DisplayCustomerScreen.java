@@ -13,6 +13,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import com.ibm.cics.cip.bank.core.common.domain.Customer;
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
 
@@ -119,6 +120,8 @@ public class DisplayCustomerScreen extends AbstractScreen {
         Optional<Customer> found;
         try {
             found = ports.customers().inquireCustomer(custno);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             found = Optional.empty();
         }
@@ -153,6 +156,8 @@ public class DisplayCustomerScreen extends AbstractScreen {
         Customer deleted;
         try {
             deleted = ports.customers().deleteCustomer(target);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             out.message(switch (failCode(e)) {
                 case "1" -> "Sorry but that Cust no was not found. Customer NOT deleted.";
@@ -198,6 +203,8 @@ public class DisplayCustomerScreen extends AbstractScreen {
         Customer updated;
         try {
             updated = ports.customers().updateCustomer(custno, in.field("CUSTNAM"), address);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             out.message(switch (failCode(e)) {
                 case "1" -> "Sorry but that Cust no was not found. Customer NOT updated.";

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.ibm.cics.cip.bank.core.common.bank.BankIdentity;
 import com.ibm.cics.cip.bank.core.common.domain.Account;
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
 
@@ -91,6 +92,8 @@ public class CreditDebitScreen extends AbstractScreen {
                     .set("SORTC", a.sortCode())
                     .set("ACTBAL", money(a.actualBalance()))
                     .set("AVBAL", money(a.availableBalance()));
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             String fc = failCode(e);
             out.message(switch (fc) {

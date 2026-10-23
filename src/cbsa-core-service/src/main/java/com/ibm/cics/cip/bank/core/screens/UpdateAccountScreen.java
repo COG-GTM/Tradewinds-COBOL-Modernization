@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import com.ibm.cics.cip.bank.core.common.domain.Account;
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
 
@@ -76,6 +77,8 @@ public class UpdateAccountScreen extends AbstractScreen {
         Optional<Account> found;
         try {
             found = ports.accounts().inquireAccount(accno);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             found = Optional.empty();
         }
@@ -179,6 +182,8 @@ public class UpdateAccountScreen extends AbstractScreen {
                     Integer.parseInt(in.field("OVERDR")));
             out.message(MSG_UPDATED);
             AccountFields.show(a, out);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             out.message(MSG_UPDATE_FAILED);
         }

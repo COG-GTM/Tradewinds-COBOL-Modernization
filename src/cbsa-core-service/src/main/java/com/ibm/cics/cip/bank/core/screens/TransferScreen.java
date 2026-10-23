@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Component;
 
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.PaymentScreenPort;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
@@ -102,6 +103,8 @@ public class TransferScreen extends AbstractScreen {
         PaymentScreenPort.Transfer t;
         try {
             t = ports.payments().transfer(from, to, amount);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             out.message(switch (failCode(e)) {
                 case "1" -> "Sorry the FROM ACCOUNT no was not found. Transfer not applied.";

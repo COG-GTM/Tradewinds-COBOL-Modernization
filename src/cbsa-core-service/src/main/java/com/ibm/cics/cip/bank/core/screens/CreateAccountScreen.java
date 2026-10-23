@@ -15,6 +15,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.ibm.cics.cip.bank.core.common.domain.Account;
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
 
@@ -177,6 +178,8 @@ public class CreateAccountScreen extends AbstractScreen {
                     .set("ACTBAL", money(a.actualBalance()));
             out.set("CUSTNO", zeros(a.customerNumber(), 10)).set("ACCTYP", a.accountType())
                     .set("INTRT", rate(a.interestRate())).set("OVERDR", zeros(a.overdraftLimit(), 8));
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             out.message(failMessage(failCode(e)));
             out.set("CUSTNO", zeros(req.customerNumber(), 10)).set("ACCTYP", req.type())

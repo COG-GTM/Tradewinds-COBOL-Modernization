@@ -9,6 +9,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import com.ibm.cics.cip.bank.core.common.domain.Account;
+import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
 
@@ -64,12 +65,15 @@ public class DisplayAccountScreen extends AbstractScreen {
         Optional<Account> found;
         try {
             found = ports.accounts().inquireAccount(accno);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             found = Optional.empty();
         }
         if (found.isEmpty()) {
             out.message(MSG_NOT_FOUND);
             AccountFields.clear(out);
+            out.state("SCODE", "").state("ACCNO", "00000000");
             return;
         }
         Account a = found.get();
@@ -98,6 +102,8 @@ public class DisplayAccountScreen extends AbstractScreen {
         long accno = n == null ? 0L : n.longValue();
         try {
             ports.accounts().deleteAccount(accno);
+        } catch (CbsaAbendException e) {
+            throw e;
         } catch (CbsaException e) {
             out.message(switch (failCode(e)) {
                 case "1" -> MSG_NOT_FOUND;
