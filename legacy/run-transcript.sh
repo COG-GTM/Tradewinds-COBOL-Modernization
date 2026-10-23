@@ -5,5 +5,5 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 [ $# -eq 1 ] || { echo "usage: $0 <transcript.json>" >&2; exit 2; }
-[ -x "$HERE/build/cbsarun" ] || "$HERE/build.sh" >/dev/null
+"$HERE/ensure-build.sh"
 exec python3 "$HERE/tools/harness.py" replay "$1"

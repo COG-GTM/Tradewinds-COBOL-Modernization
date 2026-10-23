@@ -164,13 +164,15 @@ def run_case(case, db=None):
         if mode == 'term':
             t['transid'] = case.get('transid', 'CBSA')
         if p.returncode != 0 or p.stderr.strip():
-            t['runtime_stderr'] = p.stderr.strip()[-2000:]
+            t['runtime_stderr'] = ('exit=%d ' % p.returncode) + p.stderr.strip()[-2000:]
         return t
     finally:
         shutil.rmtree(work, ignore_errors=True)
 
 
-COMPARED = ('commarea_out', 'abend', 'db_delta', 'trace')
+# runtime_stderr is absent in every recorded transcript, so any process failure
+# (nonzero exit or stderr from cbsarun) is reported as a DIFF.
+COMPARED = ('commarea_out', 'abend', 'db_delta', 'trace', 'runtime_stderr')
 
 
 def diff(a, b, path=''):

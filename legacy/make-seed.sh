@@ -7,10 +7,11 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/.." && pwd)"
 W="$HERE/build/seed"
 rm -rf "$W"; mkdir -p "$W"
-[ -x "$HERE/build/cbsarun" ] || "$HERE/build.sh"
+"$HERE/ensure-build.sh"
+# The canonical seed is pinned: caller overrides of time/seed are ignored.
+export CBSA_FIXED_TIME=2026-01-15T10:30:00Z CBSA_RANDOM_SEED=42
 sqlite3 "$W/seed.db" < "$ROOT/baseline/seed/schema-legacy-harness.sql"
 ( cd "$W" && DD_VSAM="$W/customer.dat" CBSA_LIB="$HERE/build/lib" \
-    CBSA_FIXED_TIME="${CBSA_FIXED_TIME:-2026-01-15T10:30:00Z}" CBSA_RANDOM_SEED="${CBSA_RANDOM_SEED:-42}" \
     "$HERE/build/cbsarun" "$W/seed.db" batch BANKDATA "1,30,1,42" - "$W/events.txt" > "$W/bankdata.log" 2>&1 )
 python3 "$HERE/tools/make_seed.py" load-customers "$W/seed.db" "$W/customer.dat"
 # Seed activity (MORTGAGE accounts BANKDATA never generates, PROCTRAN rows)

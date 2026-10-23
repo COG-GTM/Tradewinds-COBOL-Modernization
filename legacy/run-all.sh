@@ -4,6 +4,6 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/.." && pwd)"
-[ -x "$HERE/build/cbsarun" ] || "$HERE/build.sh" >/dev/null
+"$HERE/ensure-build.sh"
 mkdir -p "$ROOT/baseline/results"
 exec python3 "$HERE/tools/harness.py" replay-all "$ROOT/baseline/transcripts" "$ROOT/baseline/results/legacy-results.json"

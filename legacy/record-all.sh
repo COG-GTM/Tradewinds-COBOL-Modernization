@@ -3,7 +3,7 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/.." && pwd)"
-[ -x "$HERE/build/cbsarun" ] || "$HERE/build.sh" >/dev/null
+"$HERE/ensure-build.sh"
 python3 "$HERE/cases/gen_cases.py"
 rm -rf "$ROOT/baseline/transcripts"
 for c in business screens; do
