@@ -55,6 +55,13 @@ class ProcessedTransactionControllerTest {
                 new java.math.BigDecimal(amount));
     }
 
+    /** Liberty: {@code DateFormat.getDateTimeInstance()} (MEDIUM) under an en_US JVM. */
+    private static String libertyDateTime(String isoLocal) {
+        java.text.DateFormat f = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.DEFAULT,
+                java.text.DateFormat.DEFAULT, java.util.Locale.US);
+        return f.format(java.sql.Timestamp.valueOf(java.time.LocalDateTime.parse(isoLocal)));
+    }
+
     @Test
     void listsThisBanksRowsOldestFirstWithLibertyKeys() throws Exception {
         mvc.perform(get("/banking/processedTransaction"))
@@ -69,7 +76,7 @@ class ProcessedTransactionControllerTest {
                 .andExpect(jsonPath("$.processedTransactions[0].sortCode").value("987654"))
                 .andExpect(jsonPath("$.processedTransactions[0].date").value("2026-01-10"))
                 .andExpect(jsonPath("$.processedTransactions[0].time").value("09:00:00"))
-                .andExpect(jsonPath("$.processedTransactions[0].timestamp").value("2026-01-10T09:00:00"))
+                .andExpect(jsonPath("$.processedTransactions[0].timestamp").value(libertyDateTime("2026-01-10T09:00:00")))
                 .andExpect(jsonPath("$.processedTransactions[0].reference").value("000000000001"))
                 .andExpect(jsonPath("$.processedTransactions[0].type").value("CRE"))
                 .andExpect(jsonPath("$.processedTransactions[0].description").value("COUNTER RECVED"))
@@ -89,13 +96,13 @@ class ProcessedTransactionControllerTest {
                         .value("TRANSFER                  98765400000006"))
                 .andExpect(jsonPath("$.processedTransactions[3].customer").value("0000000005"))
                 .andExpect(jsonPath("$.processedTransactions[3].accountType").value("MORTGAGE"))
-                .andExpect(jsonPath("$.processedTransactions[3].lastStatement").value("2026-01-10"))
-                .andExpect(jsonPath("$.processedTransactions[3].nextStatement").value("2026-02-09"))
+                .andExpect(jsonPath("$.processedTransactions[3].lastStatement").value("Jan 10, 2026"))
+                .andExpect(jsonPath("$.processedTransactions[3].nextStatement").value("Feb 9, 2026"))
                 .andExpect(jsonPath("$.processedTransactions[4].customer").value("0000000021"))
                 .andExpect(jsonPath("$.processedTransactions[4].customerName").value("Mr Joe Bloggs"))
-                .andExpect(jsonPath("$.processedTransactions[4].dateOfBirth").value("1980-02-01"))
+                .andExpect(jsonPath("$.processedTransactions[4].dateOfBirth").value("Feb 1, 1980"))
                 .andExpect(jsonPath("$.processedTransactions[5].accountType").value("CURRENT"))
-                .andExpect(jsonPath("$.processedTransactions[5].lastStatement").value("2026-01-01"))
+                .andExpect(jsonPath("$.processedTransactions[5].lastStatement").value("Jan 1, 2026"))
                 .andExpect(jsonPath("$.processedTransactions[5].amount").value(-12.30));
     }
 
