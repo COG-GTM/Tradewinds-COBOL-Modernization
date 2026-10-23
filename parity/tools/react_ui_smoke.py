@@ -11,7 +11,7 @@ ROOT = os.path.dirname(PARITY)
 sys.path.insert(0, os.path.join(ROOT, 'legacy', 'tools'))
 import harness  # noqa: E402
 
-PORT = 18190
+PORT = int(os.environ.get("PARITY_UI_PORT", "18190"))
 BASE = 'http://127.0.0.1:%d/webui-1.0/' % PORT
 JAVA = os.path.join(os.environ.get('JAVA_HOME', '/usr/lib/jvm/java-21-openjdk-amd64'), 'bin', 'java')
 dmy = lambda iso: '%s-%s-%s' % (iso[8:10], iso[5:7], iso[0:4])
@@ -116,15 +116,17 @@ def main():
             if exp_btn:
                 exp_btn.click()
                 page.wait_for_timeout(800)
-            body = page.inner_text('table')
             legacy_accts = [r['ACCOUNT_NUMBER'] for r in db.execute(
                 "SELECT ACCOUNT_NUMBER FROM ACCOUNT WHERE ACCOUNT_CUSTOMER_NUMBER='0000000001' ORDER BY ACCOUNT_NUMBER")]
-            shown = [a for a in legacy_accts if a in body or str(int(a)) in body.split()]
+            # account-number cells of the nested (expanded) accounts table only, duplicates and row count included
+            shown = sorted(page.eval_on_selector_all(
+                'table table tbody tr', 'rows => rows.map(r => r.cells.length ? r.cells[0].innerText.trim() : "")'))
+            ok = bool(exp_btn) and len(legacy_accts) == n_legacy and shown == legacy_accts
             shot('Customer details: customer 1, accounts expanded')
             results.append({'id': 'react-ui/customer-accounts-expanded', 'title': 'Expanded accounts of customer 1',
-                            'status': 'MATCH' if exp_btn and len(shown) == n_legacy else 'DIFF',
-                            'fields': [{'field': 'accounts listed', 'legacy': legacy_accts, 'migrated_ui': shown,
-                                        'equal': bool(exp_btn) and len(shown) == n_legacy}], 'api_calls': list(api)})
+                            'status': 'MATCH' if ok else 'DIFF',
+                            'fields': [{'field': 'accounts listed (nested table rows)', 'legacy': legacy_accts,
+                                        'migrated_ui': shown, 'equal': ok}], 'api_calls': list(api)})
             api.clear()
 
             # 4. customer search by name (Liberty name search)

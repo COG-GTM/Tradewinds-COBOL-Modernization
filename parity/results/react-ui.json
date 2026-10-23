@@ -67,7 +67,7 @@
    "status": "MATCH",
    "fields": [
     {
-     "field": "accounts listed",
+     "field": "accounts listed (nested table rows)",
      "legacy": [
       "00000001",
       "00000002",
