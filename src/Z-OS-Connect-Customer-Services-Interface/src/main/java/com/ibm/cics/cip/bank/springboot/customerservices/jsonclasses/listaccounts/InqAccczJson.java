@@ -19,7 +19,7 @@ public class InqAccczJson
 	private int commFailCode;
 
 	@JsonProperty("CustomerNumber")
-	private int customerNumber;
+	private long customerNumber;
 
 	@JsonProperty("AccountDetails")
 	private List<AccountDetails> accountDetails;
@@ -46,13 +46,13 @@ public class InqAccczJson
 	}
 
 
-	public int getCustomerNumber()
+	public long getCustomerNumber()
 	{
 		return customerNumber;
 	}
 
 
-	public void setCustomerNumber(int customerNumberIn)
+	public void setCustomerNumber(long customerNumberIn)
 	{
 		customerNumber = customerNumberIn;
 	}

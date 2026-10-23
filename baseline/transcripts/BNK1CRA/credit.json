@@ -1,0 +1,150 @@
+{
+  "program": "BNK1CRA",
+  "flow": "screen-ocra",
+  "case": "credit",
+  "description": "Credit 20.00 to account 1",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "ACCNO": "00000001",
+      "SIGN": "+",
+      "AMT": "20.00"
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1CD",
+        "BNK1CDM",
+        "3"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1CD",
+        "BNK1CDM",
+        "DATAONLY ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "ACCNO",
+        "00000001"
+      ],
+      [
+        "FIELD",
+        "SIGN",
+        "+"
+      ],
+      [
+        "FIELD",
+        "AMT",
+        "20.00"
+      ],
+      [
+        "FIELD",
+        "SORTC",
+        "987654"
+      ],
+      [
+        "FIELD",
+        "AVBAL",
+        "+0000623395.58"
+      ],
+      [
+        "FIELD",
+        "ACTBAL",
+        "+0000623395.58"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "Amount successfully applied to the account."
+      ],
+      [
+        "RETURN_TRANSID",
+        "OCRA",
+        "",
+        "21"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "X\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000001"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              623375.58,
+              623395.58
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              623375.58,
+              623395.58
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000001",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "CRE",
+          "PROCTRAN_DESC": "COUNTER RECVED",
+          "PROCTRAN_AMOUNT": 20
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "DBCRFUN",
+      "92"
+    ],
+    [
+      "RETURN_TRANSID",
+      "OCRA",
+      "",
+      "21"
+    ]
+  ],
+  "transid": "OCRA"
+}

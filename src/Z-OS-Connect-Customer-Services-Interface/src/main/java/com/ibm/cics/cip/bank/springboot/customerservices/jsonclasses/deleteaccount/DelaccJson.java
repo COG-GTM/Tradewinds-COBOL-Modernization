@@ -21,7 +21,7 @@ public class DelaccJson
 	private String delaccLastStatementDate;
 
 	@JsonProperty("DelAccIntRate")
-	private float delaccInterestRate;
+	private double delaccInterestRate;
 
 	@JsonProperty("DelAccFailCd")
 	private int delaccDelFailCode;
@@ -42,10 +42,10 @@ public class DelaccJson
 	private String delaccNextStatementDate;
 
 	@JsonProperty("DelAccActualBal")
-	private float delaccActualBalance;
+	private double delaccActualBalance;
 
 	@JsonProperty("DelAccAvailBal")
-	private float delaccAvailableBalance;
+	private double delaccAvailableBalance;
 
 	@JsonProperty("DelAccCustno")
 	private String delaccCustno;
@@ -105,13 +105,13 @@ public class DelaccJson
 	}
 
 
-	public float getDelaccInterestRate()
+	public double getDelaccInterestRate()
 	{
 		return delaccInterestRate;
 	}
 
 
-	public void setDelaccInterestRate(float delaccInterestRateIn)
+	public void setDelaccInterestRate(double delaccInterestRateIn)
 	{
 		delaccInterestRate = delaccInterestRateIn;
 	}
@@ -204,25 +204,25 @@ public class DelaccJson
 	}
 
 
-	public float getDelaccActualBalance()
+	public double getDelaccActualBalance()
 	{
 		return delaccActualBalance;
 	}
 
 
-	public void setDelaccActualBalance(float delaccActualBalanceIn)
+	public void setDelaccActualBalance(double delaccActualBalanceIn)
 	{
 		delaccActualBalance = delaccActualBalanceIn;
 	}
 
 
-	public float getDelaccAvailableBalance()
+	public double getDelaccAvailableBalance()
 	{
 		return delaccAvailableBalance;
 	}
 
 
-	public void setDelaccAvailableBalance(float delaccAvailableBalanceIn)
+	public void setDelaccAvailableBalance(double delaccAvailableBalanceIn)
 	{
 		delaccAvailableBalance = delaccAvailableBalanceIn;
 	}

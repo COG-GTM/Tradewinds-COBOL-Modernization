@@ -1,0 +1,546 @@
+{
+ "command": "legacy/run-transcript.sh <each baseline transcript> (harness.replay)",
+ "total": 107,
+ "totals": {
+  "match": 107,
+  "diff": 0,
+  "fixture": 0
+ },
+ "transcripts": [
+  {
+   "transcript": "baseline/transcripts/ABNDPROC/record.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CAC/create-ok.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CAC/first-display.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CAC/invalid-type.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CCA/customer-not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CCA/list-accounts.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CCS/create-ok.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CCS/first-display.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CCS/invalid-title.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CRA/credit.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1CRA/debit-insufficient.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1DAC/lookup-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1DAC/lookup-not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1DCS/first-display.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1DCS/lookup-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1DCS/lookup-non-numeric.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1DCS/lookup-not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1TFN/non-numeric-amount.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1TFN/transfer-ok.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNK1UAC/lookup.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-1.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-2.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-3.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-4.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-5.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-6.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-7.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/action-a.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/clear.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/first-display.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/invalid-action.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/BNKMENU/pf3-exit.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/customer-not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/invalid-type.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/lowercase-type.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/max-accounts.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/ninth-account.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/type-current.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/type-isa.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/type-loan.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/type-mortgage.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CREACC/type-saving.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/dob-future.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/dob-pre-1601.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/dob-too-old.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/invalid-dob-month.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/invalid-title.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/ok-seed-1234-taskn-500.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/ok-seed-42.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/CRECUST/ok-seed-7.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/credit-payment-api.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/credit-teller.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/debit-payment-api.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/debit-teller.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/insufficient-funds-api.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/insufficient-funds-teller.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/loan-payment-api.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/loan-teller.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/mortgage-payment-api.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/within-overdraft.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DBCRFUN/zero-amount.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELACC/not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELACC/ok-2.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELACC/ok-74.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELCUS/no-accounts.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELCUS/not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELCUS/single-account.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELCUS/with-4-accounts.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/DELCUS/with-mortgage.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/GETCOMPY/company-name.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/GETSCODE/sortcode.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACC/found-1.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACC/found-3.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACC/found-74.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACC/last-account.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACC/not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACCCU/customer-1.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACCCU/customer-19.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACCCU/customer-5.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACCCU/customer-not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQACCCU/no-accounts.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQCUST/found-1.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQCUST/found-17.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQCUST/last-customer.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQCUST/not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQCUST/random-seed-42.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/INQCUST/random-seed-7.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDACC/blank-type.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDACC/ignores-balance.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDACC/invalid-type.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDACC/not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDACC/type-rate-overdraft.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDCUST/address-only.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDCUST/blank-name-and-address.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDCUST/ignores-dob-and-score.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDCUST/invalid-title.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDCUST/name-and-address.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/UPDCUST/not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/from-not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/insufficient-funds.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/negative-amount.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/ok.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/reverse-order-lock.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/same-account.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/to-not-found.json",
+   "status": "match",
+   "diffs": []
+  },
+  {
+   "transcript": "baseline/transcripts/XFRFUN/zero-amount.json",
+   "status": "match",
+   "diffs": []
+  }
+ ]
+}

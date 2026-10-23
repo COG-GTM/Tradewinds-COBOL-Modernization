@@ -1,0 +1,107 @@
+{
+  "program": "BNK1CAC",
+  "flow": "screen-ocac",
+  "case": "invalid-type",
+  "description": "Open account with type CHEQUE",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "CUSTNO": "0000000019",
+      "ACCTYP": "CHEQUE  ",
+      "INTRT": "1.25   ",
+      "OVERDR": "0       "
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1CA",
+        "BNK1CAM",
+        "4"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1CA",
+        "BNK1CAM",
+        "DATAONLY CURSOR ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "CUSTNO",
+        "0000000019"
+      ],
+      [
+        "FIELD",
+        "ACCTYP",
+        "CHEQUE"
+      ],
+      [
+        "FIELD",
+        "INTRT",
+        "1.25"
+      ],
+      [
+        "FIELD",
+        "OVERDR",
+        "0"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "Account Type should be ISA,CURRENT,LOAN,SAVING or MORTGAGE"
+      ],
+      [
+        "RETURN_TRANSID",
+        "OCAC",
+        "",
+        "32"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "0000000000        00000000000000"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RETURN_TRANSID",
+      "OCAC",
+      "",
+      "32"
+    ]
+  ],
+  "transid": "OCAC"
+}

@@ -1,0 +1,214 @@
+{
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "with-4-accounts",
+  "description": "Delete customer 1 and its 4 accounts",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001"
+  },
+  "commarea_out": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Drs Adam N Renton",
+    "COMM-ADDR": "18 Rowan Boulevard, Leicester",
+    "COMM-DOB": 21101967,
+    "COMM-CREDIT-SCORE": 397,
+    "COMM-CS-REVIEW-DATE": 4022026,
+    "COMM-DEL-SUCCESS": "Y",
+    "COMM-DEL-FAIL-CD": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "CUSTOMER_EYECATCHER": "CUST",
+          "CUSTOMER_SORTCODE": "987654",
+          "CUSTOMER_NUMBER": "0000000001",
+          "CUSTOMER_NAME": "Drs Adam N Renton",
+          "CUSTOMER_ADDRESS": "18 Rowan Boulevard, Leicester",
+          "CUSTOMER_DATE_OF_BIRTH": "1967-10-21",
+          "CUSTOMER_CREDIT_SCORE": 397,
+          "CUSTOMER_CS_REVIEW_DATE": "2026-02-04"
+        }
+      ]
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000001",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000001",
+          "ACCOUNT_TYPE": "ISA",
+          "ACCOUNT_INTEREST_RATE": 2.1,
+          "ACCOUNT_OPENED": "1967-10-21",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2021-07-01",
+          "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
+          "ACCOUNT_AVAILABLE_BALANCE": 623375.58,
+          "ACCOUNT_ACTUAL_BALANCE": 623375.58
+        },
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000001",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000002",
+          "ACCOUNT_TYPE": "SAVING",
+          "ACCOUNT_INTEREST_RATE": 1.75,
+          "ACCOUNT_OPENED": "1967-10-21",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2021-07-01",
+          "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
+          "ACCOUNT_AVAILABLE_BALANCE": 329286.06,
+          "ACCOUNT_ACTUAL_BALANCE": 329286.06
+        },
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000001",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000003",
+          "ACCOUNT_TYPE": "CURRENT",
+          "ACCOUNT_INTEREST_RATE": 0,
+          "ACCOUNT_OPENED": "1967-10-21",
+          "ACCOUNT_OVERDRAFT_LIMIT": 100,
+          "ACCOUNT_LAST_STATEMENT": "2021-07-01",
+          "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
+          "ACCOUNT_AVAILABLE_BALANCE": 510249.31,
+          "ACCOUNT_ACTUAL_BALANCE": 510249.31
+        },
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000001",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000004",
+          "ACCOUNT_TYPE": "LOAN",
+          "ACCOUNT_INTEREST_RATE": 17.9,
+          "ACCOUNT_OPENED": "1967-10-21",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2021-07-01",
+          "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
+          "ACCOUNT_AVAILABLE_BALANCE": -593243.54,
+          "ACCOUNT_ACTUAL_BALANCE": -593243.54
+        }
+      ]
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000001",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000001ISA     0107202101082021DELETE",
+          "PROCTRAN_AMOUNT": 623375.58
+        },
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000002",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000001SAVING  0107202101082021DELETE",
+          "PROCTRAN_AMOUNT": 329286.06
+        },
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000003",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000001CURRENT 0107202101082021DELETE",
+          "PROCTRAN_AMOUNT": 510249.31
+        },
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000004",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000001LOAN    0107202101082021DELETE",
+          "PROCTRAN_AMOUNT": -593243.54
+        },
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000000",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODC",
+          "PROCTRAN_DESC": "9876540000000001Drs Adam N Ren21/10/1967",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "DELACC",
+      "126"
+    ],
+    [
+      "LINK",
+      "DELACC",
+      "126"
+    ],
+    [
+      "LINK",
+      "DELACC",
+      "126"
+    ],
+    [
+      "LINK",
+      "DELACC",
+      "126"
+    ]
+  ]
+}

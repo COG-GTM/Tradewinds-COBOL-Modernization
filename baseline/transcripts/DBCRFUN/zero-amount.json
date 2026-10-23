@@ -1,0 +1,73 @@
+{
+  "program": "DBCRFUN",
+  "flow": "credit",
+  "case": "zero-amount",
+  "description": "Credit of 0.00",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-ACCNO": "00000001",
+    "COMM-AMT": 0.0,
+    "COMM-SORTC": 987654,
+    "COMM-ORIGIN": {
+      "COMM-FACILTYPE": 0
+    }
+  },
+  "commarea_out": {
+    "COMM-ACCNO": "00000001",
+    "COMM-AMT": 0.0,
+    "COMM-SORTC": 987654,
+    "COMM-AV-BAL": 623375.58,
+    "COMM-ACT-BAL": 623375.58,
+    "COMM-ORIGIN": {
+      "COMM-APPLID": "",
+      "COMM-USERID": "",
+      "COMM-FACILITY-NAME": "",
+      "COMM-NETWRK-ID": "",
+      "COMM-FACILTYPE": 0
+    },
+    "COMM-SUCCESS": "Y",
+    "COMM-FAIL-CODE": "0"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000001",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "CRE",
+          "PROCTRAN_DESC": "COUNTER RECVED",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

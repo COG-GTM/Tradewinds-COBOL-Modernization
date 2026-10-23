@@ -1,0 +1,62 @@
+{
+  "program": "INQCUST",
+  "flow": "inquire-customer",
+  "case": "last-customer",
+  "description": "Customer number 9999999999 returns the last customer",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": 9999999999
+  },
+  "commarea_out": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": 30,
+    "INQCUST-NAME": "Professor Kimberley H Jones",
+    "INQCUST-ADDR": "75 Cypress Avenue, Fife",
+    "INQCUST-DOB": {
+      "INQCUST-DOB-DD": 18,
+      "INQCUST-DOB-MM": 5,
+      "INQCUST-DOB-YYYY": 1973
+    },
+    "INQCUST-CREDIT-SCORE": 253,
+    "INQCUST-CS-REVIEW-DT": {
+      "INQCUST-CS-REVIEW-DD": 31,
+      "INQCUST-CS-REVIEW-MM": 1,
+      "INQCUST-CS-REVIEW-YYYY": 2026
+    },
+    "INQCUST-INQ-SUCCESS": "Y",
+    "INQCUST-INQ-FAIL-CD": "0",
+    "INQCUST-PCB-POINTER": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

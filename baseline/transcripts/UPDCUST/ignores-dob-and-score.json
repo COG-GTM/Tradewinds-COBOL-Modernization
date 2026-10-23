@@ -1,0 +1,75 @@
+{
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "ignores-dob-and-score",
+  "description": "DOB / credit score in COMMAREA are not updated",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000006",
+    "COMM-NAME": "Mrs Some O Body",
+    "COMM-ADDR": "8 Elm Close, Hull",
+    "COMM-DOB": 1012000,
+    "COMM-CREDIT-SCORE": 999
+  },
+  "commarea_out": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000006",
+    "COMM-NAME": "Mrs Some O Body",
+    "COMM-ADDR": "8 Elm Close, Hull",
+    "COMM-DOB": 10061958,
+    "COMM-CREDIT-SCORE": 413,
+    "COMM-CS-REVIEW-DATE": 16012026,
+    "COMM-UPD-SUCCESS": "Y",
+    "COMM-UPD-FAIL-CD": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "CUSTOMER_SORTCODE": "987654",
+            "CUSTOMER_NUMBER": "0000000006"
+          },
+          "changes": {
+            "CUSTOMER_NAME": [
+              "Miss Josephine  Parker",
+              "Mrs Some O Body"
+            ],
+            "CUSTOMER_ADDRESS": [
+              "97 Douglas Escalade, Carlisle",
+              "8 Elm Close, Hull"
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

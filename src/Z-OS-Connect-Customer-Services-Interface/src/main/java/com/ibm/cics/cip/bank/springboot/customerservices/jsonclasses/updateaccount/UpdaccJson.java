@@ -27,7 +27,7 @@ public class UpdaccJson
 	private int commAccno;
 
 	@JsonProperty("CommIntRate")
-	private float commInterestRate;
+	private double commInterestRate;
 
 	@JsonProperty("CommOpened")
 	private String commOpened;
@@ -42,10 +42,10 @@ public class UpdaccJson
 	private String commNextStatementDate;
 
 	@JsonProperty("CommAvailBal")
-	private float commAvailableBalance;
+	private double commAvailableBalance;
 
 	@JsonProperty("CommActualBal")
-	private float commActualBalance;
+	private double commActualBalance;
 
 	@JsonProperty("CommSuccess")
 	private String commSuccess;
@@ -57,10 +57,10 @@ public class UpdaccJson
 
 
 	public UpdaccJson(String commCustNoIn, int commAccNoIn,
-			AccountType commAccountTypeIn, float commInterestRateIn,
+			AccountType commAccountTypeIn, double commInterestRateIn,
 			String commOpenedIn, int commOverdraftIn,
 			String commLastStatementDateIn, String commNextStatementDateIn,
-			float commAvailableBalanceIn, float commActualBalanceIn)
+			double commAvailableBalanceIn, double commActualBalanceIn)
 	{
 		commCustno = commCustNoIn;
 		commAccno = commAccNoIn;
@@ -162,13 +162,13 @@ public class UpdaccJson
 	}
 
 
-	public float getCommInterestRate()
+	public double getCommInterestRate()
 	{
 		return commInterestRate;
 	}
 
 
-	public void setCommInterestRate(float commInterestRateIn)
+	public void setCommInterestRate(double commInterestRateIn)
 	{
 		commInterestRate = commInterestRateIn;
 	}
@@ -222,25 +222,25 @@ public class UpdaccJson
 	}
 
 
-	public float getCommAvailableBalance()
+	public double getCommAvailableBalance()
 	{
 		return commAvailableBalance;
 	}
 
 
-	public void setCommAvailableBalance(float commAvailableBalanceIn)
+	public void setCommAvailableBalance(double commAvailableBalanceIn)
 	{
 		commAvailableBalance = commAvailableBalanceIn;
 	}
 
 
-	public float getCommActualBalance()
+	public double getCommActualBalance()
 	{
 		return commActualBalance;
 	}
 
 
-	public void setCommActualBalance(float commActualBalanceIn)
+	public void setCommActualBalance(double commActualBalanceIn)
 	{
 		commActualBalance = commActualBalanceIn;
 	}

@@ -1,0 +1,147 @@
+{
+  "total": 107,
+  "match": 107,
+  "diff": 0,
+  "golden_fixture": 0,
+  "by_program": {
+    "ABNDPROC": {
+      "total": 1,
+      "match": 1,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1CAC": {
+      "total": 3,
+      "match": 3,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1CCA": {
+      "total": 2,
+      "match": 2,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1CCS": {
+      "total": 3,
+      "match": 3,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1CRA": {
+      "total": 2,
+      "match": 2,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1DAC": {
+      "total": 2,
+      "match": 2,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1DCS": {
+      "total": 4,
+      "match": 4,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1TFN": {
+      "total": 2,
+      "match": 2,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNK1UAC": {
+      "total": 1,
+      "match": 1,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "BNKMENU": {
+      "total": 12,
+      "match": 12,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "CREACC": {
+      "total": 10,
+      "match": 10,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "CRECUST": {
+      "total": 8,
+      "match": 8,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "DBCRFUN": {
+      "total": 12,
+      "match": 12,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "DELACC": {
+      "total": 3,
+      "match": 3,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "DELCUS": {
+      "total": 5,
+      "match": 5,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "GETCOMPY": {
+      "total": 1,
+      "match": 1,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "GETSCODE": {
+      "total": 1,
+      "match": 1,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "INQACC": {
+      "total": 5,
+      "match": 5,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "INQACCCU": {
+      "total": 5,
+      "match": 5,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "INQCUST": {
+      "total": 6,
+      "match": 6,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "UPDACC": {
+      "total": 5,
+      "match": 5,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "UPDCUST": {
+      "total": 6,
+      "match": 6,
+      "diff": 0,
+      "golden_fixture": 0
+    },
+    "XFRFUN": {
+      "total": 8,
+      "match": 8,
+      "diff": 0,
+      "golden_fixture": 0
+    }
+  },
+  "diffs": {}
+}

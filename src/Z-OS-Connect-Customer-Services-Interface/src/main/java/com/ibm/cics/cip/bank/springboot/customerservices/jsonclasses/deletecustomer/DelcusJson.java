@@ -32,7 +32,7 @@ public class DelcusJson
 	private String commCsReviewDate;
 
 	@JsonProperty("CommCustno")
-	private int commCustno;
+	private long commCustno;
 
 	@JsonProperty("CommDelFailCd")
 	private int commDelFailCode;
@@ -122,13 +122,13 @@ public class DelcusJson
 	}
 
 
-	public int getCommCustno()
+	public long getCommCustno()
 	{
 		return commCustno;
 	}
 
 
-	public void setCommCustno(int commCustnoIn)
+	public void setCommCustno(long commCustnoIn)
 	{
 		commCustno = commCustnoIn;
 	}

@@ -1,0 +1,148 @@
+{
+ "generated": "2026-10-23T05:28:51Z",
+ "head": "1e399d576446f8fda5a29a2eb5416e68f24bdcde",
+ "flows_total": 124,
+ "flows_comparable": 123,
+ "flows_matching": 114,
+ "flows_not_comparable": 1,
+ "by_kind": {
+  "transcript-link": {
+   "MATCH": 68,
+   "DIFF": 7,
+   "NOT_COMPARABLE": 1
+  },
+  "api-variant": {
+   "MATCH": 5
+  },
+  "user-flow": {
+   "MATCH": 6
+  },
+  "api-crosscheck": {
+   "MATCH": 5,
+   "DIFF": 1
+  },
+  "transcript-terminal": {
+   "MATCH": 30,
+   "DIFF": 1
+  }
+ },
+ "execution_errors": [],
+ "classification": {
+  "CREACC/type-isa": "KL-CREACC-BAL",
+  "CREACC/type-loan": "KL-CREACC-BAL",
+  "CREACC/type-mortgage": "KL-CREACC-BAL",
+  "CREACC/type-saving": "KL-CREACC-BAL",
+  "UPDACC/invalid-type": "KL-UPDACC-TYPE",
+  "INQCUST/random-seed-42": "KL-RANDOM-CUST",
+  "INQCUST/random-seed-7": "KL-RANDOM-CUST",
+  "BNK1DCS/lookup-non-numeric": "KL-RANDOM-CUST",
+  "api-crosscheck/processed-transactions": "MD-PROCTRAN-API"
+ },
+ "unclassified_differences": [],
+ "migration_defects": {
+  "MD-PROCTRAN-API": {
+   "title": "GET /banking/processedTransaction not implemented",
+   "flow": "api-crosscheck/processed-transactions",
+   "field": "HTTP status / numberOfProcessedTransactions",
+   "legacy": "8 (PROCTRAN rows of the canonical seed; served by legacy Liberty ProcessedTransactionResource)",
+   "migrated": "HTTP 404 {\"errorMessage\":\"Not found: /banking/processedTransaction\"}",
+   "root_cause": "docs/migration/api-contract.md \"Optional read APIs (T-12)\" lists GET /banking/processedTransaction; the migrated service only implements GET /banking/abend (abndproc/AbendController.java). No controller maps /banking/processedTransaction. The React UI does not call it, so severity is low.",
+   "file": "src/cbsa-core-service/src/main/java/com/ibm/cics/cip/bank/core/ (missing controller; legacy: src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/ProcessedTransactionResource.java)"
+  }
+ },
+ "known_limitations": {
+  "KL-CREACC-BAL": {
+   "title": "CREACC opening balance is not part of the REST surface",
+   "detail": "COMMAREA COMM-AVAIL-BAL/COMM-ACT-BAL (50, 100, -5000, -125000) are written by COBOL CREACC; POST /banking/account has no balance field (api-contract.md) and the migrated account opens with 0.00. This matches the legacy web path: src/webui/.../web/db2/Account.createAccount inserts 0.00,0.00. Account number, type, rate, overdraft, dates, CONTROL and PROCTRAN all match in these flows; BNK1CAC/create-ok (3270 path) matches fully."
+  },
+  "KL-UPDACC-TYPE": {
+   "title": "UPDACC invalid account type rejected by the REST layer",
+   "detail": "Legacy COBOL UPDACC writes ACCOUNT_TYPE=CHEQUE (pre-existing defect 9); the migrated PUT /banking/account/6 returns 400 \"Account type CHEQUE is not supported.\" (updacc/UpdateAccountController.VALID_ACCOUNT_TYPES), exactly like the legacy Liberty AccountsResource.updateAccountInternal (validateType, HTTP 400) that fronted UPDACC for the React UI. Intentional per tickets.md T-07 (\"blank or invalid type -> 400\")."
+  },
+  "KL-RANDOM-CUST": {
+   "title": "INQCUST \"random customer\" (custno 0) picks a different customer",
+   "detail": "Legacy always returns customer 0000000001 for both CBSA_RANDOM_SEED=42 and 7 (GENERATE-RANDOM-CUSTOMER is computed from NCS-CUST-NO-VALUE, so the draw collapses to 1); the migrated service draws from CbsaRandom stream 100 (seed+100) over the highest customer number and returns 0000000022 (seed 42). Documented as a known deviation before this run in screens/TranscriptReplayTest.KNOWN_DEVIATIONS and InquireCustomerTranscriptReplayTest. The outcome kind (success) and DB state match."
+  },
+  "other": [
+   "PROCTRAN_REF excluded from every comparison (documented: docs/migration/inventory.md \"PROCTRAN_REF is the CICS task number (Java: per-JVM sequence) and is excluded from parity comparisons\"). Observed: legacy writes the task EIBTASKN on every row of a task (e.g. DELCUS 4 rows all 000000000100); Java increments per row and CRECUST uses taskn+1 (credit check consumes one number). All other PROCTRAN columns are compared.",
+   "ABNDPROC/record: not comparable - the migrated service has no REST trigger for ABNDPROC (only GET /banking/abend).",
+   "BANKDATA (batch) is not replayed per flow; its output is the canonical seed itself, and the seed loaded by both sides was verified identical (full CUSTOMER/ACCOUNT/PROCTRAN/CONTROL dump) before every flow.",
+   "Migrated EIBTASKN is set through a parity-only test seam (parity/tools/ParityServer.java: resettable TaskNumberSupplier subclass + /__parity reset/exec/dump endpoints); all business beans are the unmodified target/classes.",
+   "3270 screen flows have no REST surface: they are driven in-process through com.ibm.cics.cip.bank.core.screens handlers (parity/tools/ScreenParity.java). RETURN COMMAREA bytes are not compared (Java keeps a symbolic state map).",
+   "React unit tests are not runnable in this environment: ReferenceError: TextDecoder is not defined (enzyme -> cheerio -> undici needs Web APIs absent from the CRA jsdom env; fails in src/setupTests.js before any test).",
+   "React UI was not driven end-to-end against the migrated service in this round; REST flows use the exact payloads in api-contract.md that the UI sends.",
+   "Single-node H2 only; the postgres profile was not exercised by this parity run."
+  ]
+ },
+ "pre_existing_legacy_defects": [
+  {
+   "ref": "README #9",
+   "text": "UPDACC accepts an invalid account type and writes CHEQUE (UPDACC/invalid-type)."
+  },
+  {
+   "ref": "new",
+   "text": "INQCUST custno 0 (\"random customer\") always returns customer 1 regardless of CBSA_RANDOM_SEED (observed: random-seed-42 and random-seed-7 both -> 0000000001); BNK1DCS non-numeric input inherits it."
+  },
+  {
+   "ref": "README #11",
+   "text": "BNK1DCS non-numeric customer number: DEEDIT gives 0 -> random customer + \"Customer lookup successful.\""
+  },
+  {
+   "ref": "README #2/#3",
+   "text": "DBCRFUN payment debits ignore the overdraft; teller debit has no funds check - reproduced identically by Java."
+  },
+  {
+   "ref": "README #5",
+   "text": "Zero-amount DBCRFUN succeeds and writes PROCTRAN - reproduced identically."
+  },
+  {
+   "ref": "README #6-8",
+   "text": "XFRFUN: no funds check; same-account ABEND SAME; missing target fail code 2 after rollbacks - reproduced identically."
+  },
+  {
+   "ref": "README #10",
+   "text": "UPDCUST ignores DOB/credit score - reproduced identically."
+  },
+  {
+   "ref": "README #15",
+   "text": "Credit scores depend on EIBTASKN - reproduced identically (CRECUST ok-seed-1234-taskn-500 matches)."
+  },
+  {
+   "ref": "README #17/#18",
+   "text": "INQACCCU zero-accounts vs not-found asymmetry; CREACC lowercase rejection and 9th/10th account rule - reproduced identically."
+  },
+  {
+   "ref": "README #1",
+   "text": "ABND-TIME uses the minutes field twice (ABNDPROC, not comparable via REST)."
+  },
+  {
+   "ref": "README #12",
+   "text": "BNK1CAC overdraft-length underflow (transcripts send blank-padded fields)."
+  },
+  {
+   "ref": "README #16",
+   "text": "DELCUS abend text typo \"Unbale\"."
+  }
+ ],
+ "tests": {
+  "legacy_transcripts": {
+   "match": 107,
+   "diff": 0,
+   "fixture": 0,
+   "total": 107
+  },
+  "migrated_mvn": {
+   "tests": 537,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 3,
+   "classes": 46
+  },
+  "react": {
+   "exit_code": 1,
+   "suites": "1 failed, 1 total",
+   "tests": "0 total",
+   "first_error": "ReferenceError: TextDecoder is not defined"
+  }
+ }
+}

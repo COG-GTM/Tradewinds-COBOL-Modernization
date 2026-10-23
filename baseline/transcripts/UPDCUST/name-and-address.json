@@ -1,0 +1,73 @@
+{
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "name-and-address",
+  "description": "Update name and address of customer 2",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": "Mr Updated N Name",
+    "COMM-ADDR": "99 New Road, Norwich"
+  },
+  "commarea_out": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": "Mr Updated N Name",
+    "COMM-ADDR": "99 New Road, Norwich",
+    "COMM-DOB": 3071979,
+    "COMM-CREDIT-SCORE": 630,
+    "COMM-CS-REVIEW-DATE": 26012026,
+    "COMM-UPD-SUCCESS": "Y",
+    "COMM-UPD-FAIL-CD": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "CUSTOMER_SORTCODE": "987654",
+            "CUSTOMER_NUMBER": "0000000002"
+          },
+          "changes": {
+            "CUSTOMER_NAME": [
+              "Dr James A Wilmore",
+              "Mr Updated N Name"
+            ],
+            "CUSTOMER_ADDRESS": [
+              "39 Gorse Grove, Peterborough",
+              "99 New Road, Norwich"
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

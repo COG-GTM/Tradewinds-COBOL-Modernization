@@ -1,0 +1,242 @@
+{
+  "program": "BNK1CAC",
+  "flow": "screen-ocac",
+  "case": "create-ok",
+  "description": "Open SAVING account for customer 19",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "CUSTNO": "0000000019",
+      "ACCTYP": "SAVING  ",
+      "INTRT": "1.25   ",
+      "OVERDR": "0       "
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1CA",
+        "BNK1CAM",
+        "4"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1CA",
+        "BNK1CAM",
+        "DATAONLY CURSOR ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "CUSTNO",
+        "0000000019"
+      ],
+      [
+        "FIELD",
+        "ACCTYP",
+        "SAVING"
+      ],
+      [
+        "FIELD",
+        "INTRT",
+        "0001.25"
+      ],
+      [
+        "FIELD",
+        "OVERDR",
+        "00000000"
+      ],
+      [
+        "FIELD",
+        "ACCNO",
+        "00000077"
+      ],
+      [
+        "FIELD",
+        "SRTCD",
+        "987654"
+      ],
+      [
+        "FIELD",
+        "OPENDD",
+        "15"
+      ],
+      [
+        "FIELD",
+        "OPENMM",
+        "01"
+      ],
+      [
+        "FIELD",
+        "OPENYY",
+        "2026"
+      ],
+      [
+        "FIELD",
+        "LSTMDD",
+        "15"
+      ],
+      [
+        "FIELD",
+        "LSTMMM",
+        "01"
+      ],
+      [
+        "FIELD",
+        "LSTMYY",
+        "2026"
+      ],
+      [
+        "FIELD",
+        "NSTMTDD",
+        "14"
+      ],
+      [
+        "FIELD",
+        "NSTMTMM",
+        "02"
+      ],
+      [
+        "FIELD",
+        "NSTMTYY",
+        "2026"
+      ],
+      [
+        "FIELD",
+        "AVAIL",
+        "+0000000000.00"
+      ],
+      [
+        "FIELD",
+        "ACTBAL",
+        "+0000000000.00"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "The Account has been successfully created"
+      ],
+      [
+        "RETURN_TRANSID",
+        "OCAC",
+        "",
+        "32"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "0000000019SAVING  00012500000000"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000019",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000077",
+          "ACCOUNT_TYPE": "SAVING",
+          "ACCOUNT_INTEREST_RATE": 1.25,
+          "ACCOUNT_OPENED": "2026-01-15",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2026-01-15",
+          "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
+          "ACCOUNT_AVAILABLE_BALANCE": 0,
+          "ACCOUNT_ACTUAL_BALANCE": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000077",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "OCA",
+          "PROCTRAN_DESC": "0000000019SAVING  1501202614022026",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "CONTROL_NAME": "987654-ACCOUNT-COUNT"
+          },
+          "changes": {
+            "CONTROL_VALUE_NUM": [
+              76,
+              77
+            ]
+          }
+        },
+        {
+          "key": {
+            "CONTROL_NAME": "987654-ACCOUNT-LAST"
+          },
+          "changes": {
+            "CONTROL_VALUE_NUM": [
+              76,
+              77
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "CREACC",
+      "100"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "RETURN_TRANSID",
+      "OCAC",
+      "",
+      "32"
+    ]
+  ],
+  "transid": "OCAC"
+}

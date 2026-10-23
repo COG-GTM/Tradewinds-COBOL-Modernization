@@ -1,0 +1,449 @@
+{
+ "description": "Multi-step user/API journeys replayed on both runtimes on one database per flow; each step gets its own EIBTASKN (env.CBSA_TASKN) on both sides.",
+ "flows": [
+  {
+   "id": "user-flow/UF1-onboard-customer",
+   "kind": "user-flow",
+   "title": "React journey: create customer, open current + saving accounts, list accounts, view customer",
+   "steps": [
+    {
+     "program": "CRECUST",
+     "commarea_in": {
+      "COMM-EYECATCHER": "CUST",
+      "COMM-KEY": {
+       "COMM-SORTCODE": 987654,
+       "COMM-NUMBER": 0
+      },
+      "COMM-NAME": "Ms Parity O Onboard",
+      "COMM-ADDRESS": "1 Parity Street, Leeds",
+      "COMM-DATE-OF-BIRTH": 15061985
+     },
+     "env": {
+      "CBSA_TASKN": "100"
+     }
+    },
+    {
+     "program": "CREACC",
+     "commarea_in": {
+      "COMM-EYECATCHER": "ACCT",
+      "COMM-CUSTNO": 31,
+      "COMM-KEY": {
+       "COMM-SORTCODE": 987654,
+       "COMM-NUMBER": 0
+      },
+      "COMM-ACC-TYPE": "CURRENT",
+      "COMM-INT-RT": 0,
+      "COMM-OVERDR-LIM": 500,
+      "COMM-AVAIL-BAL": 0,
+      "COMM-ACT-BAL": 0
+     },
+     "env": {
+      "CBSA_TASKN": "110"
+     }
+    },
+    {
+     "program": "CREACC",
+     "commarea_in": {
+      "COMM-EYECATCHER": "ACCT",
+      "COMM-CUSTNO": 31,
+      "COMM-KEY": {
+       "COMM-SORTCODE": 987654,
+       "COMM-NUMBER": 0
+      },
+      "COMM-ACC-TYPE": "SAVING",
+      "COMM-INT-RT": 1.5,
+      "COMM-OVERDR-LIM": 0,
+      "COMM-AVAIL-BAL": 0,
+      "COMM-ACT-BAL": 0
+     },
+     "env": {
+      "CBSA_TASKN": "120"
+     }
+    },
+    {
+     "program": "INQACCCU",
+     "commarea_in": {
+      "CUSTOMER-NUMBER": 31
+     },
+     "env": {
+      "CBSA_TASKN": "130"
+     }
+    },
+    {
+     "program": "INQCUST",
+     "commarea_in": {
+      "INQCUST-SCODE": "987654",
+      "INQCUST-CUSTNO": 31
+     },
+     "env": {
+      "CBSA_TASKN": "140"
+     }
+    }
+   ]
+  },
+  {
+   "id": "user-flow/UF2-payments",
+   "kind": "user-flow",
+   "title": "Payments: teller credit, payment-API debit, transfer, then view both accounts",
+   "steps": [
+    {
+     "program": "DBCRFUN",
+     "commarea_in": {
+      "COMM-ACCNO": "00000001",
+      "COMM-AMT": 100.0,
+      "COMM-SORTC": 987654,
+      "COMM-ORIGIN": {
+       "COMM-FACILTYPE": 0
+      }
+     },
+     "env": {
+      "CBSA_TASKN": "100"
+     }
+    },
+    {
+     "program": "DBCRFUN",
+     "commarea_in": {
+      "COMM-ACCNO": "00000001",
+      "COMM-AMT": -20.0,
+      "COMM-SORTC": 987654,
+      "COMM-ORIGIN": {
+       "COMM-FACILTYPE": 496
+      }
+     },
+     "env": {
+      "CBSA_TASKN": "110"
+     }
+    },
+    {
+     "program": "XFRFUN",
+     "commarea_in": {
+      "COMM-FACCNO": 1,
+      "COMM-FSCODE": 987654,
+      "COMM-TACCNO": 2,
+      "COMM-TSCODE": 987654,
+      "COMM-AMT": 50.0
+     },
+     "env": {
+      "CBSA_TASKN": "120"
+     }
+    },
+    {
+     "program": "INQACC",
+     "commarea_in": {
+      "INQACC-SCODE": 987654,
+      "INQACC-ACCNO": 1
+     },
+     "env": {
+      "CBSA_TASKN": "130"
+     }
+    },
+    {
+     "program": "INQACC",
+     "commarea_in": {
+      "INQACC-SCODE": 987654,
+      "INQACC-ACCNO": 2
+     },
+     "env": {
+      "CBSA_TASKN": "140"
+     }
+    }
+   ]
+  },
+  {
+   "id": "user-flow/UF3-maintain-and-close",
+   "kind": "user-flow",
+   "title": "Maintenance: update customer, update account, delete account, list, delete customer",
+   "steps": [
+    {
+     "program": "UPDCUST",
+     "commarea_in": {
+      "COMM-EYE": "CUST",
+      "COMM-SCODE": "987654",
+      "COMM-CUSTNO": "0000000002",
+      "COMM-NAME": "Dr James A Wilmore",
+      "COMM-ADDR": "40 New Road, York"
+     },
+     "env": {
+      "CBSA_TASKN": "100"
+     }
+    },
+    {
+     "program": "UPDACC",
+     "commarea_in": {
+      "COMM-EYE": "ACCT",
+      "COMM-SCODE": "987654",
+      "COMM-ACCNO": 5,
+      "COMM-ACC-TYPE": "SAVING",
+      "COMM-INT-RATE": 1.25,
+      "COMM-OVERDRAFT": 0
+     },
+     "env": {
+      "CBSA_TASKN": "110"
+     }
+    },
+    {
+     "program": "DELACC",
+     "commarea_in": {
+      "DELACC-SCODE": "987654",
+      "DELACC-ACCNO": 5
+     },
+     "env": {
+      "CBSA_TASKN": "120"
+     }
+    },
+    {
+     "program": "INQACCCU",
+     "commarea_in": {
+      "CUSTOMER-NUMBER": 2
+     },
+     "env": {
+      "CBSA_TASKN": "130"
+     }
+    },
+    {
+     "program": "DELCUS",
+     "commarea_in": {
+      "COMM-SCODE": "987654",
+      "COMM-CUSTNO": "0000000002"
+     },
+     "env": {
+      "CBSA_TASKN": "140"
+     }
+    }
+   ]
+  },
+  {
+   "id": "user-flow/UF4-error-journey",
+   "kind": "user-flow",
+   "title": "Error paths: unknown customer/account on every API; data must be untouched",
+   "steps": [
+    {
+     "program": "INQCUST",
+     "commarea_in": {
+      "INQCUST-SCODE": "987654",
+      "INQCUST-CUSTNO": 999
+     },
+     "env": {
+      "CBSA_TASKN": "100"
+     }
+    },
+    {
+     "program": "CREACC",
+     "commarea_in": {
+      "COMM-EYECATCHER": "ACCT",
+      "COMM-CUSTNO": 999,
+      "COMM-KEY": {
+       "COMM-SORTCODE": 987654,
+       "COMM-NUMBER": 0
+      },
+      "COMM-ACC-TYPE": "ISA",
+      "COMM-INT-RT": 1,
+      "COMM-OVERDR-LIM": 0,
+      "COMM-AVAIL-BAL": 0,
+      "COMM-ACT-BAL": 0
+     },
+     "env": {
+      "CBSA_TASKN": "110"
+     }
+    },
+    {
+     "program": "XFRFUN",
+     "commarea_in": {
+      "COMM-FACCNO": 1,
+      "COMM-FSCODE": 987654,
+      "COMM-TACCNO": 99999,
+      "COMM-TSCODE": 987654,
+      "COMM-AMT": 10.0
+     },
+     "env": {
+      "CBSA_TASKN": "120"
+     }
+    },
+    {
+     "program": "DBCRFUN",
+     "commarea_in": {
+      "COMM-ACCNO": "00099999",
+      "COMM-AMT": 10.0,
+      "COMM-SORTC": 987654,
+      "COMM-ORIGIN": {
+       "COMM-FACILTYPE": 0
+      }
+     },
+     "env": {
+      "CBSA_TASKN": "130"
+     }
+    },
+    {
+     "program": "DELCUS",
+     "commarea_in": {
+      "COMM-SCODE": "987654",
+      "COMM-CUSTNO": "0000000999"
+     },
+     "env": {
+      "CBSA_TASKN": "140"
+     }
+    },
+    {
+     "program": "DELACC",
+     "commarea_in": {
+      "DELACC-SCODE": "987654",
+      "DELACC-ACCNO": 99999
+     },
+     "env": {
+      "CBSA_TASKN": "150"
+     }
+    },
+    {
+     "program": "INQACC",
+     "commarea_in": {
+      "INQACC-SCODE": 987654,
+      "INQACC-ACCNO": 99999
+     },
+     "env": {
+      "CBSA_TASKN": "160"
+     }
+    },
+    {
+     "program": "INQACCCU",
+     "commarea_in": {
+      "CUSTOMER-NUMBER": 999
+     },
+     "env": {
+      "CBSA_TASKN": "170"
+     }
+    }
+   ]
+  },
+  {
+   "id": "user-flow/UF5-customer-lifecycle",
+   "kind": "user-flow",
+   "title": "Lifecycle: create customer, open ISA, credit, transfer out, delete customer (cascades accounts)",
+   "steps": [
+    {
+     "program": "CRECUST",
+     "commarea_in": {
+      "COMM-EYECATCHER": "CUST",
+      "COMM-KEY": {
+       "COMM-SORTCODE": 987654,
+       "COMM-NUMBER": 0
+      },
+      "COMM-NAME": "Mr Parity L Lifecycle",
+      "COMM-ADDRESS": "9 Cycle Way, Bristol",
+      "COMM-DATE-OF-BIRTH": 1011990
+     },
+     "env": {
+      "CBSA_TASKN": "100"
+     }
+    },
+    {
+     "program": "CREACC",
+     "commarea_in": {
+      "COMM-EYECATCHER": "ACCT",
+      "COMM-CUSTNO": 31,
+      "COMM-KEY": {
+       "COMM-SORTCODE": 987654,
+       "COMM-NUMBER": 0
+      },
+      "COMM-ACC-TYPE": "ISA",
+      "COMM-INT-RT": 2.1,
+      "COMM-OVERDR-LIM": 0,
+      "COMM-AVAIL-BAL": 0,
+      "COMM-ACT-BAL": 0
+     },
+     "env": {
+      "CBSA_TASKN": "110"
+     }
+    },
+    {
+     "program": "DBCRFUN",
+     "commarea_in": {
+      "COMM-ACCNO": "00000077",
+      "COMM-AMT": 250.0,
+      "COMM-SORTC": 987654,
+      "COMM-ORIGIN": {
+       "COMM-FACILTYPE": 0
+      }
+     },
+     "env": {
+      "CBSA_TASKN": "120"
+     }
+    },
+    {
+     "program": "XFRFUN",
+     "commarea_in": {
+      "COMM-FACCNO": 77,
+      "COMM-FSCODE": 987654,
+      "COMM-TACCNO": 1,
+      "COMM-TSCODE": 987654,
+      "COMM-AMT": 100.0
+     },
+     "env": {
+      "CBSA_TASKN": "130"
+     }
+    },
+    {
+     "program": "DELCUS",
+     "commarea_in": {
+      "COMM-SCODE": "987654",
+      "COMM-CUSTNO": "0000000031"
+     },
+     "env": {
+      "CBSA_TASKN": "140"
+     }
+    }
+   ]
+  },
+  {
+   "id": "user-flow/UF6-rest-teller",
+   "kind": "user-flow",
+   "title": "REST teller endpoints PUT /banking/account/{credit,debit}/{id}",
+   "steps": [
+    {
+     "program": "TELLER",
+     "commarea_in": {
+      "COMM-ACCNO": "00000003",
+      "COMM-AMT": 75.5,
+      "COMM-SORTC": 987654,
+      "COMM-ORIGIN": {
+       "COMM-FACILTYPE": 0
+      }
+     },
+     "legacy_program": "DBCRFUN",
+     "env": {
+      "CBSA_TASKN": "100"
+     }
+    },
+    {
+     "program": "TELLER",
+     "commarea_in": {
+      "COMM-ACCNO": "00000003",
+      "COMM-AMT": -25.25,
+      "COMM-SORTC": 987654,
+      "COMM-ORIGIN": {
+       "COMM-FACILTYPE": 0
+      }
+     },
+     "legacy_program": "DBCRFUN",
+     "env": {
+      "CBSA_TASKN": "110"
+     }
+    },
+    {
+     "program": "TELLER",
+     "commarea_in": {
+      "COMM-ACCNO": "00099999",
+      "COMM-AMT": 10.0,
+      "COMM-SORTC": 987654,
+      "COMM-ORIGIN": {
+       "COMM-FACILTYPE": 0
+      }
+     },
+     "legacy_program": "DBCRFUN",
+     "env": {
+      "CBSA_TASKN": "120"
+     }
+    }
+   ]
+  }
+ ]
+}

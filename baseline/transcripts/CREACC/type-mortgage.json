@@ -1,0 +1,134 @@
+{
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "type-mortgage",
+  "description": "Open a MORTGAGE account for customer 24",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYECATCHER": "ACCT",
+    "COMM-CUSTNO": 24,
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 0
+    },
+    "COMM-ACC-TYPE": "MORTGAGE",
+    "COMM-INT-RT": 3.5,
+    "COMM-OVERDR-LIM": 0,
+    "COMM-AVAIL-BAL": -125000,
+    "COMM-ACT-BAL": -125000
+  },
+  "commarea_out": {
+    "COMM-EYECATCHER": "ACCT",
+    "COMM-CUSTNO": 24,
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 77
+    },
+    "COMM-ACC-TYPE": "MORTGAGE",
+    "COMM-INT-RT": 3.5,
+    "COMM-OPENED": 15012026,
+    "COMM-OVERDR-LIM": 0,
+    "COMM-LAST-STMT-DT": 15012026,
+    "COMM-NEXT-STMT-DT": 14022026,
+    "COMM-AVAIL-BAL": -125000.0,
+    "COMM-ACT-BAL": -125000.0,
+    "COMM-SUCCESS": "Y",
+    "COMM-FAIL-CODE": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000024",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000077",
+          "ACCOUNT_TYPE": "MORTGAGE",
+          "ACCOUNT_INTEREST_RATE": 3.5,
+          "ACCOUNT_OPENED": "2026-01-15",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2026-01-15",
+          "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
+          "ACCOUNT_AVAILABLE_BALANCE": -125000,
+          "ACCOUNT_ACTUAL_BALANCE": -125000
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000077",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "OCA",
+          "PROCTRAN_DESC": "0000000024MORTGAGE1501202614022026",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "CONTROL_NAME": "987654-ACCOUNT-COUNT"
+          },
+          "changes": {
+            "CONTROL_VALUE_NUM": [
+              76,
+              77
+            ]
+          }
+        },
+        {
+          "key": {
+            "CONTROL_NAME": "987654-ACCOUNT-LAST"
+          },
+          "changes": {
+            "CONTROL_VALUE_NUM": [
+              76,
+              77
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ]
+  ]
+}

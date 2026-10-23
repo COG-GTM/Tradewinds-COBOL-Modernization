@@ -1,0 +1,90 @@
+{
+  "program": "DELACC",
+  "flow": "delete-account",
+  "case": "ok-74",
+  "description": "Delete MORTGAGE account 74",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "DELACC-SCODE": "987654",
+    "DELACC-ACCNO": 74
+  },
+  "commarea_out": {
+    "DELACC-EYE": "ACCT",
+    "DELACC-CUSTNO": "0000000005",
+    "DELACC-SCODE": "987654",
+    "DELACC-ACCNO": 74,
+    "DELACC-ACC-TYPE": "MORTGAGE",
+    "DELACC-INT-RATE": 3.25,
+    "DELACC-OPENED": 10012026,
+    "DELACC-OVERDRAFT": 0,
+    "DELACC-LAST-STMT-DT": 10012026,
+    "DELACC-NEXT-STMT-DT": 9022026,
+    "DELACC-AVAIL-BAL": -150000.0,
+    "DELACC-ACTUAL-BAL": -150000.0,
+    "DELACC-SUCCESS": "",
+    "DELACC-FAIL-CD": "",
+    "DELACC-DEL-SUCCESS": "Y",
+    "DELACC-DEL-FAIL-CD": "",
+    "DELACC-DEL-APPLID": "",
+    "DELACC-DEL-PCB1": null,
+    "DELACC-DEL-PCB2": null,
+    "DELACC-DEL-PCB3": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000005",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000074",
+          "ACCOUNT_TYPE": "MORTGAGE",
+          "ACCOUNT_INTEREST_RATE": 3.25,
+          "ACCOUNT_OPENED": "2026-01-10",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2026-01-10",
+          "ACCOUNT_NEXT_STATEMENT": "2026-02-09",
+          "ACCOUNT_AVAILABLE_BALANCE": -150000,
+          "ACCOUNT_ACTUAL_BALANCE": -150000
+        }
+      ]
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000074",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000005MORTGAGE1001202609022026DELETE",
+          "PROCTRAN_AMOUNT": -150000
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

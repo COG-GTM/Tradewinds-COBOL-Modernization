@@ -1,0 +1,13 @@
+{
+ "class": "com.ibm.cics.cip.bank.core.postgres.PostgresProfileMainFlowsTest",
+ "tests": 4,
+ "failures": 0,
+ "errors": 0,
+ "skipped": 0,
+ "cases": [
+  "runsOnPostgresWithCanonicalSchemaAndSeed",
+  "readFlowsServeTheSeed",
+  "customerAndAccountLifecycleWithMoneyMovement",
+  "concurrentCreatesGetDistinctNumbersFromControl"
+ ]
+}

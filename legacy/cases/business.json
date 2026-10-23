@@ -1,0 +1,1048 @@
+[
+ {
+  "program": "GETCOMPY",
+  "flow": "get-company-name",
+  "case": "company-name",
+  "description": "Return the bank company name",
+  "commarea_in": {}
+ },
+ {
+  "program": "GETSCODE",
+  "flow": "get-sortcode",
+  "case": "sortcode",
+  "description": "Return the installation sort code",
+  "commarea_in": {}
+ },
+ {
+  "program": "INQCUST",
+  "flow": "inquire-customer",
+  "case": "found-1",
+  "description": "Inquire first customer 1",
+  "commarea_in": {
+   "INQCUST-SCODE": "987654",
+   "INQCUST-CUSTNO": 1
+  }
+ },
+ {
+  "program": "INQCUST",
+  "flow": "inquire-customer",
+  "case": "found-17",
+  "description": "Inquire mid-range customer 17",
+  "commarea_in": {
+   "INQCUST-SCODE": "987654",
+   "INQCUST-CUSTNO": 17
+  }
+ },
+ {
+  "program": "INQCUST",
+  "flow": "inquire-customer",
+  "case": "not-found",
+  "description": "Inquire non-existent customer 999",
+  "commarea_in": {
+   "INQCUST-SCODE": "987654",
+   "INQCUST-CUSTNO": 999
+  }
+ },
+ {
+  "program": "INQCUST",
+  "flow": "inquire-customer",
+  "case": "last-customer",
+  "description": "Customer number 9999999999 returns the last customer",
+  "commarea_in": {
+   "INQCUST-SCODE": "987654",
+   "INQCUST-CUSTNO": 9999999999
+  }
+ },
+ {
+  "program": "INQCUST",
+  "flow": "random-customer",
+  "case": "random-seed-42",
+  "description": "Customer number 0000000000 returns a random existing customer (CBSA_RANDOM_SEED=42)",
+  "commarea_in": {
+   "INQCUST-SCODE": "987654",
+   "INQCUST-CUSTNO": 0
+  },
+  "env": {
+   "CBSA_RANDOM_SEED": "42"
+  }
+ },
+ {
+  "program": "INQCUST",
+  "flow": "random-customer",
+  "case": "random-seed-7",
+  "description": "Customer number 0000000000 returns a random existing customer (CBSA_RANDOM_SEED=7)",
+  "commarea_in": {
+   "INQCUST-SCODE": "987654",
+   "INQCUST-CUSTNO": 0
+  },
+  "env": {
+   "CBSA_RANDOM_SEED": "7"
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "create-customer",
+  "case": "ok-seed-42",
+  "description": "Create customer; credit check by 5 agencies (seed 42)",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Mr Alan T Turing",
+   "COMM-ADDRESS": "1 Bletchley Park, Milton Keynes",
+   "COMM-DATE-OF-BIRTH": 23061912
+  },
+  "env": {
+   "CBSA_RANDOM_SEED": "42"
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "credit-check",
+  "case": "ok-seed-7",
+  "description": "Create customer with a different random seed: different agency scores",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Mrs Ada L Lovelace",
+   "COMM-ADDRESS": "12 St James Square, London",
+   "COMM-DATE-OF-BIRTH": 10121985
+  },
+  "env": {
+   "CBSA_RANDOM_SEED": "7"
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "credit-check",
+  "case": "ok-seed-1234-taskn-500",
+  "description": "Credit check with seed 1234 and task number 500",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Dr Grace B Hopper",
+   "COMM-ADDRESS": "5 Harbour Road, Portsmouth",
+   "COMM-DATE-OF-BIRTH": 9121966
+  },
+  "env": {
+   "CBSA_RANDOM_SEED": "1234",
+   "CBSA_TASKN": "500"
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "create-customer",
+  "case": "invalid-title",
+  "description": "Name with an unrecognised title",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Captain Jack Sparrow",
+   "COMM-ADDRESS": "1 Pearl Quay, Tortuga",
+   "COMM-DATE-OF-BIRTH": 1011980
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "create-customer",
+  "case": "invalid-dob-month",
+  "description": "Date of birth with month 13",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Ms Jane Q Public",
+   "COMM-ADDRESS": "2 Main Street, York",
+   "COMM-DATE-OF-BIRTH": 15131990
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "create-customer",
+  "case": "dob-future",
+  "description": "Date of birth in the future",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Mr Future B Born",
+   "COMM-ADDRESS": "3 Time Lane, Bath",
+   "COMM-DATE-OF-BIRTH": 1012030
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "create-customer",
+  "case": "dob-too-old",
+  "description": "Date of birth more than 150 years ago",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Mr Very O Old",
+   "COMM-ADDRESS": "4 Ancient Way, Ely",
+   "COMM-DATE-OF-BIRTH": 1011800
+  }
+ },
+ {
+  "program": "CRECUST",
+  "flow": "create-customer",
+  "case": "dob-pre-1601",
+  "description": "Date of birth before 1601 (LE CEEDAYS range)",
+  "commarea_in": {
+   "COMM-EYECATCHER": "CUST",
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-NAME": "Mr Tudor H Eight",
+   "COMM-ADDRESS": "5 Palace Road, Hampton",
+   "COMM-DATE-OF-BIRTH": 28061491
+  }
+ },
+ {
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "name-and-address",
+  "description": "Update name and address of customer 2",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000002",
+   "COMM-NAME": "Mr Updated N Name",
+   "COMM-ADDR": "99 New Road, Norwich"
+  }
+ },
+ {
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "address-only",
+  "description": "Update address only (name blank)",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000003",
+   "COMM-NAME": "",
+   "COMM-ADDR": "7 Changed Avenue, Derby"
+  }
+ },
+ {
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "not-found",
+  "description": "Update non-existent customer 999",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000999",
+   "COMM-NAME": "Mr Nobody",
+   "COMM-ADDR": "Nowhere"
+  }
+ },
+ {
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "blank-name-and-address",
+  "description": "Both name and address blank",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000004",
+   "COMM-NAME": "",
+   "COMM-ADDR": ""
+  }
+ },
+ {
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "invalid-title",
+  "description": "Name with an unrecognised title",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000005",
+   "COMM-NAME": "Captain Jack Sparrow",
+   "COMM-ADDR": "1 Pearl Quay, Tortuga"
+  }
+ },
+ {
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "ignores-dob-and-score",
+  "description": "DOB / credit score in COMMAREA are not updated",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000006",
+   "COMM-NAME": "Mrs Some O Body",
+   "COMM-ADDR": "8 Elm Close, Hull",
+   "COMM-DOB": 1012000,
+   "COMM-CREDIT-SCORE": 999
+  }
+ },
+ {
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "with-4-accounts",
+  "description": "Delete customer 1 and its 4 accounts",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000001"
+  }
+ },
+ {
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "with-mortgage",
+  "description": "Delete customer 5 (ISA + MORTGAGE)",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000005"
+  }
+ },
+ {
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "single-account",
+  "description": "Delete customer 9 (one account)",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000009"
+  }
+ },
+ {
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "not-found",
+  "description": "Delete non-existent customer 999",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000999"
+  }
+ },
+ {
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "no-accounts",
+  "description": "Delete customer with no accounts",
+  "commarea_in": {
+   "COMM-EYE": "CUST",
+   "COMM-SCODE": "987654",
+   "COMM-CUSTNO": "0000000030"
+  },
+  "setup_sql": [
+   "DELETE FROM ACCOUNT WHERE ACCOUNT_CUSTOMER_NUMBER='0000000030';"
+  ]
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "type-current",
+  "description": "Open a CURRENT account for customer 9",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 9,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "CURRENT",
+   "COMM-INT-RT": 0,
+   "COMM-OVERDR-LIM": 250,
+   "COMM-AVAIL-BAL": 0,
+   "COMM-ACT-BAL": 0
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "type-saving",
+  "description": "Open a SAVING account for customer 19",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 19,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "SAVING",
+   "COMM-INT-RT": 1.75,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": 100,
+   "COMM-ACT-BAL": 100
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "type-isa",
+  "description": "Open a ISA account for customer 29",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 29,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "ISA",
+   "COMM-INT-RT": 2.1,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": 50,
+   "COMM-ACT-BAL": 50
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "type-loan",
+  "description": "Open a LOAN account for customer 23",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 23,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "LOAN",
+   "COMM-INT-RT": 17.9,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": -5000,
+   "COMM-ACT-BAL": -5000
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "type-mortgage",
+  "description": "Open a MORTGAGE account for customer 24",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 24,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "MORTGAGE",
+   "COMM-INT-RT": 3.5,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": -125000,
+   "COMM-ACT-BAL": -125000
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "invalid-type",
+  "description": "Account type CHEQUE is rejected",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 9,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "CHEQUE",
+   "COMM-INT-RT": 1.5,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": 0,
+   "COMM-ACT-BAL": 0
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "lowercase-type",
+  "description": "Lower-case account type isa",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 9,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "isa",
+   "COMM-INT-RT": 1.5,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": 0,
+   "COMM-ACT-BAL": 0
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "customer-not-found",
+  "description": "Customer 999 does not exist",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 999,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "SAVING",
+   "COMM-INT-RT": 1.5,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": 0,
+   "COMM-ACT-BAL": 0
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "max-accounts",
+  "description": "Customer already has 10 accounts",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 30,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "SAVING",
+   "COMM-INT-RT": 1.5,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": 0,
+   "COMM-ACT-BAL": 0
+  },
+  "setup_sql": [
+   "INSERT INTO ACCOUNT SELECT 'ACCT','0000000030','987654',printf('%08d',100+value),'SAVING',1.0,'2020-01-01',0,'2025-12-01','2026-01-01',10,10 FROM (WITH RECURSIVE n(value) AS (SELECT 1 UNION ALL SELECT value+1 FROM n WHERE value<9) SELECT value FROM n);"
+  ]
+ },
+ {
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "ninth-account",
+  "description": "Customer with 8 accounts opens a 9th",
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 29,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "CURRENT",
+   "COMM-INT-RT": 0,
+   "COMM-OVERDR-LIM": 100,
+   "COMM-AVAIL-BAL": 0,
+   "COMM-ACT-BAL": 0
+  },
+  "setup_sql": [
+   "INSERT INTO ACCOUNT SELECT 'ACCT','0000000029','987654',printf('%08d',200+value),'SAVING',1.0,'2020-01-01',0,'2025-12-01','2026-01-01',10,10 FROM (WITH RECURSIVE n(value) AS (SELECT 1 UNION ALL SELECT value+1 FROM n WHERE value<7) SELECT value FROM n);"
+  ]
+ },
+ {
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "found-1",
+  "description": "Inquire ISA account 1",
+  "commarea_in": {
+   "INQACC-SCODE": 987654,
+   "INQACC-ACCNO": 1
+  }
+ },
+ {
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "found-3",
+  "description": "Inquire CURRENT account 3",
+  "commarea_in": {
+   "INQACC-SCODE": 987654,
+   "INQACC-ACCNO": 3
+  }
+ },
+ {
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "found-74",
+  "description": "Inquire MORTGAGE account 74",
+  "commarea_in": {
+   "INQACC-SCODE": 987654,
+   "INQACC-ACCNO": 74
+  }
+ },
+ {
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "not-found",
+  "description": "Inquire non-existent account 99999",
+  "commarea_in": {
+   "INQACC-SCODE": 987654,
+   "INQACC-ACCNO": 99999
+  }
+ },
+ {
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "last-account",
+  "description": "Account 99999999 returns the last account",
+  "commarea_in": {
+   "INQACC-SCODE": 987654,
+   "INQACC-ACCNO": 99999999
+  }
+ },
+ {
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "customer-1",
+  "description": "List accounts of customer 1 (4 accounts)",
+  "commarea_in": {
+   "CUSTOMER-NUMBER": 1
+  }
+ },
+ {
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "customer-5",
+  "description": "List accounts of customer 5 (ISA + MORTGAGE)",
+  "commarea_in": {
+   "CUSTOMER-NUMBER": 5
+  }
+ },
+ {
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "customer-19",
+  "description": "List accounts of customer 19 (1 account)",
+  "commarea_in": {
+   "CUSTOMER-NUMBER": 19
+  }
+ },
+ {
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "customer-not-found",
+  "description": "List accounts of non-existent customer 999",
+  "commarea_in": {
+   "CUSTOMER-NUMBER": 999
+  }
+ },
+ {
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "no-accounts",
+  "description": "Existing customer without accounts",
+  "commarea_in": {
+   "CUSTOMER-NUMBER": 30
+  },
+  "setup_sql": [
+   "DELETE FROM ACCOUNT WHERE ACCOUNT_CUSTOMER_NUMBER='0000000030';"
+  ]
+ },
+ {
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "type-rate-overdraft",
+  "description": "Change account 2 to CURRENT, rate 0.5, overdraft 300",
+  "commarea_in": {
+   "COMM-EYE": "ACCT",
+   "COMM-SCODE": "987654",
+   "COMM-ACCNO": 2,
+   "COMM-ACC-TYPE": "CURRENT",
+   "COMM-INT-RATE": 0.5,
+   "COMM-OVERDRAFT": 300
+  }
+ },
+ {
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "ignores-balance",
+  "description": "Balances in the COMMAREA are not applied",
+  "commarea_in": {
+   "COMM-EYE": "ACCT",
+   "COMM-SCODE": "987654",
+   "COMM-ACCNO": 3,
+   "COMM-ACC-TYPE": "CURRENT",
+   "COMM-INT-RATE": 0.1,
+   "COMM-OVERDRAFT": 100,
+   "COMM-AVAIL-BAL": 1,
+   "COMM-ACTUAL-BAL": 1
+  }
+ },
+ {
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "not-found",
+  "description": "Update non-existent account 99999",
+  "commarea_in": {
+   "COMM-EYE": "ACCT",
+   "COMM-SCODE": "987654",
+   "COMM-ACCNO": 99999,
+   "COMM-ACC-TYPE": "SAVING",
+   "COMM-INT-RATE": 1,
+   "COMM-OVERDRAFT": 0
+  }
+ },
+ {
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "blank-type",
+  "description": "Blank account type",
+  "commarea_in": {
+   "COMM-EYE": "ACCT",
+   "COMM-SCODE": "987654",
+   "COMM-ACCNO": 5,
+   "COMM-ACC-TYPE": "",
+   "COMM-INT-RATE": 1,
+   "COMM-OVERDRAFT": 0
+  }
+ },
+ {
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "invalid-type",
+  "description": "Account type CHEQUE (not validated by UPDACC)",
+  "commarea_in": {
+   "COMM-EYE": "ACCT",
+   "COMM-SCODE": "987654",
+   "COMM-ACCNO": 6,
+   "COMM-ACC-TYPE": "CHEQUE",
+   "COMM-INT-RATE": 1,
+   "COMM-OVERDRAFT": 0
+  }
+ },
+ {
+  "program": "DELACC",
+  "flow": "delete-account",
+  "case": "ok-2",
+  "description": "Delete SAVING account 2",
+  "commarea_in": {
+   "DELACC-SCODE": "987654",
+   "DELACC-ACCNO": 2
+  }
+ },
+ {
+  "program": "DELACC",
+  "flow": "delete-account",
+  "case": "ok-74",
+  "description": "Delete MORTGAGE account 74",
+  "commarea_in": {
+   "DELACC-SCODE": "987654",
+   "DELACC-ACCNO": 74
+  }
+ },
+ {
+  "program": "DELACC",
+  "flow": "delete-account",
+  "case": "not-found",
+  "description": "Delete non-existent account 99999",
+  "commarea_in": {
+   "DELACC-SCODE": "987654",
+   "DELACC-ACCNO": 99999
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "credit",
+  "case": "credit-teller",
+  "description": "Teller credit of 100.00 to account 1",
+  "commarea_in": {
+   "COMM-ACCNO": "00000001",
+   "COMM-AMT": 100.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "debit-teller",
+  "description": "Teller debit of 55.55 from account 7",
+  "commarea_in": {
+   "COMM-ACCNO": "00000007",
+   "COMM-AMT": -55.55,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "credit",
+  "case": "credit-payment-api",
+  "description": "Payment-interface (FACILTYPE 496) credit to account 9",
+  "commarea_in": {
+   "COMM-ACCNO": "00000009",
+   "COMM-AMT": 12.34,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 496
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "debit-payment-api",
+  "description": "Payment-interface debit from account 11",
+  "commarea_in": {
+   "COMM-ACCNO": "00000011",
+   "COMM-AMT": -10.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 496
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "insufficient-funds-api",
+  "description": "Payment debit larger than balance + overdraft (account 76)",
+  "commarea_in": {
+   "COMM-ACCNO": "00000076",
+   "COMM-AMT": -600.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 496
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "insufficient-funds-teller",
+  "description": "Teller debit larger than balance + overdraft (account 76)",
+  "commarea_in": {
+   "COMM-ACCNO": "00000076",
+   "COMM-AMT": -600.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "within-overdraft",
+  "description": "Payment debit using the overdraft (account 76, limit 500)",
+  "commarea_in": {
+   "COMM-ACCNO": "00000076",
+   "COMM-AMT": -400.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 496
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "mortgage-payment-api",
+  "description": "Payment-interface debit from MORTGAGE account 74 is refused",
+  "commarea_in": {
+   "COMM-ACCNO": "00000074",
+   "COMM-AMT": -10.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 496
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "credit",
+  "case": "loan-payment-api",
+  "description": "Payment-interface credit to LOAN account 4 is refused",
+  "commarea_in": {
+   "COMM-ACCNO": "00000004",
+   "COMM-AMT": 10.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 496
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "credit",
+  "case": "loan-teller",
+  "description": "Teller credit to LOAN account 4 is allowed",
+  "commarea_in": {
+   "COMM-ACCNO": "00000004",
+   "COMM-AMT": 10.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "not-found",
+  "description": "Debit of non-existent account 99999",
+  "commarea_in": {
+   "COMM-ACCNO": "00099999",
+   "COMM-AMT": -1.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "credit",
+  "case": "zero-amount",
+  "description": "Credit of 0.00",
+  "commarea_in": {
+   "COMM-ACCNO": "00000001",
+   "COMM-AMT": 0.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "ok",
+  "description": "Transfer 250.00 from account 1 to account 2",
+  "commarea_in": {
+   "COMM-FACCNO": 1,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 2,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 250.0
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "reverse-order-lock",
+  "description": "Transfer from higher to lower account number (lock order)",
+  "commarea_in": {
+   "COMM-FACCNO": 9,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 5,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 1.0
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "insufficient-funds",
+  "description": "Transfer more than available from account 76",
+  "commarea_in": {
+   "COMM-FACCNO": 76,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 1,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 600.0
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "from-not-found",
+  "description": "From-account 99999 does not exist",
+  "commarea_in": {
+   "COMM-FACCNO": 99999,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 1,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 1.0
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "to-not-found",
+  "description": "To-account 99999 does not exist",
+  "commarea_in": {
+   "COMM-FACCNO": 1,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 99999,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 1.0
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "same-account",
+  "description": "Transfer to the same account",
+  "commarea_in": {
+   "COMM-FACCNO": 3,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 3,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 10.0
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "negative-amount",
+  "description": "Negative transfer amount",
+  "commarea_in": {
+   "COMM-FACCNO": 1,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 2,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": -5.0
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "zero-amount",
+  "description": "Zero transfer amount",
+  "commarea_in": {
+   "COMM-FACCNO": 1,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 2,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 0.0
+  }
+ },
+ {
+  "program": "ABNDPROC",
+  "flow": "record-abend",
+  "case": "record",
+  "description": "ABNDPROC records an abend record (written to ABNDFILE)",
+  "commarea_in": {
+   "ABND-VSAM-KEY": {
+    "ABND-UTIME-KEY": 123456789,
+    "ABND-TASKNO-KEY": 42
+   },
+   "ABND-APPLID": "CBSAHARN",
+   "ABND-TRANID": "ODCS",
+   "ABND-DATE": "15.01.2026",
+   "ABND-TIME": "10:30:00",
+   "ABND-CODE": "HWPT",
+   "ABND-PROGRAM": "INQCUST",
+   "ABND-RESPCODE": 13,
+   "ABND-RESP2CODE": 80,
+   "ABND-SQLCODE": 0,
+   "ABND-FREEFORM": "harness test abend"
+  }
+ }
+]

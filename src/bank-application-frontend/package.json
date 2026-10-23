@@ -5,6 +5,7 @@
   "repository": "git@github.ibm.com:BondZ-JumpStart/Carbon-React.git",
   "bugs": "https://github.ibm.com/BondZ-JumpStart/Carbon-React/issues",
   "homepage": "/webui-1.0/",
+  "proxy": "http://localhost:8080",
   "license": "Apache-2.0",
   "scripts": {
     "build": "react-scripts build",
@@ -15,7 +16,8 @@
     "format:diff": "prettier --list-different \"**/*.{js,md,scss}\"",
     "format:staged": "prettier --write",
     "start": "react-scripts start",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "build:core": "bash ./updateCoreService.sh"
   },
   "dependencies": {
     "@babel/core": "^7.0.0-0",
@@ -30,8 +32,6 @@
     "css-select": "5.1.0",
     "dotenv": "^16.3.1",
     "ejs": "3.1.10",
-    "enzyme": "3.11.0",
-    "enzyme-adapter-react-16": "1.15.8",
     "install": "^0.13.0",
     "lodash": "4.17.23",
     "nth-check": "2.0.1",
@@ -102,6 +102,9 @@
     "@babel/plugin-proposal-private-property-in-object": "7.21.11",
     "@commitlint/cli": "13.2.1",
     "@commitlint/config-conventional": "13.2.0",
+    "@testing-library/jest-dom": "5.17.0",
+    "@testing-library/react": "14.3.1",
+    "@testing-library/user-event": "14.5.2",
     "husky": "^8.0.3",
     "lint-staged": "13.2.3",
     "prettier": "1.17.0",

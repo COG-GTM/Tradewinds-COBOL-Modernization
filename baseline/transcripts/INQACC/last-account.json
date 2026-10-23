@@ -1,0 +1,57 @@
+{
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "last-account",
+  "description": "Account 99999999 returns the last account",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "INQACC-SCODE": 987654,
+    "INQACC-ACCNO": 99999999
+  },
+  "commarea_out": {
+    "INQACC-EYE": "ACCT",
+    "INQACC-CUSTNO": 20,
+    "INQACC-SCODE": 987654,
+    "INQACC-ACCNO": 76,
+    "INQACC-ACC-TYPE": "CURRENT",
+    "INQACC-INT-RATE": 0.0,
+    "INQACC-OPENED": 10012026,
+    "INQACC-OVERDRAFT": 500,
+    "INQACC-LAST-STMT-DT": 10012026,
+    "INQACC-NEXT-STMT-DT": 9022026,
+    "INQACC-AVAIL-BAL": 0.0,
+    "INQACC-ACTUAL-BAL": 0.0,
+    "INQACC-SUCCESS": "Y",
+    "INQACC-PCB1-POINTER": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

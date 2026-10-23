@@ -1,0 +1,63 @@
+{
+  "program": "DELACC",
+  "flow": "delete-account",
+  "case": "not-found",
+  "description": "Delete non-existent account 99999",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "DELACC-SCODE": "987654",
+    "DELACC-ACCNO": 99999
+  },
+  "commarea_out": {
+    "DELACC-EYE": "",
+    "DELACC-CUSTNO": "",
+    "DELACC-SCODE": "987654",
+    "DELACC-ACCNO": 99999,
+    "DELACC-ACC-TYPE": "",
+    "DELACC-INT-RATE": 0.0,
+    "DELACC-OPENED": 0,
+    "DELACC-OVERDRAFT": 0,
+    "DELACC-LAST-STMT-DT": 0,
+    "DELACC-NEXT-STMT-DT": 0,
+    "DELACC-AVAIL-BAL": 0.0,
+    "DELACC-ACTUAL-BAL": 0.0,
+    "DELACC-SUCCESS": "",
+    "DELACC-FAIL-CD": "",
+    "DELACC-DEL-SUCCESS": "N",
+    "DELACC-DEL-FAIL-CD": "1",
+    "DELACC-DEL-APPLID": "",
+    "DELACC-DEL-PCB1": null,
+    "DELACC-DEL-PCB2": null,
+    "DELACC-DEL-PCB3": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}
