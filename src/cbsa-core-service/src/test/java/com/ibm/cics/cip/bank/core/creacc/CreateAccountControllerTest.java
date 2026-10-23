@@ -116,6 +116,7 @@ class CreateAccountControllerTest {
             "negative rate       | \"9\"          | \"ISA\"   | -0.01    | 0    | \"987654\"",
             "rate above max      | \"9\"          | \"ISA\"   | 10000.00 | 0    | \"987654\"",
             "rate 3dp            | \"9\"          | \"ISA\"   | 1.234    | 0    | \"987654\"",
+            "rate 3dp zeros      | \"9\"          | \"ISA\"   | 1.000    | 0    | \"987654\"",
             "missing overdraft   | \"9\"          | \"ISA\"   | 1        | null | \"987654\"",
             "negative overdraft  | \"9\"          | \"ISA\"   | 1        | -1   | \"987654\"",
             "missing customer    | null           | \"ISA\"   | 1        | 0    | \"987654\"",
@@ -123,7 +124,9 @@ class CreateAccountControllerTest {
             "customer sentinel   | \"9999999999\" | \"ISA\"   | 1        | 0    | \"987654\"",
             "customer non-number | \"abc\"        | \"ISA\"   | 1        | 0    | \"987654\"",
             "wrong sort code     | \"9\"          | \"ISA\"   | 1        | 0    | \"123456\"",
-            "missing sort code   | \"9\"          | \"ISA\"   | 1        | 0    | null"})
+            "missing sort code   | \"9\"          | \"ISA\"   | 1        | 0    | null",
+            "padded sort code    | \"9\"          | \"ISA\"   | 1        | 0    | \"0987654\"",
+            "signed sort code    | \"9\"          | \"ISA\"   | 1        | 0    | \"+987654\""})
     void webValidationRA9(String name, String customer, String type, String rate, String overdraft, String sortCode)
             throws Exception {
         postJson(body(customer, type, rate, overdraft, sortCode)).andExpect(status().isBadRequest());

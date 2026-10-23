@@ -8,7 +8,6 @@ import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.common.proctran.ProctranWriter;
 import com.ibm.cics.cip.bank.core.common.repository.AccountRepository;
-import com.ibm.cics.cip.bank.core.common.repository.CustomerRepository;
 import com.ibm.cics.cip.bank.core.common.util.CbsaFormats;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,14 +37,14 @@ public class CreateAccountService {
     /** COMM-ACC-TYPE PIC X(8). */
     static final int ACCOUNT_TYPE_WIDTH = 8;
 
-    private final CustomerRepository customers;
+    private final CustomerLock customers;
     private final AccountRepository accounts;
     private final CounterService counters;
     private final ProctranWriter proctran;
     private final BankIdentity bank;
     private final Clock clock;
 
-    public CreateAccountService(CustomerRepository customers, AccountRepository accounts, CounterService counters,
+    public CreateAccountService(CustomerLock customers, AccountRepository accounts, CounterService counters,
             ProctranWriter proctran, BankIdentity bank, Clock clock) {
         this.customers = customers;
         this.accounts = accounts;
@@ -108,10 +107,13 @@ public class CreateAccountService {
         return false;
     }
 
-    /** P010 LINK INQCUST: INQCUST-INQ-SUCCESS = 'Y' only when the customer record exists. */
+    /**
+     * P010 LINK INQCUST: INQCUST-INQ-SUCCESS = 'Y' only when the customer record exists. The customer row stays
+     * locked until commit so concurrent creations for one customer cannot both pass the ten-account check.
+     */
     private boolean customerExists(String sortCode, long customerNumber) {
         try {
-            return customers.exists(sortCode, customerNumber);
+            return customers.lockIfExists(sortCode, customerNumber);
         } catch (DataAccessException e) {
             throw CbsaException.notFound("Customer number " + customerNumber + " cannot be found.", "1");
         }

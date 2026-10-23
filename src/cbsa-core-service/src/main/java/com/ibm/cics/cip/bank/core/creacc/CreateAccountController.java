@@ -54,7 +54,7 @@ public class CreateAccountController {
         if (rate.compareTo(MAX_INTEREST_RATE) > 0) {
             throw CbsaException.badRequest("Interest rate cannot be greater than 9999.99%.");
         }
-        if (rate.stripTrailingZeros().scale() > 2) {
+        if (rate.scale() > 2) {
             throw CbsaException.badRequest(
                     "Interest rate cannot have more than 2 decimal places. " + rate.toPlainString());
         }
@@ -90,13 +90,6 @@ public class CreateAccountController {
     }
 
     private boolean isOurSortCode(String sortCode) {
-        if (sortCode == null || sortCode.isBlank()) {
-            return false;
-        }
-        try {
-            return Integer.parseInt(sortCode.strip()) == Integer.parseInt(bank.sortCode());
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        return bank.isOurSortCode(sortCode);
     }
 }
