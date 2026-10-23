@@ -1,4 +1,5 @@
 {
+ "db": "h2",
  "base": "/webui-1.0/ (static React build in cbsa-core-service, served by the migrated service)",
  "browser": "Chromium headless (Playwright)",
  "results": [

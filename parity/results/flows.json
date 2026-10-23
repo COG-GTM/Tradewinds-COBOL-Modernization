@@ -1,5 +1,109 @@
 [
  {
+  "id": "ABNDPROC/record",
+  "kind": "transcript-link",
+  "title": "ABNDPROC records an abend record (written to ABNDFILE)",
+  "program": "ABNDPROC",
+  "seed_equal_before": true,
+  "status": "MATCH",
+  "diffs": [],
+  "steps": [
+   {
+    "step": 1,
+    "program": "ABNDPROC",
+    "request": {
+     "method": "POST",
+     "path": "/banking/admin/abend",
+     "body": {
+      "utimeKey": 123456789,
+      "taskNoKey": 42,
+      "applid": "CBSAHARN",
+      "tranid": "ODCS",
+      "date": "15.01.2026",
+      "time": "10:30:00",
+      "code": "HWPT",
+      "program": "INQCUST",
+      "respCode": 13,
+      "resp2Code": 80,
+      "sqlCode": 0,
+      "freeform": "harness test abend"
+     }
+    },
+    "migrated_http": 201,
+    "migrated_body": {
+     "utimeKey": 123456789,
+     "taskNoKey": 42,
+     "applid": "CBSAHARN",
+     "tranid": "ODCS",
+     "date": "15.01.2026",
+     "time": "10:30:00",
+     "code": "HWPT",
+     "program": "INQCUST",
+     "respCode": 13,
+     "resp2Code": 80,
+     "sqlCode": 0,
+     "freeform": "harness test abend"
+    },
+    "legacy_commarea_out": {
+     "ABND-VSAM-KEY": {
+      "ABND-UTIME-KEY": 123456789,
+      "ABND-TASKNO-KEY": 42
+     },
+     "ABND-APPLID": "CBSAHARN",
+     "ABND-TRANID": "ODCS",
+     "ABND-DATE": "15.01.2026",
+     "ABND-TIME": "10:30:00",
+     "ABND-CODE": "HWPT",
+     "ABND-PROGRAM": "INQCUST",
+     "ABND-RESPCODE": 13,
+     "ABND-RESP2CODE": 80,
+     "ABND-SQLCODE": 0,
+     "ABND-FREEFORM": "harness test abend"
+    },
+    "legacy_abend": null,
+    "legacy_stderr": null,
+    "legacy_outcome": {
+     "kind": "OK",
+     "code": null
+    },
+    "migrated_outcome": {
+     "kind": "OK",
+     "code": null
+    },
+    "tables_after": {
+     "CUSTOMER": {
+      "rows_legacy": 30,
+      "rows_migrated": 30,
+      "sha_legacy": "8d7bc1300ad34c03",
+      "sha_migrated": "8d7bc1300ad34c03",
+      "equal": true
+     },
+     "ACCOUNT": {
+      "rows_legacy": 76,
+      "rows_migrated": 76,
+      "sha_legacy": "231842f907298890",
+      "sha_migrated": "231842f907298890",
+      "equal": true
+     },
+     "PROCTRAN": {
+      "rows_legacy": 8,
+      "rows_migrated": 8,
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
+      "equal": true
+     },
+     "CONTROL": {
+      "rows_legacy": 4,
+      "rows_migrated": 4,
+      "sha_legacy": "d4d3727c6a561693",
+      "sha_migrated": "d4d3727c6a561693",
+      "equal": true
+     }
+    }
+   }
+  ]
+ },
+ {
   "id": "CREACC/customer-not-found",
   "kind": "transcript-link",
   "title": "Customer 999 does not exist",
@@ -76,8 +180,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -168,8 +272,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -260,8 +364,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -352,8 +456,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -452,8 +556,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "db134916387efe5f",
-      "sha_migrated": "db134916387efe5f",
+      "sha_legacy": "32cac8fc82de50e2",
+      "sha_migrated": "32cac8fc82de50e2",
       "equal": true
      },
      "CONTROL": {
@@ -552,8 +656,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "ae54e31a09e301de",
-      "sha_migrated": "ae54e31a09e301de",
+      "sha_legacy": "db957aeaacae6648",
+      "sha_migrated": "db957aeaacae6648",
       "equal": true
      },
      "CONTROL": {
@@ -573,37 +677,8 @@
   "title": "Open a ISA account for customer 29",
   "program": "CREACC",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "response",
-    "field": "actualBalance",
-    "legacy": 50.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "availableBalance",
-    "legacy": 50.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_ACTUAL_BALANCE",
-    "legacy": 50.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_AVAILABLE_BALANCE",
-    "legacy": 50.0,
-    "migrated": 0.0,
-    "step": 1
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -629,8 +704,8 @@
      "accountType": "ISA",
      "interestRate": 2.1,
      "overdraft": 0,
-     "availableBalance": 0.0,
-     "actualBalance": 0.0,
+     "availableBalance": 50.0,
+     "actualBalance": 50.0,
      "dateOpened": "2026-01-15",
      "lastStatementDate": "2026-01-15",
      "nextStatementDate": "2026-02-14"
@@ -675,14 +750,14 @@
       "rows_legacy": 77,
       "rows_migrated": 77,
       "sha_legacy": "1469843d26b1e47c",
-      "sha_migrated": "a6bd3b60887fd051",
-      "equal": false
+      "sha_migrated": "1469843d26b1e47c",
+      "equal": true
      },
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "95614c4ba0959345",
-      "sha_migrated": "95614c4ba0959345",
+      "sha_legacy": "a1e2b0e9fd809154",
+      "sha_migrated": "a1e2b0e9fd809154",
       "equal": true
      },
      "CONTROL": {
@@ -691,42 +766,6 @@
       "sha_legacy": "5918f2b68e2086af",
       "sha_migrated": "5918f2b68e2086af",
       "equal": true
-     }
-    },
-    "table_rows_differing": {
-     "ACCOUNT": {
-      "legacy_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000029",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "ISA",
-        "ACCOUNT_INTEREST_RATE": 2.1,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": 50.0,
-        "ACCOUNT_ACTUAL_BALANCE": 50.0
-       }
-      ],
-      "migrated_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000029",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "ISA",
-        "ACCOUNT_INTEREST_RATE": 2.1,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": 0.0,
-        "ACCOUNT_ACTUAL_BALANCE": 0.0
-       }
-      ]
      }
     }
    }
@@ -738,37 +777,8 @@
   "title": "Open a LOAN account for customer 23",
   "program": "CREACC",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "response",
-    "field": "actualBalance",
-    "legacy": -5000.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "availableBalance",
-    "legacy": -5000.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_ACTUAL_BALANCE",
-    "legacy": -5000.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_AVAILABLE_BALANCE",
-    "legacy": -5000.0,
-    "migrated": 0.0,
-    "step": 1
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -794,8 +804,8 @@
      "accountType": "LOAN",
      "interestRate": 17.9,
      "overdraft": 0,
-     "availableBalance": 0.0,
-     "actualBalance": 0.0,
+     "availableBalance": -5000.0,
+     "actualBalance": -5000.0,
      "dateOpened": "2026-01-15",
      "lastStatementDate": "2026-01-15",
      "nextStatementDate": "2026-02-14"
@@ -840,14 +850,14 @@
       "rows_legacy": 77,
       "rows_migrated": 77,
       "sha_legacy": "764ab3f32e5abfeb",
-      "sha_migrated": "80cdead64411142e",
-      "equal": false
+      "sha_migrated": "764ab3f32e5abfeb",
+      "equal": true
      },
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "a890305cd0075ac0",
-      "sha_migrated": "a890305cd0075ac0",
+      "sha_legacy": "b28a822aabcc3899",
+      "sha_migrated": "b28a822aabcc3899",
       "equal": true
      },
      "CONTROL": {
@@ -856,42 +866,6 @@
       "sha_legacy": "5918f2b68e2086af",
       "sha_migrated": "5918f2b68e2086af",
       "equal": true
-     }
-    },
-    "table_rows_differing": {
-     "ACCOUNT": {
-      "legacy_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000023",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "LOAN",
-        "ACCOUNT_INTEREST_RATE": 17.9,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": -5000.0,
-        "ACCOUNT_ACTUAL_BALANCE": -5000.0
-       }
-      ],
-      "migrated_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000023",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "LOAN",
-        "ACCOUNT_INTEREST_RATE": 17.9,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": 0.0,
-        "ACCOUNT_ACTUAL_BALANCE": 0.0
-       }
-      ]
      }
     }
    }
@@ -903,37 +877,8 @@
   "title": "Open a MORTGAGE account for customer 24",
   "program": "CREACC",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "response",
-    "field": "actualBalance",
-    "legacy": -125000.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "availableBalance",
-    "legacy": -125000.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_ACTUAL_BALANCE",
-    "legacy": -125000.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_AVAILABLE_BALANCE",
-    "legacy": -125000.0,
-    "migrated": 0.0,
-    "step": 1
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -959,8 +904,8 @@
      "accountType": "MORTGAGE",
      "interestRate": 3.5,
      "overdraft": 0,
-     "availableBalance": 0.0,
-     "actualBalance": 0.0,
+     "availableBalance": -125000.0,
+     "actualBalance": -125000.0,
      "dateOpened": "2026-01-15",
      "lastStatementDate": "2026-01-15",
      "nextStatementDate": "2026-02-14"
@@ -1005,14 +950,14 @@
       "rows_legacy": 77,
       "rows_migrated": 77,
       "sha_legacy": "0097e1e5f9903c75",
-      "sha_migrated": "7f83f6e84d6b345e",
-      "equal": false
+      "sha_migrated": "0097e1e5f9903c75",
+      "equal": true
      },
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "bbe869722ac7659d",
-      "sha_migrated": "bbe869722ac7659d",
+      "sha_legacy": "4fba4144604f4dfc",
+      "sha_migrated": "4fba4144604f4dfc",
       "equal": true
      },
      "CONTROL": {
@@ -1021,42 +966,6 @@
       "sha_legacy": "5918f2b68e2086af",
       "sha_migrated": "5918f2b68e2086af",
       "equal": true
-     }
-    },
-    "table_rows_differing": {
-     "ACCOUNT": {
-      "legacy_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000024",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "MORTGAGE",
-        "ACCOUNT_INTEREST_RATE": 3.5,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": -125000.0,
-        "ACCOUNT_ACTUAL_BALANCE": -125000.0
-       }
-      ],
-      "migrated_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000024",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "MORTGAGE",
-        "ACCOUNT_INTEREST_RATE": 3.5,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": 0.0,
-        "ACCOUNT_ACTUAL_BALANCE": 0.0
-       }
-      ]
      }
     }
    }
@@ -1068,37 +977,8 @@
   "title": "Open a SAVING account for customer 19",
   "program": "CREACC",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "response",
-    "field": "actualBalance",
-    "legacy": 100.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "availableBalance",
-    "legacy": 100.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_ACTUAL_BALANCE",
-    "legacy": 100.0,
-    "migrated": 0.0,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.inserted[0].ACCOUNT_AVAILABLE_BALANCE",
-    "legacy": 100.0,
-    "migrated": 0.0,
-    "step": 1
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -1124,8 +1004,8 @@
      "accountType": "SAVING",
      "interestRate": 1.75,
      "overdraft": 0,
-     "availableBalance": 0.0,
-     "actualBalance": 0.0,
+     "availableBalance": 100.0,
+     "actualBalance": 100.0,
      "dateOpened": "2026-01-15",
      "lastStatementDate": "2026-01-15",
      "nextStatementDate": "2026-02-14"
@@ -1170,14 +1050,14 @@
       "rows_legacy": 77,
       "rows_migrated": 77,
       "sha_legacy": "5545eaf2ccb2aae4",
-      "sha_migrated": "4f6c5677ac0af2ce",
-      "equal": false
+      "sha_migrated": "5545eaf2ccb2aae4",
+      "equal": true
      },
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "88f28cc461b9ee5e",
-      "sha_migrated": "88f28cc461b9ee5e",
+      "sha_legacy": "2295f3f945df6a44",
+      "sha_migrated": "2295f3f945df6a44",
       "equal": true
      },
      "CONTROL": {
@@ -1186,42 +1066,6 @@
       "sha_legacy": "5918f2b68e2086af",
       "sha_migrated": "5918f2b68e2086af",
       "equal": true
-     }
-    },
-    "table_rows_differing": {
-     "ACCOUNT": {
-      "legacy_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000019",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "SAVING",
-        "ACCOUNT_INTEREST_RATE": 1.75,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": 100.0,
-        "ACCOUNT_ACTUAL_BALANCE": 100.0
-       }
-      ],
-      "migrated_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000019",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000077",
-        "ACCOUNT_TYPE": "SAVING",
-        "ACCOUNT_INTEREST_RATE": 1.75,
-        "ACCOUNT_OPENED": "2026-01-15",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2026-01-15",
-        "ACCOUNT_NEXT_STATEMENT": "2026-02-14",
-        "ACCOUNT_AVAILABLE_BALANCE": 0.0,
-        "ACCOUNT_ACTUAL_BALANCE": 0.0
-       }
-      ]
      }
     }
    }
@@ -1297,8 +1141,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -1382,8 +1226,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -1467,8 +1311,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -1552,8 +1396,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -1637,8 +1481,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -1726,8 +1570,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "af088ace9b70916f",
-      "sha_migrated": "af088ace9b70916f",
+      "sha_legacy": "4c27b789eb52316e",
+      "sha_migrated": "4c27b789eb52316e",
       "equal": true
      },
      "CONTROL": {
@@ -1815,8 +1659,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "8ad4d118161dc690",
-      "sha_migrated": "8ad4d118161dc690",
+      "sha_legacy": "59b75c9621680e09",
+      "sha_migrated": "59b75c9621680e09",
       "equal": true
      },
      "CONTROL": {
@@ -1904,8 +1748,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "fbbb9942d4cf386f",
-      "sha_migrated": "fbbb9942d4cf386f",
+      "sha_legacy": "948828bde8045486",
+      "sha_migrated": "948828bde8045486",
       "equal": true
      },
      "CONTROL": {
@@ -2018,8 +1862,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "1df120fe391ba255",
-      "sha_migrated": "1df120fe391ba255",
+      "sha_legacy": "1105e8d2e9b3c733",
+      "sha_migrated": "1105e8d2e9b3c733",
       "equal": true
      },
      "CONTROL": {
@@ -2132,8 +1976,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "149f662d8d98c1d8",
-      "sha_migrated": "149f662d8d98c1d8",
+      "sha_legacy": "905a0af1dd64f6f9",
+      "sha_migrated": "905a0af1dd64f6f9",
       "equal": true
      },
      "CONTROL": {
@@ -2224,8 +2068,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "149f662d8d98c1d8",
-      "sha_migrated": "149f662d8d98c1d8",
+      "sha_legacy": "905a0af1dd64f6f9",
+      "sha_migrated": "905a0af1dd64f6f9",
       "equal": true
      },
      "CONTROL": {
@@ -2338,8 +2182,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "129e5907fdc0bb89",
-      "sha_migrated": "129e5907fdc0bb89",
+      "sha_legacy": "8208eb1682df6ff6",
+      "sha_migrated": "8208eb1682df6ff6",
       "equal": true
      },
      "CONTROL": {
@@ -2452,8 +2296,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "3955642c829bae90",
-      "sha_migrated": "3955642c829bae90",
+      "sha_legacy": "d4d5808f5aba01e0",
+      "sha_migrated": "d4d5808f5aba01e0",
       "equal": true
      },
      "CONTROL": {
@@ -2544,8 +2388,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "3955642c829bae90",
-      "sha_migrated": "3955642c829bae90",
+      "sha_legacy": "d4d5808f5aba01e0",
+      "sha_migrated": "d4d5808f5aba01e0",
       "equal": true
      },
      "CONTROL": {
@@ -2658,8 +2502,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -2772,8 +2616,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "688a18d7386d75c3",
-      "sha_migrated": "688a18d7386d75c3",
+      "sha_legacy": "73e2a57969a86e1d",
+      "sha_migrated": "73e2a57969a86e1d",
       "equal": true
      },
      "CONTROL": {
@@ -2864,8 +2708,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "688a18d7386d75c3",
-      "sha_migrated": "688a18d7386d75c3",
+      "sha_legacy": "73e2a57969a86e1d",
+      "sha_migrated": "73e2a57969a86e1d",
       "equal": true
      },
      "CONTROL": {
@@ -2978,8 +2822,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -3092,8 +2936,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "67eefad33393d571",
-      "sha_migrated": "67eefad33393d571",
+      "sha_legacy": "550b42d01ae04d30",
+      "sha_migrated": "550b42d01ae04d30",
       "equal": true
      },
      "CONTROL": {
@@ -3184,8 +3028,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "67eefad33393d571",
-      "sha_migrated": "67eefad33393d571",
+      "sha_legacy": "550b42d01ae04d30",
+      "sha_migrated": "550b42d01ae04d30",
       "equal": true
      },
      "CONTROL": {
@@ -3298,8 +3142,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -3412,8 +3256,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -3496,8 +3340,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -3610,8 +3454,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -3724,8 +3568,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "48f72ef7ce4fd088",
-      "sha_migrated": "48f72ef7ce4fd088",
+      "sha_legacy": "13db4c300c588aa1",
+      "sha_migrated": "13db4c300c588aa1",
       "equal": true
      },
      "CONTROL": {
@@ -3812,8 +3656,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -3908,8 +3752,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "a2d868dfdcf8e79b",
-      "sha_migrated": "a2d868dfdcf8e79b",
+      "sha_legacy": "4bae954235a9d302",
+      "sha_migrated": "4bae954235a9d302",
       "equal": true
      },
      "CONTROL": {
@@ -4004,8 +3848,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "9e8b707ab04eebc6",
-      "sha_migrated": "9e8b707ab04eebc6",
+      "sha_legacy": "3ce99837a8537b6f",
+      "sha_migrated": "3ce99837a8537b6f",
       "equal": true
      },
      "CONTROL": {
@@ -4086,8 +3930,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "6bf300be6cf1eda6",
-      "sha_migrated": "6bf300be6cf1eda6",
+      "sha_legacy": "9f585896a97b10b4",
+      "sha_migrated": "9f585896a97b10b4",
       "equal": true
      },
      "CONTROL": {
@@ -4164,8 +4008,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -4246,8 +4090,8 @@
      "PROCTRAN": {
       "rows_legacy": 10,
       "rows_migrated": 10,
-      "sha_legacy": "4fee14924f36ae3a",
-      "sha_migrated": "4fee14924f36ae3a",
+      "sha_legacy": "b6ce6c4ca45ca14b",
+      "sha_migrated": "b6ce6c4ca45ca14b",
       "equal": true
      },
      "CONTROL": {
@@ -4328,8 +4172,8 @@
      "PROCTRAN": {
       "rows_legacy": 13,
       "rows_migrated": 13,
-      "sha_legacy": "1add6e9fc2a3b0e5",
-      "sha_migrated": "1add6e9fc2a3b0e5",
+      "sha_legacy": "65eed23a60dca5c3",
+      "sha_migrated": "65eed23a60dca5c3",
       "equal": true
      },
      "CONTROL": {
@@ -4410,8 +4254,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "5633bc8b135c0f9c",
-      "sha_migrated": "5633bc8b135c0f9c",
+      "sha_legacy": "35b595513582d401",
+      "sha_migrated": "35b595513582d401",
       "equal": true
      },
      "CONTROL": {
@@ -4479,8 +4323,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -4548,8 +4392,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -4638,8 +4482,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -4728,8 +4572,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -4818,8 +4662,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -4908,8 +4752,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -4989,8 +4833,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5175,8 +5019,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5280,8 +5124,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5412,8 +5256,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5487,8 +5331,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5563,8 +5407,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5654,8 +5498,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5745,8 +5589,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5836,8 +5680,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5923,8 +5767,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -5944,51 +5788,8 @@
   "title": "Customer number 0000000000 returns a random existing customer (CBSA_RANDOM_SEED=42)",
   "program": "INQCUST",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "response",
-    "field": "address",
-    "legacy": "18 Rowan Boulevard, Leicester",
-    "migrated": "45 Joshua Escalade, Fife",
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "creditScore",
-    "legacy": 397,
-    "migrated": 156,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "dateOfBirth",
-    "legacy": "1967-10-21",
-    "migrated": "1964-08-02",
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "name",
-    "legacy": "Drs Adam N Renton",
-    "migrated": "Professor Chris H Jackson",
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "number",
-    "legacy": 1,
-    "migrated": 22,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "reviewDate",
-    "legacy": "2026-02-04",
-    "migrated": "2026-01-24",
-    "step": 1
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -6000,13 +5801,13 @@
     },
     "migrated_http": 200,
     "migrated_body": {
-     "id": "0000000022",
+     "id": "0000000001",
      "sortCode": "987654",
-     "customerName": "Professor Chris H Jackson",
-     "customerAddress": "45 Joshua Escalade, Fife",
-     "dateOfBirth": "1964-08-02",
-     "customerCreditScore": "156",
-     "customerCreditScoreReviewDate": "2026-01-24"
+     "customerName": "Drs Adam N Renton",
+     "customerAddress": "18 Rowan Boulevard, Leicester",
+     "dateOfBirth": "1967-10-21",
+     "customerCreditScore": "397",
+     "customerCreditScoreReviewDate": "2026-02-04"
     },
     "legacy_commarea_out": {
      "INQCUST-EYE": "CUST",
@@ -6057,8 +5858,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6078,51 +5879,8 @@
   "title": "Customer number 0000000000 returns a random existing customer (CBSA_RANDOM_SEED=7)",
   "program": "INQCUST",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "response",
-    "field": "address",
-    "legacy": "18 Rowan Boulevard, Leicester",
-    "migrated": "08 Willow Court, Portsmouth",
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "creditScore",
-    "legacy": 397,
-    "migrated": 348,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "dateOfBirth",
-    "legacy": "1967-10-21",
-    "migrated": "1964-02-02",
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "name",
-    "legacy": "Drs Adam N Renton",
-    "migrated": "Miss Peter I Barker",
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "number",
-    "legacy": 1,
-    "migrated": 21,
-    "step": 1
-   },
-   {
-    "area": "response",
-    "field": "reviewDate",
-    "legacy": "2026-02-04",
-    "migrated": "2026-01-17",
-    "step": 1
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -6134,13 +5892,13 @@
     },
     "migrated_http": 200,
     "migrated_body": {
-     "id": "0000000021",
+     "id": "0000000001",
      "sortCode": "987654",
-     "customerName": "Miss Peter I Barker",
-     "customerAddress": "08 Willow Court, Portsmouth",
-     "dateOfBirth": "1964-02-02",
-     "customerCreditScore": "348",
-     "customerCreditScoreReviewDate": "2026-01-17"
+     "customerName": "Drs Adam N Renton",
+     "customerAddress": "18 Rowan Boulevard, Leicester",
+     "dateOfBirth": "1967-10-21",
+     "customerCreditScore": "397",
+     "customerCreditScoreReviewDate": "2026-02-04"
     },
     "legacy_commarea_out": {
      "INQCUST-EYE": "CUST",
@@ -6191,8 +5949,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6279,8 +6037,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6376,8 +6134,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6397,52 +6155,8 @@
   "title": "Account type CHEQUE (not validated by UPDACC)",
   "program": "UPDACC",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "outcome",
-    "field": "outcome",
-    "legacy": {
-     "kind": "OK",
-     "code": null
-    },
-    "migrated": {
-     "kind": "FAIL",
-     "code": null,
-     "http": 400
-    },
-    "step": 1
-   },
-   {
-    "area": "http_status",
-    "field": "HTTP status (api-contract.md)",
-    "legacy": "contract for legacy outcome OK : [200]",
-    "migrated": 400,
-    "step": 1
-   },
-   {
-    "area": "db_delta",
-    "field": "ACCOUNT.updated[0]",
-    "legacy": {
-     "key": {
-      "ACCOUNT_SORTCODE": "987654",
-      "ACCOUNT_NUMBER": "00000006"
-     },
-     "changes": {
-      "ACCOUNT_TYPE": [
-       "SAVING",
-       "CHEQUE"
-      ],
-      "ACCOUNT_INTEREST_RATE": [
-       1.75,
-       1.0
-      ]
-     }
-    },
-    "migrated": "<absent>",
-    "step": 1
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -6460,9 +6174,19 @@
       "actualBalance": 0
      }
     },
-    "migrated_http": 400,
+    "migrated_http": 200,
     "migrated_body": {
-     "errorMessage": "Account type CHEQUE is not supported."
+     "id": "00000006",
+     "sortCode": "987654",
+     "customerNumber": "0000000002",
+     "accountType": "CHEQUE",
+     "interestRate": 1.0,
+     "overdraft": 0,
+     "availableBalance": 81255.02,
+     "actualBalance": 81255.02,
+     "dateOpened": "1979-07-03",
+     "lastStatementDate": "2021-07-01",
+     "nextStatementDate": "2021-08-01"
     },
     "legacy_commarea_out": {
      "COMM-EYE": "ACCT",
@@ -6486,9 +6210,8 @@
      "code": null
     },
     "migrated_outcome": {
-     "kind": "FAIL",
-     "code": null,
-     "http": 400
+     "kind": "OK",
+     "code": null
     },
     "tables_after": {
      "CUSTOMER": {
@@ -6502,14 +6225,14 @@
       "rows_legacy": 76,
       "rows_migrated": 76,
       "sha_legacy": "dac03a90eb838e73",
-      "sha_migrated": "231842f907298890",
-      "equal": false
+      "sha_migrated": "dac03a90eb838e73",
+      "equal": true
      },
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6518,42 +6241,6 @@
       "sha_legacy": "d4d3727c6a561693",
       "sha_migrated": "d4d3727c6a561693",
       "equal": true
-     }
-    },
-    "table_rows_differing": {
-     "ACCOUNT": {
-      "legacy_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000002",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000006",
-        "ACCOUNT_TYPE": "CHEQUE",
-        "ACCOUNT_INTEREST_RATE": 1.0,
-        "ACCOUNT_OPENED": "1979-07-03",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2021-07-01",
-        "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
-        "ACCOUNT_AVAILABLE_BALANCE": 81255.02,
-        "ACCOUNT_ACTUAL_BALANCE": 81255.02
-       }
-      ],
-      "migrated_only": [
-       {
-        "ACCOUNT_EYECATCHER": "ACCT",
-        "ACCOUNT_CUSTOMER_NUMBER": "0000000002",
-        "ACCOUNT_SORTCODE": "987654",
-        "ACCOUNT_NUMBER": "00000006",
-        "ACCOUNT_TYPE": "SAVING",
-        "ACCOUNT_INTEREST_RATE": 1.75,
-        "ACCOUNT_OPENED": "1979-07-03",
-        "ACCOUNT_OVERDRAFT_LIMIT": 0.0,
-        "ACCOUNT_LAST_STATEMENT": "2021-07-01",
-        "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
-        "ACCOUNT_AVAILABLE_BALANCE": 81255.02,
-        "ACCOUNT_ACTUAL_BALANCE": 81255.02
-       }
-      ]
      }
     }
    }
@@ -6632,8 +6319,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6729,8 +6416,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6815,8 +6502,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6897,8 +6584,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -6985,8 +6672,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7067,8 +6754,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7153,8 +6840,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7235,8 +6922,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7317,8 +7004,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7423,8 +7110,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "56d5e1e7396f05ef",
-      "sha_migrated": "56d5e1e7396f05ef",
+      "sha_legacy": "112fb9318fd80d30",
+      "sha_migrated": "112fb9318fd80d30",
       "equal": true
      },
      "CONTROL": {
@@ -7505,8 +7192,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7611,8 +7298,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "23971febaa9a53b3",
-      "sha_migrated": "23971febaa9a53b3",
+      "sha_legacy": "9f88a289b3c435fe",
+      "sha_migrated": "9f88a289b3c435fe",
       "equal": true
      },
      "CONTROL": {
@@ -7717,8 +7404,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "48b7ee99d34b985f",
-      "sha_migrated": "48b7ee99d34b985f",
+      "sha_legacy": "0996c1acd23565fc",
+      "sha_migrated": "0996c1acd23565fc",
       "equal": true
      },
      "CONTROL": {
@@ -7801,8 +7488,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7883,8 +7570,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -7965,8 +7652,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -8054,8 +7741,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "a2a78c33a38ffdf1",
-      "sha_migrated": "a2a78c33a38ffdf1",
+      "sha_legacy": "347de9b74b5aef2a",
+      "sha_migrated": "347de9b74b5aef2a",
       "equal": true
      },
      "CONTROL": {
@@ -8143,8 +7830,8 @@
      "PROCTRAN": {
       "rows_legacy": 10,
       "rows_migrated": 10,
-      "sha_legacy": "a71d3c9b3da1993f",
-      "sha_migrated": "a71d3c9b3da1993f",
+      "sha_legacy": "d425ea2e75eefe8a",
+      "sha_migrated": "d425ea2e75eefe8a",
       "equal": true
      },
      "CONTROL": {
@@ -8232,8 +7919,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "bb49c0942ddcb87d",
-      "sha_migrated": "bb49c0942ddcb87d",
+      "sha_legacy": "27dfa877c2b05f1c",
+      "sha_migrated": "27dfa877c2b05f1c",
       "equal": true
      },
      "CONTROL": {
@@ -8353,8 +8040,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "bb49c0942ddcb87d",
-      "sha_migrated": "bb49c0942ddcb87d",
+      "sha_legacy": "27dfa877c2b05f1c",
+      "sha_migrated": "27dfa877c2b05f1c",
       "equal": true
      },
      "CONTROL": {
@@ -8433,8 +8120,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "bb49c0942ddcb87d",
-      "sha_migrated": "bb49c0942ddcb87d",
+      "sha_legacy": "27dfa877c2b05f1c",
+      "sha_migrated": "27dfa877c2b05f1c",
       "equal": true
      },
      "CONTROL": {
@@ -8547,8 +8234,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "149f662d8d98c1d8",
-      "sha_migrated": "149f662d8d98c1d8",
+      "sha_legacy": "905a0af1dd64f6f9",
+      "sha_migrated": "905a0af1dd64f6f9",
       "equal": true
      },
      "CONTROL": {
@@ -8650,8 +8337,8 @@
      "PROCTRAN": {
       "rows_legacy": 10,
       "rows_migrated": 10,
-      "sha_legacy": "175233668d2000f4",
-      "sha_migrated": "175233668d2000f4",
+      "sha_legacy": "9df6f45f2141f139",
+      "sha_migrated": "9df6f45f2141f139",
       "equal": true
      },
      "CONTROL": {
@@ -8745,8 +8432,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "bdd8c3a10a7b481b",
-      "sha_migrated": "bdd8c3a10a7b481b",
+      "sha_legacy": "f60792fe655a2be6",
+      "sha_migrated": "f60792fe655a2be6",
       "equal": true
      },
      "CONTROL": {
@@ -8824,8 +8511,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "bdd8c3a10a7b481b",
-      "sha_migrated": "bdd8c3a10a7b481b",
+      "sha_legacy": "f60792fe655a2be6",
+      "sha_migrated": "f60792fe655a2be6",
       "equal": true
      },
      "CONTROL": {
@@ -8903,8 +8590,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "bdd8c3a10a7b481b",
-      "sha_migrated": "bdd8c3a10a7b481b",
+      "sha_legacy": "f60792fe655a2be6",
+      "sha_migrated": "f60792fe655a2be6",
       "equal": true
      },
      "CONTROL": {
@@ -8989,8 +8676,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9075,8 +8762,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9160,8 +8847,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "7443ced81af7390b",
-      "sha_migrated": "7443ced81af7390b",
+      "sha_legacy": "a7ca9c796fc66c9d",
+      "sha_migrated": "a7ca9c796fc66c9d",
       "equal": true
      },
      "CONTROL": {
@@ -9308,8 +8995,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "7443ced81af7390b",
-      "sha_migrated": "7443ced81af7390b",
+      "sha_legacy": "a7ca9c796fc66c9d",
+      "sha_migrated": "a7ca9c796fc66c9d",
       "equal": true
      },
      "CONTROL": {
@@ -9379,8 +9066,8 @@
      "PROCTRAN": {
       "rows_legacy": 13,
       "rows_migrated": 13,
-      "sha_legacy": "1320489b93a4b606",
-      "sha_migrated": "1320489b93a4b606",
+      "sha_legacy": "30cac860fb2f75b8",
+      "sha_migrated": "30cac860fb2f75b8",
       "equal": true
      },
      "CONTROL": {
@@ -9466,8 +9153,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9547,8 +9234,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9618,8 +9305,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9721,8 +9408,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9788,8 +9475,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9865,8 +9552,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9935,8 +9622,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -9999,8 +9686,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -10088,8 +9775,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "bc87a68a0ec7a5bb",
-      "sha_migrated": "bc87a68a0ec7a5bb",
+      "sha_legacy": "f7b65952211f2a93",
+      "sha_migrated": "f7b65952211f2a93",
       "equal": true
      },
      "CONTROL": {
@@ -10177,8 +9864,8 @@
      "PROCTRAN": {
       "rows_legacy": 10,
       "rows_migrated": 10,
-      "sha_legacy": "ab9cb1f4bff78681",
-      "sha_migrated": "ab9cb1f4bff78681",
+      "sha_legacy": "4639abf05c817cf7",
+      "sha_migrated": "4639abf05c817cf7",
       "equal": true
      },
      "CONTROL": {
@@ -10280,8 +9967,8 @@
      "PROCTRAN": {
       "rows_legacy": 11,
       "rows_migrated": 11,
-      "sha_legacy": "40f66bf6ae49a404",
-      "sha_migrated": "40f66bf6ae49a404",
+      "sha_legacy": "28dc48b2fdef8e2e",
+      "sha_migrated": "28dc48b2fdef8e2e",
       "equal": true
      },
      "CONTROL": {
@@ -10375,8 +10062,8 @@
      "PROCTRAN": {
       "rows_legacy": 12,
       "rows_migrated": 12,
-      "sha_legacy": "c87fbf5bb26c5097",
-      "sha_migrated": "c87fbf5bb26c5097",
+      "sha_legacy": "3367ffe20ba955bc",
+      "sha_migrated": "3367ffe20ba955bc",
       "equal": true
      },
      "CONTROL": {
@@ -10446,8 +10133,8 @@
      "PROCTRAN": {
       "rows_legacy": 14,
       "rows_migrated": 14,
-      "sha_legacy": "a2e43203a3984ae9",
-      "sha_migrated": "a2e43203a3984ae9",
+      "sha_legacy": "641d543322b6eff4",
+      "sha_migrated": "641d543322b6eff4",
       "equal": true
      },
      "CONTROL": {
@@ -10538,8 +10225,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "1a5068d3530c99aa",
-      "sha_migrated": "1a5068d3530c99aa",
+      "sha_legacy": "b5e6ae1d8fe29c08",
+      "sha_migrated": "b5e6ae1d8fe29c08",
       "equal": true
      },
      "CONTROL": {
@@ -10619,8 +10306,8 @@
      "PROCTRAN": {
       "rows_legacy": 10,
       "rows_migrated": 10,
-      "sha_legacy": "be2271b6b99f7b7f",
-      "sha_migrated": "be2271b6b99f7b7f",
+      "sha_legacy": "bcfec8f2b0cebcf7",
+      "sha_migrated": "bcfec8f2b0cebcf7",
       "equal": true
      },
      "CONTROL": {
@@ -10692,8 +10379,8 @@
      "PROCTRAN": {
       "rows_legacy": 10,
       "rows_migrated": 10,
-      "sha_legacy": "be2271b6b99f7b7f",
-      "sha_migrated": "be2271b6b99f7b7f",
+      "sha_legacy": "bcfec8f2b0cebcf7",
+      "sha_migrated": "bcfec8f2b0cebcf7",
       "equal": true
      },
      "CONTROL": {
@@ -11273,8 +10960,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "88f28cc461b9ee5e",
-      "sha_migrated": "88f28cc461b9ee5e",
+      "sha_legacy": "2295f3f945df6a44",
+      "sha_migrated": "2295f3f945df6a44",
       "equal": true
      },
      "CONTROL": {
@@ -11361,8 +11048,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -11508,8 +11195,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -11722,8 +11409,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -11936,8 +11623,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -12198,8 +11885,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "227b0f9e4aa7c651",
-      "sha_migrated": "227b0f9e4aa7c651",
+      "sha_legacy": "81917c4f90e68e71",
+      "sha_migrated": "81917c4f90e68e71",
       "equal": true
      },
      "CONTROL": {
@@ -12356,8 +12043,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -12547,8 +12234,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -12713,8 +12400,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "3ce88e13abc53a2d",
-      "sha_migrated": "3ce88e13abc53a2d",
+      "sha_legacy": "ef0b7735f1785864",
+      "sha_migrated": "ef0b7735f1785864",
       "equal": true
      },
      "CONTROL": {
@@ -12879,8 +12566,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "383c0f577eef5013",
-      "sha_migrated": "383c0f577eef5013",
+      "sha_legacy": "35565248e0776159",
+      "sha_migrated": "35565248e0776159",
       "equal": true
      },
      "CONTROL": {
@@ -13163,8 +12850,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -13447,8 +13134,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -13525,8 +13212,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -13769,8 +13456,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -13790,63 +13477,8 @@
   "title": "Non-numeric customer number",
   "program": "BNK1DCS",
   "seed_equal_before": true,
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "screen_fields",
-    "field": "CREDSC",
-    "legacy": "397",
-    "migrated": "156"
-   },
-   {
-    "area": "screen_fields",
-    "field": "CUSTAD1",
-    "legacy": "18 Rowan Boulevard, Leicester",
-    "migrated": "45 Joshua Escalade, Fife"
-   },
-   {
-    "area": "screen_fields",
-    "field": "CUSTNAM",
-    "legacy": "Drs Adam N Renton",
-    "migrated": "Professor Chris H Jackson"
-   },
-   {
-    "area": "screen_fields",
-    "field": "CUSTNO2",
-    "legacy": "0000000001",
-    "migrated": "0000000022"
-   },
-   {
-    "area": "screen_fields",
-    "field": "DOBDD",
-    "legacy": "21",
-    "migrated": "02"
-   },
-   {
-    "area": "screen_fields",
-    "field": "DOBMM",
-    "legacy": "10",
-    "migrated": "08"
-   },
-   {
-    "area": "screen_fields",
-    "field": "DOBYY",
-    "legacy": "1967",
-    "migrated": "1964"
-   },
-   {
-    "area": "screen_fields",
-    "field": "SCRDTDD",
-    "legacy": "04",
-    "migrated": "24"
-   },
-   {
-    "area": "screen_fields",
-    "field": "SCRDTMM",
-    "legacy": "02",
-    "migrated": "01"
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -13979,17 +13611,17 @@
      [
       "FIELD",
       "CUSTNO2",
-      "0000000022"
+      "0000000001"
      ],
      [
       "FIELD",
       "CUSTNAM",
-      "Professor Chris H Jackson"
+      "Drs Adam N Renton"
      ],
      [
       "FIELD",
       "CUSTAD1",
-      "45 Joshua Escalade, Fife"
+      "18 Rowan Boulevard, Leicester"
      ],
      [
       "FIELD",
@@ -14004,32 +13636,32 @@
      [
       "FIELD",
       "DOBDD",
-      "02"
+      "21"
      ],
      [
       "FIELD",
       "DOBMM",
-      "08"
+      "10"
      ],
      [
       "FIELD",
       "DOBYY",
-      "1964"
+      "1967"
      ],
      [
       "FIELD",
       "CREDSC",
-      "156"
+      "397"
      ],
      [
       "FIELD",
       "SCRDTDD",
-      "24"
+      "04"
      ],
      [
       "FIELD",
       "SCRDTMM",
-      "01"
+      "02"
      ],
      [
       "FIELD",
@@ -14068,8 +13700,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -14312,8 +13944,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -14448,8 +14080,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -14664,8 +14296,8 @@
      "PROCTRAN": {
       "rows_legacy": 9,
       "rows_migrated": 9,
-      "sha_legacy": "8570cecf1d95efb1",
-      "sha_migrated": "8570cecf1d95efb1",
+      "sha_legacy": "9ff3f0e59fb7cef8",
+      "sha_migrated": "9ff3f0e59fb7cef8",
       "equal": true
      },
      "CONTROL": {
@@ -14948,8 +14580,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15030,8 +14662,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15112,8 +14744,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15194,8 +14826,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15276,8 +14908,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15358,8 +14990,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15440,8 +15072,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15522,8 +15154,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15604,8 +15236,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15667,8 +15299,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15745,8 +15377,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15859,8 +15491,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15924,8 +15556,8 @@
      "PROCTRAN": {
       "rows_legacy": 8,
       "rows_migrated": 8,
-      "sha_legacy": "09ef2928c0b1759a",
-      "sha_migrated": "09ef2928c0b1759a",
+      "sha_legacy": "c4b3761b2715dae3",
+      "sha_migrated": "c4b3761b2715dae3",
       "equal": true
      },
      "CONTROL": {
@@ -15938,14 +15570,5 @@
     }
    }
   ]
- },
- {
-  "id": "ABNDPROC/record",
-  "kind": "transcript-link",
-  "program": "ABNDPROC",
-  "title": "ABNDPROC records an abend record (written to ABNDFILE)",
-  "status": "NOT_COMPARABLE",
-  "diffs": [],
-  "steps": []
  }
 ]

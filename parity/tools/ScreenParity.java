@@ -17,7 +17,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * before every case the four tables are emptied, the canonical seed reloaded and EIBTASKN reset to
  * env.CBSA_TASKN, like the legacy harness's fresh SQLite copy. Writes one JSON object per case:
  * {file, events, before, after, error}.
- * Usage: ScreenParity OUT.jsonl transcript.json...
+ * Usage: ScreenParity OUT.jsonl [-- spring-db-args... --] transcript.json...
+ * (db args select the migrated database, e.g. --spring.profiles.active=postgres --spring.datasource.url=...; default H2)
  */
 public class ScreenParity {
     static final String[] TABLES = {"CUSTOMER", "ACCOUNT", "PROCTRAN", "CONTROL"};
@@ -25,15 +26,23 @@ public class ScreenParity {
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(CbsaCoreApplication.class);
         ObjectMapper json = new ObjectMapper();
-        try (ConfigurableApplicationContext ctx = app.run("--server.port=0",
-                "--spring.datasource.url=jdbc:h2:mem:parityscreens;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
+        List<String> springArgs = new ArrayList<>(List.of("--server.port=0",
                 "--cbsa.clock.fixed=2026-01-15T10:30:00Z", "--cbsa.random.seed=42",
-                "--cbsa.seed.location=file:../../baseline/seed/seed.sql", "--logging.level.root=WARN")) {
+                "--cbsa.seed.location=file:../../baseline/seed/seed.sql", "--logging.level.root=WARN"));
+        int first = 1;
+        if (args.length > 1 && args[1].equals("--")) {
+            int end = Arrays.asList(args).subList(2, args.length).indexOf("--") + 2;
+            springArgs.addAll(Arrays.asList(args).subList(2, end));
+            first = end + 1;
+        } else {
+            springArgs.add("--spring.datasource.url=jdbc:h2:mem:parityscreens;MODE=PostgreSQL;DB_CLOSE_DELAY=-1");
+        }
+        try (ConfigurableApplicationContext ctx = app.run(springArgs.toArray(String[]::new))) {
             JdbcTemplate jdbc = ctx.getBean(JdbcTemplate.class);
             SeedDataLoader seed = ctx.getBean(SeedDataLoader.class);
             TaskNumberSupplier tasks = ctx.getBean(TaskNumberSupplier.class);
             List<String> lines = new ArrayList<>();
-            for (int i = 1; i < args.length; i++) {
+            for (int i = first; i < args.length; i++) {
                 JsonNode t = json.readTree(Path.of(args[i]).toFile());
                 for (String table : TABLES) jdbc.update("DELETE FROM " + table);
                 seed.afterPropertiesSet();
@@ -92,7 +101,8 @@ public class ScreenParity {
             List<Map<String, Object>> rows = new ArrayList<>();
             for (Map<String, Object> r : jdbc.queryForList("SELECT * FROM " + t)) {
                 Map<String, Object> row = new LinkedHashMap<>();
-                r.forEach((k, v) -> row.put(k, v == null ? null : v instanceof Number n ? (Object) Double.valueOf(n.toString())
+                // PostgreSQL folds the unquoted legacy column names to lower case; H2 keeps upper case
+                r.forEach((k, v) -> row.put(k.toUpperCase(Locale.ROOT), v == null ? null : v instanceof Number n ? (Object) Double.valueOf(n.toString())
                         : v.toString().stripTrailing()));
                 rows.add(row);
             }

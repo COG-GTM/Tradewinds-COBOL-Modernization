@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Legacy (GnuCOBOL + stub harness) vs migrated (Java 21 / Spring Boot / H2) parity runner.
+"""Legacy (GnuCOBOL + stub harness) vs migrated (Java 21 / Spring Boot / H2 or Postgres) parity runner.
+
+PARITY_DB=h2 (default) writes results/flows.json; PARITY_DB=postgres (PARITY_PG_URL/USER/PASSWORD) writes
+results/flows-postgres.json with the migrated side on the postgres profile.
 
 Every flow is executed on both runtimes from the identical canonical seed (baseline/seed/seed.sql) with the
 identical deterministic environment (fixed clock, random seed, EIBTASKN). Compared per flow:
@@ -24,6 +27,33 @@ FIXED_TIME = harness.DEFAULT_ENV['CBSA_FIXED_TIME']
 TABLES = ['CUSTOMER', 'ACCOUNT', 'PROCTRAN', 'CONTROL']
 JAVA = os.path.join(os.environ.get('JAVA_HOME', '/usr/lib/jvm/java-21-openjdk-amd64'), 'bin', 'java')
 SORTCODE = '987654'
+# Migrated database: 'h2' (default profile, in-memory) or 'postgres' (profile postgres, one schema per server).
+DB = os.environ.get('PARITY_DB', 'h2')
+PG_URL = os.environ.get('PARITY_PG_URL', 'jdbc:postgresql://localhost:5432/cbsa')
+PG_USER = os.environ.get('PARITY_PG_USER', 'cbsa')
+PG_PASSWORD = os.environ.get('PARITY_PG_PASSWORD', 'cbsa')
+RESULTS_FILE = 'flows.json' if DB == 'h2' else 'flows-%s.json' % DB
+
+
+def pg_recreate_schema(schema):
+    """DROP + CREATE the schema so every run starts empty (Spring then runs schema.sql and loads the seed)."""
+    m = re.match(r'jdbc:postgresql://([^:/]+)(?::(\d+))?/([^?]+)', PG_URL)
+    env = dict(os.environ, PGPASSWORD=PG_PASSWORD)
+    subprocess.run(['psql', '-v', 'ON_ERROR_STOP=1', '-q', '-h', m.group(1), '-p', m.group(2) or '5432', '-U', PG_USER,
+                    '-d', m.group(3), '-c', 'DROP SCHEMA IF EXISTS %s CASCADE; CREATE SCHEMA %s;' % (schema, schema)],
+                   check=True, env=env, capture_output=True, text=True)
+
+
+def db_args(name):
+    """Spring arguments selecting the migrated database for one server / screen context."""
+    if DB == 'h2':
+        return ['--spring.datasource.url=jdbc:h2:mem:%s;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE' % name]
+    if DB == 'postgres':
+        schema = 'parity_' + re.sub(r'\W', '_', name).lower()
+        pg_recreate_schema(schema)
+        return ['--spring.profiles.active=postgres', '--spring.datasource.url=%s?currentSchema=%s' % (PG_URL, schema),
+                '--spring.datasource.username=' + PG_USER, '--spring.datasource.password=' + PG_PASSWORD]
+    raise ValueError('PARITY_DB must be h2 or postgres, not %r' % DB)
 
 
 # ---------------------------------------------------------------- normalisation
@@ -72,14 +102,16 @@ def diff(a, b, path=''):
 
 
 # ---------------------------------------------------------------- legacy side
-def sqlite_to_h2(sql):
-    """setup_sql in the transcripts is SQLite; translate the two constructs used (printf, recursive CTE)."""
+def sqlite_to_migrated(sql):
+    """setup_sql in the transcripts is SQLite; translate the two constructs used (printf, recursive CTE) to the
+    migrated database (PARITY_DB): H2 SYSTEM_RANGE or PostgreSQL generate_series."""
     sql = re.sub(r"printf\('%0(\d+)d',\s*([^)]+)\)", r"LPAD(CAST(\2 AS VARCHAR), \1, '0')", sql)
     m = re.search(r"FROM\s*\(\s*WITH RECURSIVE\s+(\w+)\((\w+)\)\s+AS\s*\(\s*SELECT\s+(\d+)\s+UNION ALL\s+SELECT\s+\w+\s*\+\s*1\s+"
                   r"FROM\s+\w+\s+WHERE\s+\w+\s*<\s*(\d+)\s*\)\s*SELECT\s+\w+\s+FROM\s+\w+\s*\)", sql, re.I | re.S)
     if m:
         head = re.sub(r'\b%s\b' % m.group(2), 'X', sql[:m.start()])
-        sql = head + 'FROM SYSTEM_RANGE(%s, %s)' % (m.group(3), m.group(4)) + sql[m.end():]
+        rng = 'SYSTEM_RANGE(%s, %s)' if DB == 'h2' else 'generate_series(%s, %s) AS r(X)'
+        sql = head + 'FROM ' + rng % (m.group(3), m.group(4)) + sql[m.end():]
     return sql
 
 
@@ -459,9 +491,9 @@ def run_api_flow(flow):
     taskn = int(steps[0].get('env', {}).get('CBSA_TASKN', 100))
     http('POST', '/__parity/reset?taskn=%d' % taskn)
     for sql in flow.get('setup_sql') or []:
-        st, b = http('POST', '/__parity/exec', sqlite_to_h2(sql), ctype='text/plain')
+        st, b = http('POST', '/__parity/exec', sqlite_to_migrated(sql), ctype='text/plain')
         if st != 200:
-            raise RuntimeError('H2 setup failed: %s %s' % (st, b))
+            raise RuntimeError('%s setup SQL failed: %s %s' % (DB, st, b))
     mbefore = canon(http('GET', '/__parity/dump')[1])
     out_steps, all_diffs = [], []
     seed_equal = digest(lbefore) == digest(mbefore)
@@ -496,7 +528,7 @@ def run_api_flow(flow):
 # ---------------------------------------------------------------- screens (terminal mode)
 def run_screen_flows(paths, java_cp):
     out = os.path.join(tempfile.mkdtemp(prefix='parity-screens-'), 'screens.jsonl')
-    subprocess.run([JAVA, '-cp', java_cp, 'ScreenParity', out] + paths, check=True,
+    subprocess.run([JAVA, '-cp', java_cp, 'ScreenParity', out, '--'] + db_args('parityscreens') + ['--'] + paths, check=True,
                    cwd=os.path.join(ROOT, 'src', 'cbsa-core-service'), capture_output=True, text=True)
     mig = {json.loads(l)['file']: json.loads(l) for l in open(out)}
     results = []
@@ -583,12 +615,11 @@ def start_servers(seeds, java_cp):
     procs = []
     for i, seed in enumerate(seeds):
         port = 18181 + i
-        log = open(os.path.join(tempfile.gettempdir(), 'parity-server-%s.log' % seed), 'w')
+        log = open(os.path.join(PARITY, 'build', 'parity-server-%s-%s.log' % (DB, seed)), 'w')
         procs.append(subprocess.Popen(
             [JAVA, '-cp', java_cp, 'ParityServer', '--server.address=127.0.0.1', '--server.port=%d' % port, '--cbsa.clock.fixed=' + FIXED_TIME,
              '--cbsa.random.seed=' + seed, '--cbsa.seed.location=file:../../baseline/seed/seed.sql',
-             '--cbsa.abndproc.endpoint.enabled=true', '--cbsa.abndproc.endpoint.token=' + ADMIN_TOKEN,
-             '--spring.datasource.url=jdbc:h2:mem:parity%s;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE' % seed],
+             '--cbsa.abndproc.endpoint.enabled=true', '--cbsa.abndproc.endpoint.token=' + ADMIN_TOKEN] + db_args('parity%s' % seed),
             cwd=os.path.join(ROOT, 'src', 'cbsa-core-service'), stdout=log, stderr=subprocess.STDOUT))
         SERVERS[seed] = 'http://127.0.0.1:%d/webui-1.0' % port
     global BASE
@@ -650,7 +681,7 @@ def main():
         results.append(r)
         print('%-48s %s' % (r['id'], r['status']), flush=True)
     results += na
-    json.dump(results, open(os.path.join(PARITY, 'results', 'flows.json'), 'w'), indent=1, sort_keys=False)
+    json.dump(results, open(os.path.join(PARITY, 'results', RESULTS_FILE), 'w'), indent=1, sort_keys=False)
     summ = {}
     for r in results:
         s = summ.setdefault(r['kind'], {})

@@ -1,47 +1,30 @@
 {
- "command": "CI=true npx react-scripts test --watchAll=false",
- "exit_code": 1,
- "suites": "1 failed, 1 total",
- "tests": "0 total",
- "first_error": "ReferenceError: TextDecoder is not defined",
- "polyfill_attempt": {
-  "command": "same + --setupFiles parity/tools/react-jest-polyfill.js",
-  "exit_code": 1,
-  "suites": "1 failed, 1 total",
-  "tests": "0 total",
-  "first_error": "Cannot find module 'cheerio/lib/utils' from 'node_modules/enzyme/build/Utils.js'"
- },
- "test_file_imports": [
-  {
-   "test": "src/App.test.js",
-   "import": "react",
-   "resolves": true
-  },
-  {
-   "test": "src/App.test.js",
-   "import": "react-dom/test-utils",
-   "resolves": true
-  },
-  {
-   "test": "src/App.test.js",
-   "import": "./content/RepoPage",
-   "resolves": false
-  },
-  {
-   "test": "src/App.test.js",
-   "import": "enzyme",
-   "resolves": true
-  },
-  {
-   "test": "src/App.test.js",
-   "import": "@apollo/client/testing",
-   "resolves": false
-  },
-  {
-   "test": "src/App.test.js",
-   "import": "@apollo/client",
-   "resolves": false
-  }
+ "command": "CI=true corepack yarn test --watchAll=false",
+ "exit_code": 0,
+ "suites": "6 passed, 6 total",
+ "tests": "22 passed, 22 total",
+ "tests_passed": 22,
+ "tests_failed": 0,
+ "tests_total": 22,
+ "suites_total": 6,
+ "test_files": [
+  "src/App.test.js",
+  "src/content/AccountCreationPage/AccountCreationPage.test.js",
+  "src/content/AccountDetailsPage/AccountDetailsPage.test.js",
+  "src/content/CustomerCreationPage/CustomerCreationPage.test.js",
+  "src/content/CustomerDeletePage/CustomerDeletePage.test.js",
+  "src/content/CustomerDetailsPage/CustomerDetailsPage.test.js"
  ],
- "log_tail": "Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:\n  npx update-browserslist-db@latest\n  Why you should do it regularly: https://github.com/browserslist/update-db#readme\nFAIL src/App.test.js\n  \u25cf Test suite failed to run\n\n    ReferenceError: TextDecoder is not defined\n\n    \u001b[0m \u001b[90m  5 |\u001b[39m \u001b[90m */\u001b[39m\n     \u001b[90m  6 |\u001b[39m\n    \u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  7 |\u001b[39m \u001b[36mimport\u001b[39m { configure } \u001b[36mfrom\u001b[39m \u001b[32m'enzyme'\u001b[39m\u001b[33m;\u001b[39m\n     \u001b[90m    |\u001b[39m \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n     \u001b[90m  8 |\u001b[39m \u001b[36mimport\u001b[39m \u001b[33mAdapter\u001b[39m \u001b[36mfrom\u001b[39m \u001b[32m'enzyme-adapter-react-16'\u001b[39m\u001b[33m;\u001b[39m\n     \u001b[90m  9 |\u001b[39m\n     \u001b[90m 10 |\u001b[39m configure({ adapter\u001b[33m:\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mAdapter\u001b[39m() })\u001b[33m;\u001b[39m\u001b[0m\n\n      at Object.<anonymous> (node_modules/undici/lib/encoding/index.js:3:21)\n      at Object.<anonymous> (node_modules/undici/lib/web/infra/index.js:4:29)\n      at Object.<anonymous> (node_modules/undici/lib/web/fetch/data-url.js:4:147)\n      at Object.<anonymous> (node_modules/undici/lib/web/fetch/util.js:7:54)\n      at Object.<anonymous> (node_modules/undici/lib/web/fetch/headers.js:11:5)\n      at Object.<anonymous> (node_modules/undici/lib/web/fetch/response.js:3:90)\n      at Object.<anonymous> (node_modules/undici/lib/web/fetch/index.js:12:5)\n      at Object.<anonymous> (node_modules/undici/index.js:124:19)\n      at Object.<anonymous> (node_modules/cheerio/src/index.ts:24:1)\n      at Object.<anonymous> (node_modules/enzyme/src/Utils.js:9:1)\n      at Object.<anonymous> (node_modules/enzyme/src/ReactWrapper.js:4:1)\n      at Object.<anonymous> (node_modules/enzyme/src/index.js:1:1)\n      at Object.<anonymous> (src/setupTests.js:7:1)\n      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)\n      at runJest (node_modules/@jest/core/build/runJest.js:404:19)\n      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)\n      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)\n\nTest Suites: 1 failed, 1 total\nTests:       0 total\nSnapshots:   0 total\nTime:        0.482 s\nRan all test suites.\n(node:19920) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n"
+ "build": {
+  "command": "GENERATE_SOURCEMAP=false corepack yarn build",
+  "exit_code": 0,
+  "bundle": [
+   "main.7be3e4d9.js"
+  ],
+  "served_by_core_service": [
+   "main.7be3e4d9.js"
+  ],
+  "bundle_matches_served": true
+ },
+ "log_tail": "ib/jsdom/living/events/EventTarget-impl.js:274:3)\n          at HTMLButtonElementImpl._dispatch (/home/ubuntu/r3/src/bank-application-frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:221:9)\n          at HTMLButtonElementImpl.dispatchEvent (/home/ubuntu/r3/src/bank-application-frontend/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:94:17)\n          at HTMLButtonElement.dispatchEvent (/home/ubuntu/r3/src/bank-application-frontend/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:231:34)\n          at /home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/event/dispatchEvent.js:45:43\n          at /home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/react/dist/pure.js:108:16\n          at /home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/react/dist/act-compat.js:48:24\n          at act (/home/ubuntu/r3/src/bank-application-frontend/node_modules/react/cjs/react.development.js:2512:16)\n          at /home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/react/dist/act-compat.js:47:25\n          at Object.eventWrapper (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/react/dist/pure.js:107:28)\n          at Object.wrapEvent (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/event/wrapEvent.js:6:28)\n          at Object.dispatchEvent (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/event/dispatchEvent.js:45:22)\n          at Object.dispatchUIEvent (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/event/dispatchEvent.js:22:26)\n          at Mouse.up (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/system/pointer/mouse.js:100:30)\n          at PointerHost.release (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/system/pointer/index.js:84:28)\n          at pointerAction (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/pointer/index.js:59:47)\n          at Object.pointer (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/user-event/dist/cjs/pointer/index.js:32:9)\n          at Object.asyncWrapper (/home/ubuntu/r3/src/bank-application-frontend/node_modules/@testing-library/react/dist/pure.js:88:22)\n          at Object.<anonymous> (/home/ubuntu/r3/src/bank-application-frontend/src/content/CustomerCreationPage/CustomerCreationPage.test.js:63:3) {\n        response: {\n          status: 400,\n          data: { errorMessage: 'Customer title X is not valid' }\n        }\n      }\n\n      at src/content/CustomerCreationPage/CustomerCreationPage.js:116:21\n\n\nTest Suites: 6 passed, 6 total\nTests:       22 passed, 22 total\nSnapshots:   0 total\nTime:        3.573 s, estimated 5 s\nRan all test suites.\n"
 }
