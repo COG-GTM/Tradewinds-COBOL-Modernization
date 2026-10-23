@@ -37,7 +37,8 @@ public class AbendFile {
     static final Instant ABSTIME_EPOCH = Instant.parse("1900-01-01T00:00:00Z");
 
     private static final DateTimeFormatter ABND_DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private static final DateTimeFormatter ABND_TIME = DateTimeFormatter.ofPattern("HH:mm:ss");
+    /** The programs STRING HH ':' MM ':' MM INTO ABND-TIME (minutes twice, legacy defect README #1). */
+    private static final DateTimeFormatter ABND_TIME = DateTimeFormatter.ofPattern("HH:mm:mm");
 
     private final ConcurrentSkipListMap<Key, AbendRecord> records = new ConcurrentSkipListMap<>(KEY_ORDER);
     private final TaskNumberSupplier taskNumbers;
