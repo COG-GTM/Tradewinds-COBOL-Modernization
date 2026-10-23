@@ -38,6 +38,9 @@ public class PaymentController {
         if (in.commAmt().abs().compareTo(DebitCreditService.MAX_MONEY) > 0) {
             throw CbsaException.badRequest("PAYDBCR.CommAmt exceeds PIC S9(10)V99");
         }
+        if (in.commAmt().stripTrailingZeros().scale() > 2) {
+            throw CbsaException.badRequest("PAYDBCR.CommAmt must have at most 2 decimal places");
+        }
         // A010: COMM-SORTC is always overwritten with this bank's sort code.
         int sortCode = Integer.parseInt(bank.sortCode());
         String accno = in.commAccno() == null ? "" : in.commAccno().trim();

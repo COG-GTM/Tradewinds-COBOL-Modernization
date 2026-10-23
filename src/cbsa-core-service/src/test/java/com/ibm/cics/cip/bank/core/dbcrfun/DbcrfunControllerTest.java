@@ -143,6 +143,16 @@ class DbcrfunControllerTest {
         putJson("/makepayment/dbcr", "{\"PAYDBCR\": {\"CommAccno\": \"00000001\"}}").andExpect(status().isBadRequest());
         putJson("/makepayment/dbcr", "{}").andExpect(status().isBadRequest());
         putJson("/makepayment/dbcr", "not json").andExpect(status().isBadRequest());
+        putJson("/makepayment/dbcr", payment("00000009", "1.239", "496")).andExpect(status().isBadRequest());
+        putJson("/makepayment/dbcr", payment("00000009", "12345678901", "496")).andExpect(status().isBadRequest());
+        assertThat(proctran.count()).isEqualTo(8);
+    }
+
+    @Test
+    void paymentAmountWithTrailingZerosBeyondCentsIsAccepted() throws Exception {
+        putJson("/makepayment/dbcr", payment("00000009", "1.2300", "496"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.PAYDBCR.CommSuccess").value("Y"));
     }
 
     @Test
