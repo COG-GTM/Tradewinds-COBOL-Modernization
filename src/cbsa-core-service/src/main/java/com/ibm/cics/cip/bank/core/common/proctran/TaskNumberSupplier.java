@@ -1,20 +1,65 @@
 package com.ibm.cics.cip.bank.core.common.proctran;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 
-/** EIBTASKN equivalent used for PROCTRAN_REF: a per-JVM sequence starting at 1. */
+/**
+ * Emulates the CICS task number {@code EIBTASKN}. One REST request (one screen turn) is one CICS task: inside
+ * {@link #inTask(Supplier)} every {@link #currentTaskNumber()} call returns the same number, allocated lazily from a
+ * region-wide counter on first use, so all PROCTRAN rows written by one task carry the same {@code PROCTRAN_REF}
+ * (as DELCUS writes ODA/ODC rows with one EIBTASKN). LINKed programs run in the caller's task; START'ed child tasks
+ * (CRDTAGY1-5) run as parent + child id and {@link #reserveChildTasks} keeps the counter beyond them. Outside a task
+ * scope every call allocates a new number. {@link #restartAt(long)} sets the next number (CICS region restart; the
+ * parity harness uses it to mirror {@code CBSA_TASKN}).
+ */
 @Component
 public class TaskNumberSupplier {
 
     private final AtomicLong next = new AtomicLong(1);
+    private final ThreadLocal<long[]> task = new ThreadLocal<>();
 
     public long nextTaskNumber() {
         return next.getAndIncrement();
     }
 
-    /** 12-digit PROCTRAN_REF (WS-EIBTASKN12). */
-    public String nextReference() {
-        return String.format("%012d", nextTaskNumber());
+    /** EIBTASKN of the current task (allocated on first use), or a fresh number outside a task scope. */
+    public long currentTaskNumber() {
+        long[] current = task.get();
+        if (current == null) {
+            return nextTaskNumber();
+        }
+        if (current[0] == 0) {
+            current[0] = nextTaskNumber();
+        }
+        return current[0];
+    }
+
+    /** 12-digit PROCTRAN_REF (WS-EIBTASKN12) of the current task. */
+    public String currentReference() {
+        return String.format("%012d", currentTaskNumber());
+    }
+
+    /** Runs {@code work} as one CICS task; nested calls join the enclosing task (EXEC CICS LINK). */
+    public <T> T inTask(Supplier<T> work) {
+        if (task.get() != null) {
+            return work.get();
+        }
+        task.set(new long[1]);
+        try {
+            return work.get();
+        } finally {
+            task.remove();
+        }
+    }
+
+    /** Child tasks {@code parent + 1 .. parent + count} have run: later tasks are numbered after them. */
+    public void reserveChildTasks(long parent, int count) {
+        next.accumulateAndGet(parent + count + 1, Math::max);
+    }
+
+    /** The next task allocated gets {@code taskNumber}. */
+    public void restartAt(long taskNumber) {
+        next.set(taskNumber);
     }
 }

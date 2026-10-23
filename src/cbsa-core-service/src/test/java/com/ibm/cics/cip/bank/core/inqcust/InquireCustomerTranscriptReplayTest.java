@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.cics.cip.bank.core.common.bank.BankIdentity;
 import com.ibm.cics.cip.bank.core.common.config.CbsaRandomFactory;
+import com.ibm.cics.cip.bank.core.common.proctran.TaskNumberSupplier;
 import com.ibm.cics.cip.bank.core.common.domain.Customer;
 import com.ibm.cics.cip.bank.core.common.repository.CustomerRepository;
 import java.io.IOException;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * from the canonical seed with the transcript's fixed clock and random seed, asserting the COMMAREA
  * outputs, fail codes and DB deltas (CUSTOMER/ACCOUNT/PROCTRAN/CONTROL) match.
  *
- * <p>Random-customer cases whose recorded customer differs are reported as skipped with the root
- * cause (see the PR "Deviations"), after the remaining invariants have been asserted.
+ * <p>Random-customer cases run with EIBTASKN = {@code CBSA_TASKN} and the legacy (GnuCOBOL) COMPUTE arithmetic.
  */
 @SpringBootTest(properties = {
         "cbsa.clock.fixed=2026-01-15T10:30:00Z",
@@ -77,8 +76,10 @@ class InquireCustomerTranscriptReplayTest {
         JsonNode out = t.path("commarea_out");
         long requested = in.path("INQCUST-CUSTNO").asLong();
         Long seed = t.path("env").hasNonNull("CBSA_RANDOM_SEED") ? t.path("env").path("CBSA_RANDOM_SEED").asLong() : null;
+        TaskNumberSupplier tasks = new TaskNumberSupplier();
+        tasks.restartAt(t.path("env").path("CBSA_TASKN").asLong(100));
         InquireCustomerService service = new InquireCustomerService(customers, bank,
-                new CbsaRandomFactory(InquireCustomerServiceTest.properties(seed)));
+                new CbsaRandomFactory(InquireCustomerServiceTest.properties(seed)), tasks, "gnucobol");
 
         Map<String, List<Map<String, Object>>> before = snapshot();
         Optional<Customer> result = service.inquire(requested);
@@ -89,16 +90,6 @@ class InquireCustomerTranscriptReplayTest {
         if ("Y".equals(out.path("INQCUST-INQ-SUCCESS").asText())) {
             assertThat(result).as("customer found").isPresent();
             Customer c = result.get();
-            if (requested == InquireCustomerService.RANDOM_CUSTOMER
-                    && c.customerNumber() != out.path("INQCUST-CUSTNO").asLong()) {
-                assertThat(customers.findByKey(bank.sortCode(), c.customerNumber())).contains(c);
-                assertThat(service.inquire(requested)).as("deterministic for a fixed seed").contains(c);
-                Assumptions.abort("DEVIATION " + file.getFileName() + ": Java picks customer " + c.customerNumber()
-                        + ", legacy GnuCOBOL harness recorded " + out.path("INQCUST-CUSTNO").asLong()
-                        + ". Root cause: GnuCOBOL 3.1.2 -std=ibm evaluates ((NCS-1) * RANDOM) + 1 to 1 (verified for"
-                        + " RANDOM = .034/.5/.7415/.999999999; GnuCOBOL default std gives the arithmetic result), and the"
-                        + " shared CbsaRandom (31-bit LCG) is not the 48-bit generator the harness uses for RANDOM.");
-            }
             assertThat(c.eyecatcher()).isEqualTo(out.path("INQCUST-EYE").asText());
             assertThat(c.sortCode()).isEqualTo(out.path("INQCUST-SCODE").asText());
             assertThat(c.customerNumber()).isEqualTo(out.path("INQCUST-CUSTNO").asLong());

@@ -46,10 +46,7 @@ class TranscriptReplayTest {
     /**
      * Cases that cannot match yet, with the root cause. They are reported as skipped (never as passed).
      */
-    static final Map<String, String> KNOWN_DEVIATIONS = Map.of(
-            "BNK1DCS/lookup-non-numeric", "DEEDIT('ABC') = 0000000000 -> INQCUST random customer: same documented "
-                    + "deviation as INQCUST/random-seed-*.json (InquireCustomerTranscriptReplayTest); the legacy "
-                    + "GENERATE-RANDOM-CUSTOMER uses NCS-CUST-NO-VALUE before it is set and always lands on customer 1");
+    static final Map<String, String> KNOWN_DEVIATIONS = Map.of();
 
     static final ObjectMapper JSON = new ObjectMapper();
 

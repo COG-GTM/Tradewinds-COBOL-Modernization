@@ -27,6 +27,9 @@ import org.springframework.util.StringUtils;
 @Service
 public class CreateCustomerService {
 
+    /** CRDTAGY1-5 run as START'ed child tasks EIBTASKN + 1 .. + 5. */
+    static final int CREDIT_AGENCY_TASKS = 5;
+
     static final int NAME_WIDTH = 60;
     static final int ADDRESS_WIDTH = 160;
 
@@ -76,12 +79,13 @@ public class CreateCustomerService {
                     "T");
         }
 
-        long taskNumber = taskNumbers.nextTaskNumber();
+        long taskNumber = taskNumbers.currentTaskNumber();
         LocalDate today = LocalDate.now(clock);
 
         Customer applicant = new Customer(Customer.EYECATCHER, bank.sortCode(), 0L, commName, commAddress,
                 validDate(birthYear, birthMonth, birthDay).orElse(null), 0, null);
         CreditCheckResult credit = creditCheck.check(applicant, taskNumber);
+        taskNumbers.reserveChildTasks(taskNumber, CREDIT_AGENCY_TASKS);
         if (!credit.ok()) {
             throw CbsaException.serverError(CreditCheckResult.FAIL_AGENCY_ABEND.equals(credit.failCode())
                     ? "Credit check failed: a credit agency abended"

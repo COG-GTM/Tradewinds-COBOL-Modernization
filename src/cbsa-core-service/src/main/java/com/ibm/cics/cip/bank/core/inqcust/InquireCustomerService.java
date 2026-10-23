@@ -6,9 +6,14 @@ import com.ibm.cics.cip.bank.core.common.config.CbsaRandomFactory;
 import com.ibm.cics.cip.bank.core.common.domain.Customer;
 import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
+import com.ibm.cics.cip.bank.core.common.proctran.TaskNumberSupplier;
 import com.ibm.cics.cip.bank.core.common.repository.CustomerRepository;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +37,24 @@ public class InquireCustomerService {
     /** {@code IF INQCUST-RETRY < 1000}: re-draws allowed after the first random miss. */
     static final int MAX_RANDOM_RETRIES = 1000;
 
+    /** PIC 9(10) RANDOM-CUSTOMER: the COMPUTE result is truncated to ten digits. */
+    static final long CUSTNO_MODULUS = 10_000_000_000L;
+
+    /** GnuCOBOL {@code cob_decimal_align(d, 9)} drops the nine low-order digits of {@code NCS-CUST-NO-VALUE - 1}. */
+    static final long GNUCOBOL_ALIGN = 1_000_000_000L;
+
     /**
-     * {@link CbsaRandomFactory} stream for {@code FUNCTION RANDOM(EIBTASKN)}. The legacy harness seeds
-     * RANDOM with {@code CBSA_RANDOM_SEED + EIBTASKN} and every baseline transcript runs with
-     * {@code CBSA_TASKN=100}, so stream 100 (seed + 100) mirrors it.
+     * {@code cbsa.inqcust.random-arithmetic}: {@code gnucobol} (default) evaluates the RANDOM-CUSTOMER COMPUTE as the
+     * legacy runtime (GnuCOBOL 3.1.2 {@code -std=ibm}) does, {@code exact} with exact decimal arithmetic.
      */
-    public static final int RANDOM_STREAM = 100;
+    public enum RandomArithmetic {
+        GNUCOBOL, EXACT;
+
+        static RandomArithmetic parse(String value) {
+            return value == null || value.isBlank() ? GNUCOBOL
+                    : valueOf(value.trim().toUpperCase(Locale.ROOT));
+        }
+    }
 
     static final String PROGRAM = "INQCUST";
     static final String ABEND_FILE_ERROR = "CVR1";
@@ -47,11 +64,22 @@ public class InquireCustomerService {
     private final CustomerRepository customers;
     private final BankIdentity bank;
     private final CbsaRandomFactory randomFactory;
+    private final TaskNumberSupplier taskNumbers;
+    private final RandomArithmetic arithmetic;
 
-    public InquireCustomerService(CustomerRepository customers, BankIdentity bank, CbsaRandomFactory randomFactory) {
+    @Autowired
+    public InquireCustomerService(CustomerRepository customers, BankIdentity bank, CbsaRandomFactory randomFactory,
+            TaskNumberSupplier taskNumbers,
+            @Value("${cbsa.inqcust.random-arithmetic:gnucobol}") String arithmetic) {
         this.customers = customers;
         this.bank = bank;
         this.randomFactory = randomFactory;
+        this.taskNumbers = taskNumbers;
+        this.arithmetic = RandomArithmetic.parse(arithmetic);
+    }
+
+    public InquireCustomerService(CustomerRepository customers, BankIdentity bank, CbsaRandomFactory randomFactory) {
+        this(customers, bank, randomFactory, new TaskNumberSupplier(), null);
     }
 
     /**
@@ -123,14 +151,15 @@ public class InquireCustomerService {
      * re-drawn via {@code GENERATE-RANDOM-CUSTOMER-AGAIN} ({@code FUNCTION RANDOM}, same sequence) while
      * the key is NOTFND, up to {@value #MAX_RANDOM_RETRIES} times; then fail code 1.
      *
-     * <p>As in the COBOL, candidates span 1 .. highest-1 (RANDOM &lt; 1), so the highest-numbered
-     * customer is only reachable through {@value #LAST_CUSTOMER}.
+     * <p>{@code FUNCTION RANDOM(EIBTASKN)} is the legacy runtime's generator seeded with
+     * {@code cbsa.random.seed + EIBTASKN} ({@link CbsaRandomFactory#stream(long)} with the current task number).
      */
     private Optional<Customer> generateRandomCustomer(String sortCode) {
         long highest = highestCustomerNumber(sortCode);
-        CbsaRandom random = randomFactory.stream(RANDOM_STREAM);
+        CbsaRandom random = randomFactory.stream(taskNumbers.currentTaskNumber());
         for (int retry = 0; retry <= MAX_RANDOM_RETRIES; retry++) {
-            Optional<Customer> customer = customers.findByKey(sortCode, randomCustomerNumber(highest, random));
+            Optional<Customer> customer =
+                    customers.findByKey(sortCode, randomCustomerNumber(highest, random.nextDouble(), arithmetic));
             if (customer.isPresent()) {
                 return customer;
             }
@@ -138,9 +167,20 @@ public class InquireCustomerService {
         return Optional.empty();
     }
 
-    /** COMPUTE into PIC 9(10): fraction truncated. */
-    static long randomCustomerNumber(long highest, CbsaRandom random) {
-        return (long) ((highest - 1) * random.nextDouble()) + 1;
+    /**
+     * {@code COMPUTE RANDOM-CUSTOMER = ((NCS-CUST-NO-VALUE - 1) * RANDOM) + 1} into PIC 9(10), RANDOM held in
+     * PIC V9(9) (truncated to nine decimals). Under {@link RandomArithmetic#GNUCOBOL} the generated code aligns
+     * {@code NCS-CUST-NO-VALUE - 1} (PIC 9(16) COMP) to scale 9 by dropping its nine low-order digits before the
+     * multiply, so for fewer than 1,000,000,001 customers every candidate is customer 1 (verified against 3,000
+     * random inputs of the compiled COMPUTE). {@link RandomArithmetic#EXACT}: candidates span 1 .. highest-1.
+     */
+    static long randomCustomerNumber(long highest, double random, RandomArithmetic arithmetic) {
+        BigDecimal rv = BigDecimal.valueOf((long) (random * 1_000_000_000.0), 9);
+        long base = highest - 1;
+        if (arithmetic == RandomArithmetic.GNUCOBOL) {
+            base = base / GNUCOBOL_ALIGN * GNUCOBOL_ALIGN;
+        }
+        return (BigDecimal.valueOf(base).multiply(rv).longValue() + 1) % CUSTNO_MODULUS;
     }
 
     /** {@code GET-LAST-CUSTOMER-VSAM}: STARTBR HIGH-VALUES + READPREV; NOTFND sets fail code 9. */
