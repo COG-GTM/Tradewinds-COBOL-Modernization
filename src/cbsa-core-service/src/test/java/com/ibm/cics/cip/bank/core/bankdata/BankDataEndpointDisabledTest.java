@@ -42,6 +42,20 @@ class BankDataEndpointDisabledTest {
     }
 
     @Test
+    void rejectsEverythingWhenNoTokenConfigured() {
+        runner.withPropertyValues("cbsa.bankdata.endpoint.enabled=true").run(ctx -> {
+            BankDataController controller = ctx.getBean(BankDataController.class);
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> controller.sql(null,
+                            new BankDataController.BankDataParm(1, 1, 1, 42)))
+                    .isInstanceOfSatisfying(com.ibm.cics.cip.bank.core.common.error.CbsaException.class,
+                            e -> assertThat(e.status()).isEqualTo(org.springframework.http.HttpStatus.FORBIDDEN));
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> controller.sql("",
+                            new BankDataController.BankDataParm(1, 1, 1, 42)))
+                    .isInstanceOf(com.ibm.cics.cip.bank.core.common.error.CbsaException.class);
+        });
+    }
+
+    @Test
     void presentWhenEnabled() {
         runner.withPropertyValues("cbsa.bankdata.endpoint.enabled=true")
                 .run(ctx -> assertThat(ctx).hasSingleBean(BankDataController.class));
