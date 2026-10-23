@@ -505,6 +505,15 @@ def run_crosschecks():
          lambda b: b.get('numberOfAccounts'), q("SELECT COUNT(*) FROM ACCOUNT WHERE ACCOUNT_CUSTOMER_NUMBER='0000000001'")[0]),
         ('processed-transactions', '/banking/processedTransaction?limit=1000',
          lambda b: b.get('numberOfProcessedTransactions'), q('SELECT COUNT(*) FROM PROCTRAN')[0]),
+        # row-level: every PROCTRAN column the endpoint exposes (PROCTRAN_REF excluded as documented), as a sorted
+        # multiset because Liberty orders by date+time only and ties have no defined order
+        ('processed-transactions-rows', '/banking/processedTransaction?limit=1000',
+         lambda b: sorted([p.get('sortCode'), p.get('accountNumber'), p.get('date'), p.get('time'), p.get('type'),
+                           p.get('description'), (round(float(p['amount']), 2) if isinstance(p.get('amount'), (int, float)) else p.get('amount'))] for p in b.get('processedTransactions', [])),
+         sorted([r[0].strip(), r[1].strip(), str(r[2]), '%s:%s:%s' % (r[3][0:2], r[3][2:4], r[3][4:6]), r[4].strip(),
+                 r[5].strip(), round(float(r[6]), 2)] for r in db.execute(
+             'SELECT PROCTRAN_SORTCODE, PROCTRAN_NUMBER, PROCTRAN_DATE, PROCTRAN_TIME, PROCTRAN_TYPE, PROCTRAN_DESC, '
+             'PROCTRAN_AMOUNT FROM PROCTRAN'))),
     ]
     out = []
     for cid, path, proj, legacy in checks:

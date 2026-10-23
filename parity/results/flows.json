@@ -10830,20 +10830,8 @@
   "kind": "api-crosscheck",
   "program": "Liberty REST (no COBOL)",
   "title": "GET /banking/processedTransaction?limit=1000 vs SQL on legacy seeded DB",
-  "status": "DIFF",
-  "diffs": [
-   {
-    "area": "response",
-    "field": "processed-transactions",
-    "legacy": 8,
-    "migrated": {
-     "http": 404,
-     "body": {
-      "errorMessage": "Not found: /banking/processedTransaction"
-     }
-    }
-   }
-  ],
+  "status": "MATCH",
+  "diffs": [],
   "steps": [
    {
     "step": 1,
@@ -10851,14 +10839,175 @@
      "method": "GET",
      "path": "/banking/processedTransaction?limit=1000"
     },
-    "migrated_http": 404,
-    "migrated_value": {
-     "http": 404,
-     "body": {
-      "errorMessage": "Not found: /banking/processedTransaction"
-     }
-    },
+    "migrated_http": 200,
+    "migrated_value": 8,
     "legacy_value": 8
+   }
+  ]
+ },
+ {
+  "id": "api-crosscheck/processed-transactions-rows",
+  "kind": "api-crosscheck",
+  "program": "Liberty REST (no COBOL)",
+  "title": "GET /banking/processedTransaction?limit=1000 vs SQL on legacy seeded DB",
+  "status": "MATCH",
+  "diffs": [],
+  "steps": [
+   {
+    "step": 1,
+    "request": {
+     "method": "GET",
+     "path": "/banking/processedTransaction?limit=1000"
+    },
+    "migrated_http": 200,
+    "migrated_value": [
+     [
+      "987654",
+      "00000001",
+      "2026-01-10",
+      "09:00:00",
+      "CRE",
+      "COUNTER RECVED",
+      250.0
+     ],
+     [
+      "987654",
+      "00000002",
+      "2026-01-10",
+      "09:00:00",
+      "DEB",
+      "COUNTER WTHDRW",
+      -75.25
+     ],
+     [
+      "987654",
+      "00000003",
+      "2026-01-10",
+      "09:00:00",
+      "CRE",
+      "COUNTER RECVED",
+      1000.0
+     ],
+     [
+      "987654",
+      "00000004",
+      "2026-01-10",
+      "09:00:00",
+      "TFR",
+      "TRANSFER                  98765400000006",
+      125.0
+     ],
+     [
+      "987654",
+      "00000010",
+      "2026-01-10",
+      "09:00:00",
+      "DEB",
+      "COUNTER WTHDRW",
+      -20.5
+     ],
+     [
+      "987654",
+      "00000074",
+      "2026-01-10",
+      "09:00:00",
+      "OCA",
+      "0000000005MORTGAGE1001202609022026",
+      0.0
+     ],
+     [
+      "987654",
+      "00000075",
+      "2026-01-10",
+      "09:00:00",
+      "OCA",
+      "0000000012MORTGAGE1001202609022026",
+      0.0
+     ],
+     [
+      "987654",
+      "00000076",
+      "2026-01-10",
+      "09:00:00",
+      "OCA",
+      "0000000020CURRENT 1001202609022026",
+      0.0
+     ]
+    ],
+    "legacy_value": [
+     [
+      "987654",
+      "00000001",
+      "2026-01-10",
+      "09:00:00",
+      "CRE",
+      "COUNTER RECVED",
+      250.0
+     ],
+     [
+      "987654",
+      "00000002",
+      "2026-01-10",
+      "09:00:00",
+      "DEB",
+      "COUNTER WTHDRW",
+      -75.25
+     ],
+     [
+      "987654",
+      "00000003",
+      "2026-01-10",
+      "09:00:00",
+      "CRE",
+      "COUNTER RECVED",
+      1000.0
+     ],
+     [
+      "987654",
+      "00000004",
+      "2026-01-10",
+      "09:00:00",
+      "TFR",
+      "TRANSFER                  98765400000006",
+      125.0
+     ],
+     [
+      "987654",
+      "00000010",
+      "2026-01-10",
+      "09:00:00",
+      "DEB",
+      "COUNTER WTHDRW",
+      -20.5
+     ],
+     [
+      "987654",
+      "00000074",
+      "2026-01-10",
+      "09:00:00",
+      "OCA",
+      "0000000005MORTGAGE1001202609022026",
+      0.0
+     ],
+     [
+      "987654",
+      "00000075",
+      "2026-01-10",
+      "09:00:00",
+      "OCA",
+      "0000000012MORTGAGE1001202609022026",
+      0.0
+     ],
+     [
+      "987654",
+      "00000076",
+      "2026-01-10",
+      "09:00:00",
+      "OCA",
+      "0000000020CURRENT 1001202609022026",
+      0.0
+     ]
+    ]
    }
   ]
  },
