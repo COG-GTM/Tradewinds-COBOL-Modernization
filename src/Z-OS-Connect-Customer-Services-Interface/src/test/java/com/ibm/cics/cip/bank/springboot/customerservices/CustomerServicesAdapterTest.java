@@ -135,6 +135,21 @@ class CustomerServicesAdapterTest
 	}
 
 
+	@Test
+	void enquireAccountShowsLargeBalancesToTheCent() throws Exception
+	{
+		server.expect(requestTo(ACCOUNT_URL + "/00000001"))
+				.andRespond(withSuccess(ACCOUNT_JSON
+						.replace("\"availableBalance\":100.00", "\"availableBalance\":623367.91")
+						.replace("\"actualBalance\":100.00", "\"actualBalance\":623367.91"),
+						MediaType.APPLICATION_JSON));
+		mockMvc.perform(post("/enqacct").param("acctNumber", "1"))
+				.andExpect(model().attribute("smallText",
+						containsString("623367.91")));
+		server.verify();
+	}
+
+
 	// INQCUST
 	@Test
 	void enquireCustomerCallsGetCustomer() throws Exception

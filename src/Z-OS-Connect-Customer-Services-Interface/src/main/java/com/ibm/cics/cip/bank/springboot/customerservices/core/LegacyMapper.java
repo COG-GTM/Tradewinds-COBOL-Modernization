@@ -56,13 +56,13 @@ public final class LegacyMapper
 		inqacc.setInqaccSortcode(toInt(a.sortCode()));
 		inqacc.setInqaccAccno(toInt(a.id()));
 		inqacc.setInqaccAccType(trim(a.accountType()));
-		inqacc.setInqaccInterestRate(toFloat(a.interestRate()));
+		inqacc.setInqaccInterestRate(toDouble(a.interestRate()));
 		inqacc.setInqaccOpened(toDdmmyyyy(a.dateOpened()));
 		inqacc.setInqaccOverdraft(toWhole(a.overdraft()));
 		inqacc.setInqaccLastStatementDate(toDdmmyyyy(a.lastStatementDate()));
 		inqacc.setInqaccNextStatementDate(toDdmmyyyy(a.nextStatementDate()));
-		inqacc.setInqaccAvailableBalance(toFloat(a.availableBalance()));
-		inqacc.setInqaccActualBalance(toFloat(a.actualBalance()));
+		inqacc.setInqaccAvailableBalance(toDouble(a.availableBalance()));
+		inqacc.setInqaccActualBalance(toDouble(a.actualBalance()));
 		inqacc.setInqaccSuccess(YES);
 		AccountEnquiryJson json = new AccountEnquiryJson();
 		json.setInqaccCommarea(inqacc);
@@ -129,13 +129,13 @@ public final class LegacyMapper
 		d.setCommCustno(toLong(a.customerNumber()));
 		d.setCommAccno(toInt(a.id()));
 		d.setCommAccType(trim(a.accountType()));
-		d.setCommInterestRate(toFloat(a.interestRate()));
+		d.setCommInterestRate(toDouble(a.interestRate()));
 		d.setCommOpened(toDdmmyyyy(a.dateOpened()));
 		d.setCommOverdraft(toWhole(a.overdraft()));
 		d.setCommLastStatementDate(toDdmmyyyy(a.lastStatementDate()));
 		d.setCommNextStatementDate(toDdmmyyyy(a.nextStatementDate()));
-		d.setCommAvailableBalance(toFloat(a.availableBalance()));
-		d.setCommActualBalance(toFloat(a.actualBalance()));
+		d.setCommAvailableBalance(toDouble(a.availableBalance()));
+		d.setCommActualBalance(toDouble(a.actualBalance()));
 		return d;
 	}
 
@@ -150,13 +150,13 @@ public final class LegacyMapper
 		key.setCommNumber(toInt(a.id()));
 		creacc.setCommKey(key);
 		creacc.setCommAccType(trim(a.accountType()));
-		creacc.setCommInterestRate(toFloat(a.interestRate()));
+		creacc.setCommInterestRate(toDouble(a.interestRate()));
 		creacc.setCommOpened(toDdmmyyyy(a.dateOpened()));
-		creacc.setCommOverdraftLimit(toFloat(a.overdraft()));
+		creacc.setCommOverdraftLimit(toDouble(a.overdraft()));
 		creacc.setCommLastStatementDate(toDdmmyyyy(a.lastStatementDate()));
 		creacc.setCommNextStatementDate(toDdmmyyyy(a.nextStatementDate()));
-		creacc.setCommAvailableBalance(toFloat(a.availableBalance()));
-		creacc.setCommActualBalance(toFloat(a.actualBalance()));
+		creacc.setCommAvailableBalance(toDouble(a.availableBalance()));
+		creacc.setCommActualBalance(toDouble(a.actualBalance()));
 		creacc.setCommSuccess(YES);
 		creacc.setCommFailCode("");
 		CreateAccountJson json = new CreateAccountJson();
@@ -195,15 +195,15 @@ public final class LegacyMapper
 		updacc.setCommSortcode(a.sortCode());
 		updacc.setCommAccno(toInt(a.id()));
 		updacc.setCommAccountType(trim(a.accountType()));
-		updacc.setCommInterestRate(toFloat(a.interestRate()));
+		updacc.setCommInterestRate(toDouble(a.interestRate()));
 		updacc.setCommOpened(toDdmmyyyyString(a.dateOpened()));
 		updacc.setCommOverdraft(toWhole(a.overdraft()));
 		updacc.setCommLastStatementDate(
 				toDdmmyyyyString(a.lastStatementDate()));
 		updacc.setCommNextStatementDate(
 				toDdmmyyyyString(a.nextStatementDate()));
-		updacc.setCommAvailableBalance(toFloat(a.availableBalance()));
-		updacc.setCommActualBalance(toFloat(a.actualBalance()));
+		updacc.setCommAvailableBalance(toDouble(a.availableBalance()));
+		updacc.setCommActualBalance(toDouble(a.actualBalance()));
 		updacc.setCommSuccess(YES);
 		UpdateAccountJson json = new UpdateAccountJson();
 		json.setUpdacc(updacc);
@@ -239,15 +239,15 @@ public final class LegacyMapper
 		delacc.setDelaccSortcode(a.sortCode());
 		delacc.setDelaccAccno(toInt(a.id()));
 		delacc.setDelaccAccType(trim(a.accountType()));
-		delacc.setDelaccInterestRate(toFloat(a.interestRate()));
+		delacc.setDelaccInterestRate(toDouble(a.interestRate()));
 		delacc.setDelaccOpened(toDdmmyyyyString(a.dateOpened()));
 		delacc.setDelaccOverdraft(toWhole(a.overdraft()));
 		delacc.setDelAccLastStatementDate(
 				toDdmmyyyyString(a.lastStatementDate()));
 		delacc.setDelaccNextStatementDate(
 				toDdmmyyyyString(a.nextStatementDate()));
-		delacc.setDelaccAvailableBalance(toFloat(a.availableBalance()));
-		delacc.setDelaccActualBalance(toFloat(a.actualBalance()));
+		delacc.setDelaccAvailableBalance(toDouble(a.availableBalance()));
+		delacc.setDelaccActualBalance(toDouble(a.actualBalance()));
 		delacc.setDelaccDelSuccess(YES);
 		delacc.delaccDelFailCode(0);
 		DeleteAccountJson json = new DeleteAccountJson();
@@ -389,9 +389,9 @@ public final class LegacyMapper
 	}
 
 
-	private static float toFloat(BigDecimal value)
+	private static double toDouble(BigDecimal value)
 	{
-		return value == null ? 0f : value.floatValue();
+		return value == null ? 0d : value.doubleValue();
 	}
 
 
