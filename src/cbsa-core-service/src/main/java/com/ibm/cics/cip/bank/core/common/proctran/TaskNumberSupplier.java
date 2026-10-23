@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 public class TaskNumberSupplier {
 
     private final AtomicLong next = new AtomicLong(1);
+    /** {task number (0 = not yet allocated), child task numbers reserved after it}. */
     private final ThreadLocal<long[]> task = new ThreadLocal<>();
 
     public long nextTaskNumber() {
@@ -43,11 +44,18 @@ public class TaskNumberSupplier {
     public long currentTaskNumberWithChildTasks(int childTasks) {
         long[] current = task.get();
         if (current != null && current[0] != 0) {
+            if (current[1] < childTasks) {
+                // number taken earlier in this task: move the counter past the children (best effort, as CICS
+                // cannot guarantee parent + n is free once other tasks have started)
+                next.accumulateAndGet(current[0] + childTasks + 1, Math::max);
+                current[1] = childTasks;
+            }
             return current[0];
         }
         long parent = next.getAndAdd(1L + childTasks);
         if (current != null) {
             current[0] = parent;
+            current[1] = childTasks;
         }
         return parent;
     }
@@ -62,7 +70,7 @@ public class TaskNumberSupplier {
         if (task.get() != null) {
             return work.get();
         }
-        task.set(new long[1]);
+        task.set(new long[2]);
         try {
             return work.get();
         } finally {

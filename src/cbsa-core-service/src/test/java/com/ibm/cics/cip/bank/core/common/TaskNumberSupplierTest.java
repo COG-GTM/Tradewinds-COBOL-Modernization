@@ -47,6 +47,18 @@ class TaskNumberSupplierTest {
     }
 
     @Test
+    void childTasksAreReservedWhenTheTaskNumberWasAlreadyTaken() {
+        TaskNumberSupplier tasks = new TaskNumberSupplier();
+        tasks.restartAt(100);
+        long parent = tasks.inTask(() -> {
+            tasks.currentTaskNumber();
+            return tasks.currentTaskNumberWithChildTasks(5);
+        });
+        assertThat(parent).isEqualTo(100);
+        assertThat(tasks.currentTaskNumber()).isEqualTo(106);
+    }
+
+    @Test
     void concurrentParentsNeverReceiveEachOthersChildNumbers() throws Exception {
         TaskNumberSupplier tasks = new TaskNumberSupplier();
         java.util.Set<Long> used = java.util.concurrent.ConcurrentHashMap.newKeySet();
