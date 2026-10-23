@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
  * {@link #inTask(Supplier)} every {@link #currentTaskNumber()} call returns the same number, allocated lazily from a
  * region-wide counter on first use, so all PROCTRAN rows written by one task carry the same {@code PROCTRAN_REF}
  * (as DELCUS writes ODA/ODC rows with one EIBTASKN). LINKed programs run in the caller's task; START'ed child tasks
- * (CRDTAGY1-5) run as parent + child id and {@link #reserveChildTasks} keeps the counter beyond them. Outside a task
+ * (CRDTAGY1-5) run as parent + child id; {@link #currentTaskNumberWithChildTasks} allocates the parent and its children
+ * in one atomic step so no concurrent task can be given a child's number. Outside a task
  * scope every call allocates a new number. {@link #restartAt(long)} sets the next number (CICS region restart; the
  * parity harness uses it to mirror {@code CBSA_TASKN}).
  */
@@ -35,6 +36,22 @@ public class TaskNumberSupplier {
         return current[0];
     }
 
+    /**
+     * EIBTASKN of the current task, allocating it together with {@code childTasks} child numbers
+     * ({@code parent + 1 .. parent + childTasks}) in one atomic step when the task has no number yet.
+     */
+    public long currentTaskNumberWithChildTasks(int childTasks) {
+        long[] current = task.get();
+        if (current != null && current[0] != 0) {
+            return current[0];
+        }
+        long parent = next.getAndAdd(1L + childTasks);
+        if (current != null) {
+            current[0] = parent;
+        }
+        return parent;
+    }
+
     /** 12-digit PROCTRAN_REF (WS-EIBTASKN12) of the current task. */
     public String currentReference() {
         return String.format("%012d", currentTaskNumber());
@@ -51,11 +68,6 @@ public class TaskNumberSupplier {
         } finally {
             task.remove();
         }
-    }
-
-    /** Child tasks {@code parent + 1 .. parent + count} have run: later tasks are numbered after them. */
-    public void reserveChildTasks(long parent, int count) {
-        next.accumulateAndGet(parent + count + 1, Math::max);
     }
 
     /** The next task allocated gets {@code taskNumber}. */

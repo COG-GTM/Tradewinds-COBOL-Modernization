@@ -89,6 +89,32 @@ class AbendRecordControllerTest {
                 .andExpect(jsonPath("$.respCode").value(-23456789));
     }
 
+    @Autowired
+    org.springframework.context.ApplicationEventPublisher events;
+
+    @Autowired
+    com.ibm.cics.cip.bank.core.common.proctran.TaskNumberSupplier tasks;
+
+    @Test
+    void serviceAbendsAreWrittenToAbndfile() {
+        tasks.restartAt(4321);
+        tasks.inTask(() -> {
+            events.publishEvent(new com.ibm.cics.cip.bank.core.common.error.AbendEvent(
+                    java.time.Instant.parse("2026-01-15T10:30:00Z"), "HWPT", "XFRFUN", "PROCTRAN insert failed"));
+            return null;
+        });
+        assertThat(file.records()).singleElement().satisfies(r -> {
+            assertThat(r.utimeKey()).isEqualTo(3_977_461_800_000L);
+            assertThat(r.taskNoKey()).isEqualTo(4321);
+            assertThat(r.applid()).isEqualTo(AbendFile.APPLID);
+            assertThat(r.date()).isEqualTo("15.01.2026");
+            assertThat(r.time()).isEqualTo("10:30:00");
+            assertThat(r.code()).isEqualTo("HWPT");
+            assertThat(r.program()).isEqualTo("XFRFUN");
+            assertThat(r.freeform()).isEqualTo("PROCTRAN insert failed");
+        });
+    }
+
     @Test
     void tokenIsRequired() throws Exception {
         write(null, "{\"utimeKey\":1}").andExpect(status().isForbidden());

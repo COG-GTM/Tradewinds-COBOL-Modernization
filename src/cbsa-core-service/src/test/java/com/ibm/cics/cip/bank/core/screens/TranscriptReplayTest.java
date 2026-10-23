@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.cics.cip.bank.core.common.proctran.TaskNumberSupplier;
 import com.ibm.cics.cip.bank.core.common.seed.SeedDataLoader;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Replays every baseline/transcripts/&lt;PROGRAM&gt;/*.json case of the T-12 terminal programs against the Java
@@ -52,15 +51,8 @@ class TranscriptReplayTest {
 
     /** EIBTASKN that the legacy harness sets per case ({@code env.CBSA_TASKN}). */
     static class ResettableTaskNumbers extends TaskNumberSupplier {
-        private final AtomicLong next = new AtomicLong(1);
-
         void reset(long taskNumber) {
-            next.set(taskNumber);
-        }
-
-        @Override
-        public long nextTaskNumber() {
-            return next.getAndIncrement();
+            restartAt(taskNumber);
         }
     }
 
