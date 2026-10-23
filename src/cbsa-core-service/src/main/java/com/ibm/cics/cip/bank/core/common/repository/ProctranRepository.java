@@ -38,6 +38,19 @@ public class ProctranRepository {
                 .list();
     }
 
+    /**
+     * Rows of one bank, oldest first: the Liberty {@code ProcessedTransaction.getProcessedTransactions} query
+     * ({@code WHERE PROCTRAN_SORTCODE LIKE ? ORDER BY PROCTRAN_DATE, PROCTRAN_TIME}, rows offset+1..offset+limit),
+     * with PROCTRAN_REF / PROCTRAN_NUMBER as tie-breakers so paging is deterministic.
+     */
+    public List<ProcessedTransaction> findBySortCode(String sortCode, int limit, int offset) {
+        return jdbc.sql("SELECT " + COLUMNS + " FROM PROCTRAN WHERE PROCTRAN_SORTCODE = ? "
+                        + "ORDER BY PROCTRAN_DATE, PROCTRAN_TIME, PROCTRAN_REF, PROCTRAN_NUMBER LIMIT ? OFFSET ?")
+                .params(sortCode, limit, offset)
+                .query(ProctranRepository::map)
+                .list();
+    }
+
     public List<ProcessedTransaction> findByNumber(String sortCode, String number) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM PROCTRAN WHERE PROCTRAN_SORTCODE = ? AND PROCTRAN_NUMBER = ? "
                         + "ORDER BY PROCTRAN_DATE, PROCTRAN_TIME, PROCTRAN_REF")
