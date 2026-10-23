@@ -30,20 +30,29 @@ public class ControlRepository {
     /**
      * Atomically add {@code delta} to CONTROL_VALUE_NUM and return the new value. The UPDATE takes a row lock
      * that is held until the caller's transaction ends, so concurrent allocators (threads or service instances)
-     * are serialised by the database. A missing row is created from {@code initial} first.
+     * are serialised by the database. The row must already exist (see {@link #createIfMissing}).
      */
-    public long addAndGet(String name, long delta, LongSupplier initial) {
+    public long addAndGet(String name, long delta) {
         if (increment(name, delta) == 0) {
+            throw new IllegalStateException("CONTROL row " + name + " is missing");
+        }
+        return jdbc.sql("SELECT CONTROL_VALUE_NUM FROM CONTROL WHERE CONTROL_NAME = ?")
+                .param(name).query(Long.class).single();
+    }
+
+    /**
+     * Create the control row with {@code initial} if it does not exist. Meant to run once at startup in its own
+     * transaction (never inside an allocation), so a concurrent creator's duplicate key cannot poison it.
+     */
+    public void createIfMissing(String name, LongSupplier initial) {
+        if (find(name).isEmpty()) {
             try {
                 jdbc.sql("INSERT INTO CONTROL (CONTROL_NAME, CONTROL_VALUE_NUM, CONTROL_VALUE_STR) VALUES (?, ?, ?)")
                         .params(name, initial.getAsLong(), " ").update();
             } catch (DuplicateKeyException createdConcurrently) {
-                // another transaction created the row first; fall through to the increment
+                // another instance created it first
             }
-            increment(name, delta);
         }
-        return jdbc.sql("SELECT CONTROL_VALUE_NUM FROM CONTROL WHERE CONTROL_NAME = ?")
-                .param(name).query(Long.class).single();
     }
 
     private int increment(String name, long delta) {
