@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/banking/customer")
 public class CreateCustomerController {
 
-    private static final Pattern ISO_DATE = Pattern.compile("^(\\d{4})-(\\d{2})-(\\d{2})(?:T.*)?$");
+    private static final Pattern ISO_DATE = Pattern.compile("^(\\d{4})-(\\d{2})-(\\d{2})$");
 
     private final CreateCustomerService service;
     private final TitleValidator titles;

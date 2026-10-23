@@ -26,7 +26,8 @@ class CreateCustomerServiceTest {
     private final CreditCheckService creditCheck = mock(CreditCheckService.class);
     private final CustomerWriter writer = mock(CustomerWriter.class);
     private final CreateCustomerService service = new CreateCustomerService(new TitleValidator(), creditCheck, writer,
-            new TaskNumberSupplier(), new BankIdentity(TestSupport.properties(42L, false)), TestSupport.FIXED);
+            new TaskNumberSupplier(), new BankIdentity(TestSupport.properties(42L, false)), TestSupport.FIXED,
+            TestSupport.properties(42L, false));
 
     @Test
     void invalidTitleFailsBeforeTheCreditCheck() {
@@ -84,6 +85,20 @@ class CreateCustomerServiceTest {
 
         assertThat(service.createCustomer("Mr A B", "Leeds", LocalDate.of(1980, 1, 1))).isSameAs(saved);
         assertThat(clock.getValue().instant()).isEqualTo(Instant.parse("2026-01-15T10:30:03Z"));
+    }
+
+    @Test
+    void liveClockIsUsedAsIsForTheAuditTime() {
+        Clock live = Clock.systemUTC();
+        com.ibm.cics.cip.bank.core.common.config.CbsaProperties p = new com.ibm.cics.cip.bank.core.common.config.CbsaProperties(
+                "987654", "x", new com.ibm.cics.cip.bank.core.common.config.CbsaProperties.Seed(List.of(), "never"),
+                new com.ibm.cics.cip.bank.core.common.config.CbsaProperties.Clock(null, "UTC"),
+                new com.ibm.cics.cip.bank.core.common.config.CbsaProperties.Random(null),
+                new com.ibm.cics.cip.bank.core.common.config.CbsaProperties.Credit(false));
+        CreateCustomerService liveService = new CreateCustomerService(new TitleValidator(), creditCheck, writer,
+                new TaskNumberSupplier(), new BankIdentity(p), live, p);
+        assertThat(liveService.auditClock()).isSameAs(live);
+        assertThat(service.auditClock().instant()).isEqualTo(Instant.parse("2026-01-15T10:30:03Z"));
     }
 
     @Test

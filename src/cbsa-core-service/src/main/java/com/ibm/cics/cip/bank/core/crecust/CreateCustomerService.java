@@ -1,6 +1,7 @@
 package com.ibm.cics.cip.bank.core.crecust;
 
 import com.ibm.cics.cip.bank.core.common.bank.BankIdentity;
+import com.ibm.cics.cip.bank.core.common.config.CbsaProperties;
 import com.ibm.cics.cip.bank.core.common.domain.Customer;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.common.proctran.TaskNumberSupplier;
@@ -9,6 +10,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * Port of CRECUST {@code PREMIERE / P010}, in the legacy order:
@@ -34,15 +36,17 @@ public class CreateCustomerService {
     private final TaskNumberSupplier taskNumbers;
     private final BankIdentity bank;
     private final Clock clock;
+    private final boolean fixedClock;
 
     public CreateCustomerService(TitleValidator titles, CreditCheckService creditCheck, CustomerWriter writer,
-            TaskNumberSupplier taskNumbers, BankIdentity bank, Clock clock) {
+            TaskNumberSupplier taskNumbers, BankIdentity bank, Clock clock, CbsaProperties properties) {
         this.titles = titles;
         this.creditCheck = creditCheck;
         this.writer = writer;
         this.taskNumbers = taskNumbers;
         this.bank = bank;
         this.clock = clock;
+        this.fixedClock = properties.clock() != null && StringUtils.hasText(properties.clock().fixed());
     }
 
     public Customer createCustomer(String name, String address, LocalDate dateOfBirth) {
@@ -89,8 +93,17 @@ public class CreateCustomerService {
         });
         LocalDate dateOfBirth = LocalDate.of(birthYear, birthMonth, birthDay);
 
-        Clock taskClock = creditCheck.isSimulatingDelay() ? clock : Clock.offset(clock, CreditCheckService.FETCH_WINDOW);
-        return writer.write(bank.sortCode(), commName, commAddress, dateOfBirth, credit, taskClock);
+        return writer.write(bank.sortCode(), commName, commAddress, dateOfBirth, credit, auditClock());
+    }
+
+    /**
+     * Clock for WRITE-PROCTRAN-DB2's ASKTIME. The legacy task always waits the 3-second CREDIT-CHECK DELAY first.
+     * A live clock has already advanced by whatever time actually passed (including the real wait when
+     * {@code cbsa.credit.simulate-delay=true}), so it is used as is. A fixed clock ({@code cbsa.clock.fixed})
+     * never advances, so the DELAY is applied virtually, as the legacy harness does (10:30:00 -> 10:30:03).
+     */
+    Clock auditClock() {
+        return fixedClock ? Clock.offset(clock, CreditCheckService.FETCH_WINDOW) : clock;
     }
 
     /** MOVE into PIC X(n): truncate; trailing blanks are not stored. */

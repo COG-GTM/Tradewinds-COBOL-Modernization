@@ -92,6 +92,7 @@ class CreateCustomerControllerTest {
         "wrong sort code | Mr A B | Leeds | 1980-01-01 | 123456 | 400 | NULL | Sortcode 123456 not valid for this bank (987654)",
         "invalid month | Ms Jane Q Public | Leeds | 1990-13-15 | 987654 | 400 | Z | Date of Birth 15/13/1990 is not a valid date",
         "garbage dob | Ms Jane Q Public | Leeds | yesterday | 987654 | 400 | Z | Date of Birth yesterday is not a valid date",
+        "dob with suffix | Ms Jane Q Public | Leeds | 1980-01-01Tgarbage | 987654 | 400 | Z | Date of Birth 1980-01-01Tgarbage is not a valid date",
         "future dob | Mr Future B Born | Leeds | 2030-01-01 | 987654 | 400 | Y | Date of Birth is in the future",
         "too old | Mr Very O Old | Leeds | 1800-01-01 | 987654 | 400 | O | Customer is over 150 years old",
         "pre 1601 | Mr Tudor H Eight | Leeds | 1491-06-28 | 987654 | 400 | O | Date of Birth year 1491 is before 1601",
