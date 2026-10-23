@@ -20,7 +20,7 @@ public class CbsaRandomFactory {
     }
 
     /** Stream k: seeded with (cbsa.random.seed + k), or a random seed when unset. */
-    public CbsaRandom stream(int k) {
+    public CbsaRandom stream(long k) {
         long base = seed != null ? seed : ThreadLocalRandom.current().nextLong(1L << 31);
         return new CbsaRandom(base + k);
     }

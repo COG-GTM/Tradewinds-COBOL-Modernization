@@ -15,6 +15,7 @@ import com.ibm.cics.cip.bank.core.common.config.CbsaProperties;
 import com.ibm.cics.cip.bank.core.common.config.CbsaRandom;
 import com.ibm.cics.cip.bank.core.common.config.CbsaRandomFactory;
 import com.ibm.cics.cip.bank.core.common.domain.Customer;
+import com.ibm.cics.cip.bank.core.common.proctran.TaskNumberSupplier;
 import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.common.repository.CustomerRepository;
@@ -56,25 +57,54 @@ class InquireCustomerServiceTest {
         verify(repo, never()).maxCustomerNumber(SC);
     }
 
-    @Test
-    void randomCustomerFollowsLegacyFormulaOnTheSeededStream() {
-        long expected = InquireCustomerService.randomCustomerNumber(30, new CbsaRandom(42L + InquireCustomerService.RANDOM_STREAM));
-        assertThat(expected).isBetween(1L, 30L);
-        when(repo.maxCustomerNumber(SC)).thenReturn(30L);
-        when(repo.findByKey(SC, expected)).thenReturn(Optional.of(customer(expected)));
-        assertThat(service.inquire(0)).contains(customer(expected));
+    private InquireCustomerService service(InquireCustomerService.RandomArithmetic arithmetic, long taskn) {
+        CbsaProperties props = properties(42L);
+        TaskNumberSupplier tasks = new TaskNumberSupplier();
+        tasks.restartAt(taskn);
+        return new InquireCustomerService(repo, new BankIdentity(props), new CbsaRandomFactory(props), tasks,
+                arithmetic.name());
     }
 
     @Test
-    void randomCustomerRedrawsFromTheSameSequenceOnMiss() {
-        CbsaRandom replica = new CbsaRandom(42L + InquireCustomerService.RANDOM_STREAM);
-        long first = InquireCustomerService.randomCustomerNumber(1_000_000, replica);
-        long second = InquireCustomerService.randomCustomerNumber(1_000_000, replica);
+    void gnucobolArithmeticDropsTheNineLowOrderDigitsOfNcsMinusOne() {
+        var g = InquireCustomerService.RandomArithmetic.GNUCOBOL;
+        // values observed from the compiled COMPUTE (cobc 3.1.2 -std=ibm)
+        assertThat(InquireCustomerService.randomCustomerNumber(30, 0.741538376, g)).isEqualTo(1);
+        assertThat(InquireCustomerService.randomCustomerNumber(30, 0.999999999, g)).isEqualTo(1);
+        assertThat(InquireCustomerService.randomCustomerNumber(100_000_001, 0.741538376, g)).isEqualTo(1);
+        assertThat(InquireCustomerService.randomCustomerNumber(1_000_000_001, 0.741538376, g)).isEqualTo(741_538_377);
+        assertThat(InquireCustomerService.randomCustomerNumber(3_000_000_000L, 0.741538376, g))
+                .isEqualTo(1_483_076_753);
+        assertThat(InquireCustomerService.randomCustomerNumber(100_000_000_001L, 0.741538376, g))
+                .isEqualTo(4_153_837_601L);
+    }
+
+    @Test
+    void exactArithmeticTruncatesRandomToNineDecimals() {
+        var e = InquireCustomerService.RandomArithmetic.EXACT;
+        assertThat(InquireCustomerService.randomCustomerNumber(30, 0.741538376, e)).isEqualTo(22);
+        assertThat(InquireCustomerService.randomCustomerNumber(1_000_000_001, 0.9999999999, e))
+                .isEqualTo(999_999_999 + 1);
+    }
+
+    @Test
+    void randomCustomerUnderLegacyArithmeticIsCustomerOne() {
+        when(repo.maxCustomerNumber(SC)).thenReturn(30L);
+        when(repo.findByKey(SC, 1)).thenReturn(Optional.of(customer(1)));
+        assertThat(service.inquire(0)).contains(customer(1));
+    }
+
+    @Test
+    void randomCustomerSeedsRandomWithSeedPlusEibtasknAndRedrawsFromTheSameSequenceOnMiss() {
+        var e = InquireCustomerService.RandomArithmetic.EXACT;
+        CbsaRandom replica = new CbsaRandom(42L + 100);
+        long first = InquireCustomerService.randomCustomerNumber(1_000_000, replica.nextDouble(), e);
+        long second = InquireCustomerService.randomCustomerNumber(1_000_000, replica.nextDouble(), e);
         when(repo.maxCustomerNumber(SC)).thenReturn(1_000_000L);
         when(repo.findByKey(eq(SC), anyLong())).thenReturn(Optional.empty());
         when(repo.findByKey(SC, second)).thenReturn(Optional.of(customer(second)));
         assertThat(first).isNotEqualTo(second);
-        assertThat(service.inquire(0)).contains(customer(second));
+        assertThat(service(e, 100).inquire(0)).contains(customer(second));
     }
 
     @Test
@@ -89,7 +119,8 @@ class InquireCustomerServiceTest {
     void randomCandidatesExcludeTheHighestNumberAsInCobol() {
         CbsaRandom random = new CbsaRandom(42L);
         for (int i = 0; i < 10_000; i++) {
-            assertThat(InquireCustomerService.randomCustomerNumber(30, random)).isBetween(1L, 29L);
+            assertThat(InquireCustomerService.randomCustomerNumber(30, random.nextDouble(),
+                    InquireCustomerService.RandomArithmetic.EXACT)).isBetween(1L, 29L);
         }
         when(repo.maxCustomerNumber(SC)).thenReturn(30L);
         when(repo.findByKey(eq(SC), anyLong())).thenReturn(Optional.empty());

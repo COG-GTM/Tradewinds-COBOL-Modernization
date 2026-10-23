@@ -41,7 +41,7 @@ public class ProctranWriter {
                 number,
                 LocalDate.now(clock),
                 CbsaFormats.HHMMSS.format(LocalTime.now(clock)),
-                taskNumbers.nextReference(),
+                taskNumbers.currentReference(),
                 type.code(),
                 CbsaFormats.fixed(description, DESC_WIDTH),
                 CbsaFormats.money(amount == null ? BigDecimal.ZERO : amount));

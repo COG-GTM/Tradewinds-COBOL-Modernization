@@ -76,9 +76,9 @@ public class CreditCheckService implements DisposableBean {
         return simulateDelay;
     }
 
-    /** Credit check under a new task number (EIBTASKN). */
+    /** Credit check under the current task number (EIBTASKN). */
     public CreditCheckResult check(Customer customer) {
-        return check(customer, taskNumbers.nextTaskNumber());
+        return check(customer, taskNumbers.currentTaskNumber());
     }
 
     /** Credit check as run by the CRECUST task {@code crecustTaskNumber}. */
