@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Replays every baseline/transcripts/&lt;PROGRAM&gt;/*.json case of the T-12 terminal programs against the Java
- * screen layer (canonical seed, fixed clock and random seed) and compares the terminal trace and the DB delta.
+ * screen layer (canonical seed, fixed clock and random seed) and compares the terminal trace and the full DB delta (inserted / updated / deleted rows, PROCTRAN_REF excluded).
  * RETURN_COMMAREA is not compared: the Java layer keeps a symbolic COMMAREA instead of the raw byte image.
  * As in the legacy harness every case starts from a freshly loaded seed with EIBTASKN = {@code CBSA_TASKN}.
  */
@@ -181,21 +181,6 @@ class TranscriptReplayTest {
         return raw;
     }
 
-    Map<String, List<String>> snapshot() {
-        Map<String, List<String>> s = new LinkedHashMap<>();
-        for (String t : TABLES) {
-            List<String> rows = new ArrayList<>();
-            jdbc.queryForList("SELECT * FROM " + t).forEach(r -> {
-                Map<String, Object> copy = new java.util.TreeMap<>(r);
-                copy.remove("PROCTRAN_REF");
-                rows.add(copy.toString());
-            });
-            rows.sort(null);
-            s.put(t, rows);
-        }
-        return s;
-    }
-
     @ParameterizedTest(name = "{0}")
     @MethodSource("cases")
     void replay(Path file) throws IOException {
@@ -207,7 +192,7 @@ class TranscriptReplayTest {
         }
         seed.afterPropertiesSet();
         taskNumbers.reset(t.path("env").path("CBSA_TASKN").asLong(1));
-        Map<String, List<String>> before = snapshot();
+        Map<String, List<Map<String, String>>> before = DbDelta.snapshot(jdbc);
 
         ScreenOutput out = handler(t.get("program").asText()).apply(input(t.get("commarea_in")));
 
@@ -216,14 +201,8 @@ class TranscriptReplayTest {
         assertThat(actual.events()).as(id + " events").isEqualTo(expected.events());
         assertThat(actual.fields()).as(id + " fields").isEqualTo(expected.fields());
 
-        Map<String, List<String>> after = snapshot();
-        for (String table : TABLES) {
-            JsonNode d = t.path("db_delta").path(table);
-            int changes = d.path("inserted").size() + d.path("updated").size() + d.path("deleted").size();
-            if (changes == 0) {
-                assertThat(after.get(table)).as(id + " " + table + " unchanged").isEqualTo(before.get(table));
-            }
-        }
+        assertThat(DbDelta.diff(before, DbDelta.snapshot(jdbc))).as(id + " db_delta")
+                .isEqualTo(DbDelta.expected(t.path("db_delta")));
         assertThat(t.get("abend").isNull()).as(id + " no abend expected").isTrue();
     }
 }
