@@ -1,0 +1,9 @@
+*.sh text eol=lf
+# The repo-wide "* text eol=crlf" corrupts binaries on checkout (LF -> CRLF inside JPG/ICO data).
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.ico binary
+*.sketch binary
+.DS_Store binary

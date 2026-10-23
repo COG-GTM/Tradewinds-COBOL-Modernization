@@ -5,6 +5,7 @@
   "repository": "git@github.ibm.com:BondZ-JumpStart/Carbon-React.git",
   "bugs": "https://github.ibm.com/BondZ-JumpStart/Carbon-React/issues",
   "homepage": "/webui-1.0/",
+  "proxy": "http://localhost:8080",
   "license": "Apache-2.0",
   "scripts": {
     "build": "react-scripts build",
@@ -15,7 +16,8 @@
     "format:diff": "prettier --list-different \"**/*.{js,md,scss}\"",
     "format:staged": "prettier --write",
     "start": "react-scripts start",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "build:core": "bash ./updateCoreService.sh"
   },
   "dependencies": {
     "@babel/core": "^7.0.0-0",
