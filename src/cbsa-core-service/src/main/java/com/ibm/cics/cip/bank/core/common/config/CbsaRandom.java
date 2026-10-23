@@ -1,34 +1,44 @@
 package com.ibm.cics.cip.bank.core.common.config;
 
 /**
- * "CBSA-LCG": the documented deterministic random generator shared with the legacy harness
- * (replaces COBOL FUNCTION RANDOM when CBSA_RANDOM_SEED / cbsa.random.seed is set).
+ * The documented deterministic replacement for COBOL {@code FUNCTION RANDOM} shared with the legacy harness
+ * ({@code legacy/runtime/cbsastub.c}, baseline/README.md "Random"): the {@code java.util.Random} 48-bit LCG.
  *
  * <pre>
- * state  = seed mod 2^31
- * next() : state = (state * 1103515245 + 12345) mod 2^31 ; return state / 2^31   (double in [0,1))
+ * RANDOM(s) : state = (s XOR 0x5DEECE66D) mod 2^48          (s = CBSA_RANDOM_SEED + argument)
+ * next(b)   : state = (state * 0x5DEECE66D + 0xB) mod 2^48 ; return state &gt;&gt;&gt; (48 - b)
+ * RANDOM    : ((next(26) &lt;&lt; 27) + next(27)) / 2^53            (double in [0,1))
  * </pre>
  *
- * Streams (see {@link CbsaRandomFactory}): stream k is seeded with (cbsa.random.seed + k).
- * k=0 CRECUST review-date offset, k=1..5 CRDTAGY1..5.
- * COBOL "COMPUTE X = ((HI - 1) * FUNCTION RANDOM) + 1" into an integer PIC truncates, i.e.
- * {@link #nextInt(int, int)} = floor((hi - lo) * r) + lo.
+ * {@code new CbsaRandom(s).nextDouble()} equals {@code new java.util.Random(s).nextDouble()}. Streams (see
+ * {@link CbsaRandomFactory}): stream k is seeded with (cbsa.random.seed + k); legacy programs use
+ * k = EIBTASKN (+ n for CRDTAGY child n).
  */
 public final class CbsaRandom {
 
-    private static final long MODULUS = 1L << 31;
-    private static final long MULTIPLIER = 1103515245L;
-    private static final long INCREMENT = 12345L;
+    private static final long MULTIPLIER = 0x5DEECE66DL;
+    private static final long ADDEND = 0xBL;
+    private static final long MASK = (1L << 48) - 1;
+    private static final double DOUBLE_UNIT = 0x1.0p-53;
 
     private long state;
 
     public CbsaRandom(long seed) {
-        this.state = Math.floorMod(seed, MODULUS);
+        this.state = (seed ^ MULTIPLIER) & MASK;
+    }
+
+    private int next(int bits) {
+        state = (state * MULTIPLIER + ADDEND) & MASK;
+        return (int) (state >>> (48 - bits));
     }
 
     public synchronized double nextDouble() {
-        state = (state * MULTIPLIER + INCREMENT) % MODULUS;
-        return (double) state / (double) MODULUS;
+        return (((long) next(26) << 27) + next(27)) * DOUBLE_UNIT;
+    }
+
+    /** {@code FUNCTION RANDOM} delivered into a {@code PIC V9(9)} item: the nine decimals as an integer. */
+    public long nextV9x9() {
+        return (long) (nextDouble() * 1_000_000_000.0);
     }
 
     /** Legacy {@code ((hi - lo) * RANDOM) + lo} truncated to an integer: result in [lo, hi). */

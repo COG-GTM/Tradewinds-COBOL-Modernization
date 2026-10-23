@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  * {@code new java.util.Random(seed + T + n)} and the review date from {@code new java.util.Random(seed + T)},
  * where {@code T} is the CRECUST task number (EIBTASKN) and child task <i>n</i> runs as {@code T + n}.
  * This reproduces {@code baseline/transcripts/CRECUST/*.json}.</li>
- * <li>{@code cbsa-lcg}: {@link CbsaRandomFactory#creditAgencyStream(int)} for agency <i>n</i> and
+ * <li>{@code cbsa-lcg}: {@link CbsaRandomFactory#creditAgencyStream(int)} (seed + n, same generator) for agency <i>n</i> and
  * {@link CbsaRandomFactory#stream(int) stream(0)} for the review date (independent of the task number).</li>
  * </ul>
  * Without {@code cbsa.random.seed} both use unseeded {@link CbsaRandomFactory} streams.

@@ -31,6 +31,15 @@ public class CustomerRepository {
                 .optional();
     }
 
+    /** {@code SELECT ... FOR UPDATE}: reads and row-locks the customer until the caller's transaction ends. */
+    public Optional<Customer> findByKeyForUpdate(String sortCode, long customerNumber) {
+        return jdbc.sql("SELECT " + COLUMNS + " FROM CUSTOMER WHERE CUSTOMER_SORTCODE = ? AND CUSTOMER_NUMBER = ?"
+                        + " FOR UPDATE")
+                .params(sortCode, CbsaFormats.customerNumber(customerNumber))
+                .query(CustomerRepository::map)
+                .optional();
+    }
+
     public boolean exists(String sortCode, long customerNumber) {
         return findByKey(sortCode, customerNumber).isPresent();
     }

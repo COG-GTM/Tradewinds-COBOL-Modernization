@@ -64,8 +64,8 @@ public class DeleteCustomerService {
     public Customer deleteCustomer(long customerNumber) {
         String sortCode = bank.sortCode();
 
-        // A010: LINK INQCUST
-        Customer inquired = customers.findByKey(sortCode, customerNumber)
+        // A010: LINK INQCUST; the row lock serialises DELCUS with CREACC for the same customer.
+        Customer inquired = customers.findByKeyForUpdate(sortCode, customerNumber)
                 .orElseThrow(() -> CbsaException.notFound("Customer number " + customerNumber + " not found.", "1"));
 
         // GET-ACCOUNTS / DELETE-ACCOUNTS
