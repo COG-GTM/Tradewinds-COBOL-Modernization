@@ -99,7 +99,7 @@ class UpdateAccountControllerTest {
                 {"id": 3, "sortCode": 987654, "accountType": "isa", "interestRate": 2.10, "overdraft": 0,
                  "availableBalance": 5, "actualBalance": 5, "dateOpened": "21.10.1967"}"""))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accountType").value("ISA"))
+                .andExpect(jsonPath("$.accountType").value("isa"))
                 .andExpect(jsonPath("$.interestRate").value(2.1))
                 .andExpect(jsonPath("$.availableBalance").value(510249.31));
     }
@@ -112,9 +112,17 @@ class UpdateAccountControllerTest {
     }
 
     @Test
-    void invalidTypeIs400() throws Exception {
-        putAccount(6, "1", "0", "CHEQUE", "987654").andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMessage").value("Account type CHEQUE is not supported."));
+    void anyNonBlankTypeIsWrittenAsUpdaccDoes() throws Exception {
+        putAccount(6, "1", "0", "CHEQUE", "987654").andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountType").value("CHEQUE"));
+        assertThat(accounts.findByKey("987654", 6).orElseThrow().accountType()).isEqualTo("CHEQUE");
+        putAccount(6, "1", "0", "SUPERSAVER", "987654").andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountType").value("SUPERSAV"));
+    }
+
+    @Test
+    void leadingSpaceTypeIs400AsInUpdacc() throws Exception {
+        putAccount(6, "1", "0", " ISA", "987654").andExpect(status().isBadRequest());
         assertThat(accounts.findByKey("987654", 6).orElseThrow().accountType()).isEqualTo("SAVING");
     }
 
@@ -137,8 +145,8 @@ class UpdateAccountControllerTest {
 
     @Test
     void validationOrderIsTypeThenRateThenSortCode() throws Exception {
-        putAccount(99999, "-1", "0", "CHEQUE", "111111").andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMessage").value("Account type CHEQUE is not supported."));
+        putAccount(99999, "-1", "0", "", "111111").andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMessage").value("Account type  is not supported."));
         putAccount(99999, "-1", "0", "ISA", "111111").andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorMessage").value("Interest rate cannot be less than zero."));
         putAccount(99999, "1", "0", "ISA", "111111").andExpect(status().isBadRequest())

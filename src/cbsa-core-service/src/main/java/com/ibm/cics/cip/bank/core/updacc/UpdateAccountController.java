@@ -4,8 +4,6 @@ import com.ibm.cics.cip.bank.core.common.bank.BankIdentity;
 import com.ibm.cics.cip.bank.core.common.domain.Account;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import java.math.BigDecimal;
-import java.util.Locale;
-import java.util.Set;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,14 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * {@code PUT /banking/account/{id}}: replaces the Liberty JAX-RS {@code AccountsResource.updateAccountInternal}
  * that the React UI used to call. Request validation follows that resource (account type, interest rate, sort
- * code, in that order); the update itself is UPDACC ({@link UpdateAccountService}).
+ * code, in that order); the update itself is UPDACC ({@link UpdateAccountService}). The account type follows
+ * UPDACC, not the Liberty allow-list: only a blank type (or one starting with a space) is rejected, any other value is
+ * written as sent (truncated to PIC X(8)).
  */
 @RestController
 @RequestMapping("/banking/account")
 public class UpdateAccountController {
-
-    /** {@code AccountJSON.validateType}: the account types the bank supports. */
-    static final Set<String> VALID_ACCOUNT_TYPES = Set.of("ISA", "MORTGAGE", "LOAN", "SAVING", "CURRENT");
 
     private final UpdateAccountService service;
     private final BankIdentity bank;
@@ -44,13 +41,13 @@ public class UpdateAccountController {
         return AccountJson.from(updated);
     }
 
+    /** UPDACC {@code IF (COMM-ACC-TYPE = SPACES OR COMM-ACC-TYPE(1:1) = ' ')}: the only type check. */
     private static String validateType(String accountType) {
-        String trimmed = accountType == null ? "" : accountType.trim();
-        String upper = trimmed.toUpperCase(Locale.ROOT);
-        if (!VALID_ACCOUNT_TYPES.contains(upper)) {
+        if (accountType == null || accountType.isBlank() || accountType.charAt(0) == ' ') {
+            String trimmed = accountType == null ? "" : accountType.trim();
             throw CbsaException.badRequest("Account type " + trimmed + " is not supported.");
         }
-        return upper;
+        return accountType;
     }
 
     private static BigDecimal validateInterestRate(BigDecimal rate) {

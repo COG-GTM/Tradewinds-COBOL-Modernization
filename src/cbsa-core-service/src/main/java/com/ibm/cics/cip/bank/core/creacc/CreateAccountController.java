@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
  * {@code POST /banking/account}. Applies the web-layer checks of the legacy
  * {@code AccountsResource.validateNewAccount} (rule R-A9: interest rate 0..9999.99 with at most 2 decimals,
  * overdraft >= 0, customer number 1..9999999998, sort code of this bank), then delegates to
- * {@link CreateAccountService} (CREACC) with zero balances, as the legacy web path did.
+ * {@link CreateAccountService} (CREACC) with the optional opening balances ({@code COMM-AVAIL-BAL} /
+ * {@code COMM-ACT-BAL}); absent balances are zero, as on the legacy web path.
  */
 @RestController
 @RequestMapping("/banking/account")
@@ -36,8 +37,13 @@ public class CreateAccountController {
     public ResponseEntity<AccountJson> create(@RequestBody CreateAccountRequest request) {
         long customerNumber = validate(request);
         Account created = service.createAccount(customerNumber, request.accountType().strip(),
-                request.interestRate(), request.overdraft(), BigDecimal.ZERO, BigDecimal.ZERO);
+                request.interestRate(), request.overdraft(), orZero(request.availableBalance()),
+                orZero(request.actualBalance()));
         return ResponseEntity.status(HttpStatus.CREATED).body(AccountJson.of(created));
+    }
+
+    private static BigDecimal orZero(BigDecimal v) {
+        return v == null ? BigDecimal.ZERO : v;
     }
 
     private long validate(CreateAccountRequest r) {
