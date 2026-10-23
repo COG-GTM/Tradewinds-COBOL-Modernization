@@ -202,4 +202,11 @@ class UpdateCustomerControllerTest {
     void malformedBodyIs400() throws Exception {
         putCustomer(2, "{not json").andExpect(status().isBadRequest());
     }
+
+    @Test
+    void jsonNullBodyIs400() throws Exception {
+        putCustomer(2, "null")
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errorMessage").value("Malformed JSON request"));
+    }
 }
