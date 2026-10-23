@@ -59,15 +59,15 @@ LIMITS = {
                   'InquireCustomerTranscriptReplayTest. The outcome kind (success) and DB state match.'},
 }
 OTHER_LIMITS = [
-    'PROCTRAN_REF excluded from every comparison (documented: docs/migration/inventory.md "PROCTRAN_REF is the CICS task '
-    'number (Java: per-JVM sequence) and is excluded from parity comparisons"). Observed: legacy writes the task EIBTASKN on '
-    'every row of a task (e.g. DELCUS 4 rows all 000000000100); Java increments per row and CRECUST uses taskn+1 '
-    '(credit check consumes one number). All other PROCTRAN columns are compared.',
-    'ABNDPROC/record: not comparable - the migrated service has no REST trigger for ABNDPROC (only GET /banking/abend).',
+    'PROCTRAN_REF is compared like every other column: Java runs each REST request / screen turn as one CICS task '
+    '(TaskNumberSupplier.inTask, CicsTaskFilter) numbered from CBSA_TASKN, so every row of a task carries its EIBTASKN.',
+    'ABNDPROC/record is driven through the property-gated admin endpoint POST /banking/admin/abend '
+    '(cbsa.abndproc.endpoint.enabled=true + token, enabled only on the parity server); the response and the ABNDFILE '
+    'contents (GET /banking/admin/abend vs the record bytes in the legacy ABNDFILE trace) are compared.',
     'BANKDATA (batch) is not replayed per flow; its output is the canonical seed itself, and the seed loaded by both sides was '
     'verified identical (full CUSTOMER/ACCOUNT/PROCTRAN/CONTROL dump) before every flow.',
-    'Migrated EIBTASKN is set through a parity-only test seam (parity/tools/ParityServer.java: resettable TaskNumberSupplier '
-    'subclass + /__parity reset/exec/dump endpoints); all business beans are the unmodified target/classes.',
+    'Migrated EIBTASKN is set through a parity-only test seam (parity/tools/ParityServer.java: TaskNumberSupplier.restartAt '
+    'via /__parity reset/taskn, plus exec/dump endpoints); all business beans are the unmodified target/classes.',
     '3270 screen flows have no REST surface: they are driven in-process through com.ibm.cics.cip.bank.core.screens handlers '
     '(parity/tools/ScreenParity.java). RETURN COMMAREA bytes are not compared (Java keeps a symbolic state map).',
     'React unit tests: 0 executed. As committed: ' + str(react.get('first_error')) + ' (src/setupTests.js -> enzyme -> cheerio '
@@ -91,7 +91,7 @@ LEGACY_DEFECTS = [
     ('README #10', 'UPDCUST ignores DOB/credit score - reproduced identically.'),
     ('README #15', 'Credit scores depend on EIBTASKN - reproduced identically (CRECUST ok-seed-1234-taskn-500 matches).'),
     ('README #17/#18', 'INQACCCU zero-accounts vs not-found asymmetry; CREACC lowercase rejection and 9th/10th account rule - reproduced identically.'),
-    ('README #1', 'ABND-TIME uses the minutes field twice (ABNDPROC, not comparable via REST).'),
+    ('README #1', 'ABND-TIME uses the minutes field twice (built by the callers; ABNDPROC writes the COMMAREA as passed - reproduced identically).'),
     ('README #12', 'BNK1CAC overdraft-length underflow (transcripts send blank-padded fields).'),
     ('README #16', 'DELCUS abend text typo "Unbale".'),
 ]
@@ -261,7 +261,7 @@ H.append('<section><h2>1. Scope</h2><ul>'
          '<li><b>%d React read endpoints</b> on the Liberty layer (no COBOL program) cross-checked against the same query on the legacy seeded DB.</li>'
          '<li>Per flow: outcome (success / fail code / ABEND code), every business response field, DB delta of CUSTOMER, ACCOUNT, PROCTRAN, '
          'CONTROL, and SHA-256 of the full table dumps after the flow. Normalisation: CHAR right-trim, numbers to 2dp, row order, and '
-         'PROCTRAN_REF (documented exclusion) &mdash; nothing else.</li>'
+         'nothing else (PROCTRAN_REF is compared).</li>'
          '<li><b>React UI in a real browser</b> (new in round 2): the committed Carbon React build served by the migrated service, '
          'driven in headless Chromium; every rendered value compared with the legacy seeded DB (%d checks, section 6b).</li>'
          '<li><b>Round-over-round delta</b> against the round-1 results (section 0).</li></ul></section>'
@@ -289,7 +289,7 @@ for prog, how, mig in [
         ('INQACCCU', 'GnuCOBOL + stubs, LINK', 'GET /banking/account/retrieveByCustomerNumber/{id}'),
         ('DBCRFUN', 'GnuCOBOL + stubs, LINK', 'PUT /makepayment/dbcr; PUT /banking/account/{debit|credit}/{id}'),
         ('XFRFUN', 'GnuCOBOL + stubs, LINK', 'PUT /banking/account/transfer/{id}'),
-        ('ABNDPROC', 'GnuCOBOL + stubs, LINK', 'none (not comparable)'),
+        ('ABNDPROC', 'GnuCOBOL + stubs, LINK', 'POST /banking/admin/abend (property-gated) + GET /banking/admin/abend'),
         ('BANKDATA', 'GnuCOBOL + stubs, batch (generates the canonical seed)', 'seed equality check before every flow'),
         ('BNKMENU, BNK1CAC/CCA/CCS/CRA/DAC/DCS/TFN/UAC', 'GnuCOBOL + stubs, terminal mode, BMS maps as named fields', 'screens.* handlers in-process')]:
     H.append('<tr><td>%s</td><td>%s</td><td>%s</td></tr>' % (E(prog), E(how), E(mig)))

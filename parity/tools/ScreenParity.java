@@ -7,10 +7,8 @@ import com.ibm.cics.cip.bank.core.screens.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -22,17 +20,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * Usage: ScreenParity OUT.jsonl transcript.json...
  */
 public class ScreenParity {
-    public static class ResettableTaskNumbers extends TaskNumberSupplier {
-        final AtomicLong next = new AtomicLong(1);
-        @Override public long nextTaskNumber() { return next.getAndIncrement(); }
-    }
-
     static final String[] TABLES = {"CUSTOMER", "ACCOUNT", "PROCTRAN", "CONTROL"};
 
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(CbsaCoreApplication.class);
-        app.addInitializers(ctx -> ((GenericApplicationContext) ctx).registerBean("parityTaskNumbers",
-                ResettableTaskNumbers.class, ResettableTaskNumbers::new, bd -> bd.setPrimary(true)));
         ObjectMapper json = new ObjectMapper();
         try (ConfigurableApplicationContext ctx = app.run("--server.port=0",
                 "--spring.datasource.url=jdbc:h2:mem:parityscreens;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
@@ -40,21 +31,22 @@ public class ScreenParity {
                 "--cbsa.seed.location=file:../../baseline/seed/seed.sql", "--logging.level.root=WARN")) {
             JdbcTemplate jdbc = ctx.getBean(JdbcTemplate.class);
             SeedDataLoader seed = ctx.getBean(SeedDataLoader.class);
-            ResettableTaskNumbers tasks = ctx.getBean(ResettableTaskNumbers.class);
+            TaskNumberSupplier tasks = ctx.getBean(TaskNumberSupplier.class);
             List<String> lines = new ArrayList<>();
             for (int i = 1; i < args.length; i++) {
                 JsonNode t = json.readTree(Path.of(args[i]).toFile());
                 for (String table : TABLES) jdbc.update("DELETE FROM " + table);
                 seed.afterPropertiesSet();
-                tasks.next.set(t.path("env").path("CBSA_TASKN").asLong(100));
+                tasks.restartAt(t.path("env").path("CBSA_TASKN").asLong(100));
                 Map<String, Object> rec = new LinkedHashMap<>();
                 rec.put("file", args[i]);
                 rec.put("before", dump(jdbc));
                 try {
                     String prog = t.get("program").asText();
                     ScreenInput in = input(t.get("commarea_in"));
-                    ScreenOutput out = prog.equals("BNKMENU") ? ctx.getBean(MenuRouter.class).handle(in)
-                            : ((ScreenHandler) ctx.getBean(handler(prog))).handle(in);
+                    // one screen turn = one CICS task (EIBTASKN shared with the LINKed business programs)
+                    ScreenOutput out = tasks.inTask(() -> prog.equals("BNKMENU") ? ctx.getBean(MenuRouter.class).handle(in)
+                            : ((ScreenHandler) ctx.getBean(handler(prog))).handle(in));
                     rec.put("events", out.events());
                 } catch (Exception e) {
                     rec.put("error", e.toString());
