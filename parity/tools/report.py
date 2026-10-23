@@ -85,6 +85,23 @@ LEGACY_DEFECTS = [
     ('README #16', 'DELCUS abend text typo "Unbale".'),
 ]
 
+# ------------------------------------------------------------------ only differences present in this run are reported
+STATUS = {r['id']: r['status'] for r in flows}
+nonmatch = [r for r in flows if r['status'] in ('DIFF', 'ERROR')]
+CLASS = {k: v for k, v in CLASS.items() if STATUS.get(k) in ('DIFF', 'ERROR')}
+for r in nonmatch:
+    if r['id'] not in CLASS:
+        CLASS[r['id']] = 'MD-UNTRIAGED-' + r['id']
+        DEFECTS['MD-UNTRIAGED-' + r['id']] = {
+            'title': 'untriaged difference (treated as a migration defect until classified)', 'flow': r['id'],
+            'field': ', '.join(sorted({d['field'] for d in r['diffs']}))[:300] or r['status'],
+            'legacy': '; '.join(json.dumps(d['legacy'], sort_keys=True)[:200] for d in r['diffs'][:5]),
+            'migrated': '; '.join(json.dumps(d['migrated'], sort_keys=True)[:200] for d in r['diffs'][:5]),
+            'root_cause': 'not yet analysed', 'file': '-'}
+DEFECTS = {k: v for k, v in DEFECTS.items() if k in CLASS.values()}
+LIMITS = {k: v for k, v in LIMITS.items() if k in CLASS.values()}
+known_diff_flows = sum(1 for v in CLASS.values() if v.startswith('KL-'))
+
 # ------------------------------------------------------------------ summary json
 by_kind = {}
 for r in flows:
@@ -180,7 +197,7 @@ diffs_total = len(comparable) - len(matching)
 H.append('<div class="cards">'
          '<div class="card ok"><b>%d / %d</b>comparable flows identical</div>' % (len(matching), len(comparable)) +
          '<div class="card bad"><b>%d</b>migration defects</div>' % len(DEFECTS) +
-         '<div class="card warn"><b>%d</b>flows with documented/known differences</div>' % (diffs_total - 1) +
+         '<div class="card warn"><b>%d</b>flows with documented/known differences</div>' % known_diff_flows +
          '<div class="card"><b>%d</b>not comparable</div>' % summary['flows_not_comparable'] +
          '<div class="card ok"><b>%d/%d</b>legacy transcripts replay</div>' % (legacy['totals']['match'], legacy['total']) +
          '<div class="card ok"><b>%d</b>mvn tests (%d F, %d E, %d skipped)</div>' % (mvn['totals']['tests'], mvn['totals']['failures'], mvn['totals']['errors'], mvn['totals']['skipped']) +
@@ -252,7 +269,8 @@ for k, d in DEFECTS.items():
     H.append('<h3>%s &mdash; %s</h3><table>' % (E(k), E(d['title'])) + ''.join(
         '<tr><th>%s</th><td>%s</td></tr>' % (E(a), E(d[b])) for a, b in
         [('Flow', 'flow'), ('Field', 'field'), ('Legacy', 'legacy'), ('Migrated', 'migrated'), ('Root cause', 'root_cause'), ('File', 'file')]) + '</table>')
-H.append('<p>No other difference was observed in any of the 107 transcripts or 6 user journeys that is attributable to the migration.</p></section>')
+H.append('<p>%s</p></section>' % ('No migration defect observed.' if not DEFECTS else
+         'No other difference was observed in this run that is attributable to the migration.'))
 
 H.append('<section class="lim"><h2>6. KNOWN LIMITATIONS (documented / intentional differences and coverage gaps)</h2>')
 for k, d in LIMITS.items():

@@ -71,7 +71,7 @@ CP_FILE="$HERE/build/classpath.txt"
 CP="$HERE/build/classes:$SVC/target/classes:$(cat "$CP_FILE")"
 mkdir -p "$HERE/build/classes"
 javac -proc:none -d "$HERE/build/classes" -cp "$CP" "$HERE/tools/ScreenParity.java" "$HERE/tools/ParityServer.java"
-python3 "$HERE/tools/parity.py" "$CP" | tee "$HERE/build/parity.log" | grep -v ' MATCH$' || true
+python3 "$HERE/tools/parity.py" "$CP" | tee "$HERE/build/parity.log" | sed '/ MATCH$/d'
 
 echo "== 5. evidence + report"
 python3 "$HERE/tools/report.py"

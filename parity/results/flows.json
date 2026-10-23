@@ -6414,6 +6414,13 @@
     "step": 1
    },
    {
+    "area": "http_status",
+    "field": "HTTP status (api-contract.md)",
+    "legacy": "contract for legacy outcome OK : [200]",
+    "migrated": 400,
+    "step": 1
+   },
+   {
     "area": "db_delta",
     "field": "ACCOUNT.updated[0]",
     "legacy": {

@@ -54,7 +54,9 @@ public class ParityServer {
     }
 
     public static void main(String[] args) {
+        // Test seam with unauthenticated reset/exec/dump endpoints: loopback only.
         SpringApplication app = new SpringApplication(CbsaCoreApplication.class);
+        app.setDefaultProperties(Map.of("server.address", "127.0.0.1"));
         app.addInitializers(ctx -> {
             GenericApplicationContext g = (GenericApplicationContext) ctx;
             g.registerBean("parityTaskNumbers", ScreenParity.ResettableTaskNumbers.class,

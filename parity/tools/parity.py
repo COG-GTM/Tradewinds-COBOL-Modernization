@@ -346,13 +346,46 @@ def fields_migrated(prog, b):
 
 
 # ---------------------------------------------------------------- comparison
+CREATE_PROGS = {'CRECUST', 'CREACC'}
+
+
+def expected_http(prog, lo, path=None):
+    """HTTP status(es) that docs/migration/api-contract.md prescribes for the legacy outcome."""
+    k, c = lo['kind'], lo['code']
+    if prog == 'DBCRFUN':
+        return {200}
+    if k == 'OK':
+        return {201} if prog in CREATE_PROGS else {200}
+    if k == 'ABEND':
+        return {400} if (prog, c) == ('XFRFUN', 'SAME') else {500}
+    if prog == 'XFRFUN':
+        return {'1': {404}, '2': {404}, '3': {500}, '4': {400}}.get(c, {400, 404})
+    if prog == 'TELLER':
+        return {'1': {404}, '2': {500}}.get(c, {400})
+    if prog == 'DELACC':
+        return {'3': {500}}.get(c, {404})
+    if prog == 'CRECUST':
+        return {500} if c == 'G' else {400}
+    if prog in ('INQACC', 'INQCUST', 'DELCUS', 'INQACCCU') or c == '1':
+        return {404}
+    if prog == 'UPDACC':
+        return {400, 404}
+    return {400}
+
+
 def compare_step(prog, lres, lbefore, mstatus, mbody, mbefore, mafter):
     lo = legacy_outcome(prog, lres['out'], lres['abend'])
     mo = migrated_outcome(prog, mstatus, mbody)
     diffs = []
     if lo['kind'] != mo['kind'] or (lo['code'] != mo['code'] and LEGACY_FLAG.get(prog, (0, 1))[1] is not None):
         diffs.append({'area': 'outcome', 'field': 'outcome', 'legacy': lo, 'migrated': mo})
-    if lo['kind'] == mo['kind'] == 'OK':
+    exp = expected_http(prog, lo)
+    if mstatus not in exp:
+        diffs.append({'area': 'http_status', 'field': 'HTTP status (api-contract.md)',
+                      'legacy': 'contract for legacy outcome %s %s: %s' % (lo['kind'], lo['code'] or '', sorted(exp)),
+                      'migrated': mstatus})
+    # PAYDBCR returns a defined COMMAREA payload on business failures too, so its fields are compared either way.
+    if lo['kind'] == mo['kind'] == 'OK' or (prog == 'DBCRFUN' and lo['kind'] == mo['kind']):
         for p, a, b in diff(fields_legacy(prog, lres['out']), fields_migrated(prog, mbody)):
             diffs.append({'area': 'response', 'field': p, 'legacy': a, 'migrated': b})
     ld, md = harness.delta(lbefore, lres['after']), harness.delta(mbefore, mafter)
@@ -492,7 +525,7 @@ def start_servers(seeds, java_cp):
         port = 18181 + i
         log = open(os.path.join(tempfile.gettempdir(), 'parity-server-%s.log' % seed), 'w')
         procs.append(subprocess.Popen(
-            [JAVA, '-cp', java_cp, 'ParityServer', '--server.port=%d' % port, '--cbsa.clock.fixed=' + FIXED_TIME,
+            [JAVA, '-cp', java_cp, 'ParityServer', '--server.address=127.0.0.1', '--server.port=%d' % port, '--cbsa.clock.fixed=' + FIXED_TIME,
              '--cbsa.random.seed=' + seed, '--cbsa.seed.location=file:../../baseline/seed/seed.sql',
              '--spring.datasource.url=jdbc:h2:mem:parity%s;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE' % seed],
             cwd=os.path.join(ROOT, 'src', 'cbsa-core-service'), stdout=log, stderr=subprocess.STDOUT))
