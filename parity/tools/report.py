@@ -172,6 +172,8 @@ HARNESS_NOTES = [
     'upper-cases dump keys so the CUSTOMER/ACCOUNT/PROCTRAN/CONTROL dumps compare column by column.',
 ]
 LIMITATIONS = [
+    "Authentication/authorization: the legacy CBSA delegated access control to CICS/RACF (transaction security), so the REST endpoints carry no auth for parity; the Java 21 target needs Spring Security in front of them, tracked as a follow-up (Devin Review security findings on #12, #14, #20, #21 declined with this justification).",
+
     'Legacy ran under GnuCOBOL 3.1.2 + the C/SQLite CICS/DB2/VSAM stub runtime (legacy/), not on z/OS CICS/DB2/VSAM. Parity is '
     'against that harness (107/107 baseline transcripts replay with no golden fixtures).',
     'The migrated side is driven through a parity-only test seam (parity/tools/ParityServer.java: /__parity reset, EIBTASKN restart, '
