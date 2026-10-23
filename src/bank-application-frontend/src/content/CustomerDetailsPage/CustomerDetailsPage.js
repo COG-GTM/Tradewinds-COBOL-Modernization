@@ -26,7 +26,7 @@ const CustomerDetailsPage = () => {
    */
   const [isOpened, setTableOpened] = useState(false);
   const [customerDetailsRows, setRows] = useState([]);
-  const [accountDetailsRows, setAccountRows] = useState([]);
+  const [accountDetailsRows, setAccountRows] = useState({});
   const [noResultsOpened, setNoResultsOpened] = useState(false)
   var [numSearch, setNumSearch] = useState("");
   var [nameSearch, setNameSearch] = useState("")
@@ -75,6 +75,7 @@ const CustomerDetailsPage = () => {
   async function getCustomersByName(searchQuery) {
     let responseData;
     let rowBuild = [];
+    setAccountRows({})
     await axios
       .get(process.env.REACT_APP_CUSTOMER_URL + `/name?name=${searchQuery}&limit=10`)
       .then(response => {
@@ -119,6 +120,7 @@ const CustomerDetailsPage = () => {
   async function getCustomerByNum(searchQuery) {
     let responseData;
     let rowBuild = [];
+    setAccountRows({})
     await axios
       .get(process.env.REACT_APP_CUSTOMER_URL + `/${searchQuery}`)
       .then(response => {
@@ -156,7 +158,7 @@ const CustomerDetailsPage = () => {
   }
 
   /**
-   * Gets the accounts for a given customerID, builds an array from the response and sets accountDetailsRows' state to this array
+   * Gets the accounts for a given customerID and stores them in accountDetailsRows keyed by that customerID
    */
   async function getAccountsForCustomers(customerID) {
     let accountData;
@@ -180,7 +182,7 @@ const CustomerDetailsPage = () => {
           };
           accountRowBuild.push(row)
         });
-        setAccountRows(accountRowBuild)
+        setAccountRows(previous => ({ ...previous, [customerID]: accountRowBuild }))
       }).catch(function (error) {
         if (error.response) {
           console.log(error)

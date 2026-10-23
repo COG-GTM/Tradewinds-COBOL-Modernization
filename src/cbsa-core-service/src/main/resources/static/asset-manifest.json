@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/webui-1.0/static/css/main.7390bca4.css",
-    "main.js": "/webui-1.0/static/js/main.7be3e4d9.js",
+    "main.js": "/webui-1.0/static/js/main.2ffdac3e.js",
     "static/media/IBMPlexSerif-SemiBoldItalic-Cyrillic.woff2": "/webui-1.0/static/media/IBMPlexSerif-SemiBoldItalic-Cyrillic.2861a6629748147a32ea.woff2",
     "static/media/IBMPlexSerif-SemiBoldItalic-Latin1.woff2": "/webui-1.0/static/media/IBMPlexSerif-SemiBoldItalic-Latin1.6305238484fd3cc045b0.woff2",
     "static/media/IBMPlexSerif-Italic-Cyrillic.woff2": "/webui-1.0/static/media/IBMPlexSerif-Italic-Cyrillic.44c432e4a678791737ca.woff2",
@@ -96,6 +96,6 @@
   },
   "entrypoints": [
     "static/css/main.7390bca4.css",
-    "static/js/main.7be3e4d9.js"
+    "static/js/main.2ffdac3e.js"
   ]
 }
