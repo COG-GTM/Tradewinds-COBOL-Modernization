@@ -54,6 +54,9 @@ public class SeedDataLoader implements InitializingBean {
             log.warn("CBSA seed file not found in {}; starting with empty tables", properties.seed().location());
             return;
         }
+        // The seed is authoritative for counters: drop placeholder CONTROL rows that CounterService may have
+        // created on an earlier, unseeded start so the seed's CONTROL INSERTs cannot collide.
+        jdbcTemplate.update("DELETE FROM CONTROL");
         ResourceDatabasePopulator populator = new ResourceDatabasePopulator(seed);
         populator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
         populator.execute(dataSource);
