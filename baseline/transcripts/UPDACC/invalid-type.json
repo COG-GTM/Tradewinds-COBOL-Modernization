@@ -1,0 +1,77 @@
+{
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "invalid-type",
+  "description": "Account type CHEQUE (not validated by UPDACC)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 6,
+    "COMM-ACC-TYPE": "CHEQUE",
+    "COMM-INT-RATE": 1,
+    "COMM-OVERDRAFT": 0
+  },
+  "commarea_out": {
+    "COMM-EYE": "ACCT",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 6,
+    "COMM-ACC-TYPE": "CHEQUE",
+    "COMM-INT-RATE": 1.0,
+    "COMM-OPENED": 3071979,
+    "COMM-OVERDRAFT": 0,
+    "COMM-LAST-STMT-DT": 1072021,
+    "COMM-NEXT-STMT-DT": 1082021,
+    "COMM-AVAIL-BAL": 81255.02,
+    "COMM-ACTUAL-BAL": 81255.02,
+    "COMM-SUCCESS": "Y"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000006"
+          },
+          "changes": {
+            "ACCOUNT_TYPE": [
+              "SAVING",
+              "CHEQUE"
+            ],
+            "ACCOUNT_INTEREST_RATE": [
+              1.75,
+              1
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

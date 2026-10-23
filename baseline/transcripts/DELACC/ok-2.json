@@ -1,0 +1,90 @@
+{
+  "program": "DELACC",
+  "flow": "delete-account",
+  "case": "ok-2",
+  "description": "Delete SAVING account 2",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "DELACC-SCODE": "987654",
+    "DELACC-ACCNO": 2
+  },
+  "commarea_out": {
+    "DELACC-EYE": "ACCT",
+    "DELACC-CUSTNO": "0000000001",
+    "DELACC-SCODE": "987654",
+    "DELACC-ACCNO": 2,
+    "DELACC-ACC-TYPE": "SAVING",
+    "DELACC-INT-RATE": 1.75,
+    "DELACC-OPENED": 21101967,
+    "DELACC-OVERDRAFT": 0,
+    "DELACC-LAST-STMT-DT": 1072021,
+    "DELACC-NEXT-STMT-DT": 1082021,
+    "DELACC-AVAIL-BAL": 329286.06,
+    "DELACC-ACTUAL-BAL": 329286.06,
+    "DELACC-SUCCESS": "",
+    "DELACC-FAIL-CD": "",
+    "DELACC-DEL-SUCCESS": "Y",
+    "DELACC-DEL-FAIL-CD": "",
+    "DELACC-DEL-APPLID": "",
+    "DELACC-DEL-PCB1": null,
+    "DELACC-DEL-PCB2": null,
+    "DELACC-DEL-PCB3": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000001",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000002",
+          "ACCOUNT_TYPE": "SAVING",
+          "ACCOUNT_INTEREST_RATE": 1.75,
+          "ACCOUNT_OPENED": "1967-10-21",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2021-07-01",
+          "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
+          "ACCOUNT_AVAILABLE_BALANCE": 329286.06,
+          "ACCOUNT_ACTUAL_BALANCE": 329286.06
+        }
+      ]
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000002",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000001SAVING  0107202101082021DELETE",
+          "PROCTRAN_AMOUNT": 329286.06
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

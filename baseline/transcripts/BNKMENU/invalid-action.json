@@ -1,0 +1,89 @@
+{
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "invalid-action",
+  "description": "Invalid menu option 9",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "ACTION": "9"
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1ME",
+        "BNK1MAI",
+        "1"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1ME",
+        "BNK1MAI",
+        "DATAONLY ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "ACTION",
+        "9"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "You must enter a valid value (1-7 or A)."
+      ],
+      [
+        "RETURN_TRANSID",
+        "OMEN",
+        "",
+        "1"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        ""
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RETURN_TRANSID",
+      "OMEN",
+      "",
+      "1"
+    ]
+  ],
+  "transid": "OMEN"
+}

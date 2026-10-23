@@ -1,0 +1,474 @@
+[
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "first-display",
+  "description": "Initial menu display",
+  "commarea_in": {
+   "aid": "ENTER"
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-1",
+  "description": "Menu option 1 routes to transaction ODCS",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "1"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-2",
+  "description": "Menu option 2 routes to transaction ODAC",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "2"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-3",
+  "description": "Menu option 3 routes to transaction OCCS",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "3"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-4",
+  "description": "Menu option 4 routes to transaction OCAC",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "4"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-5",
+  "description": "Menu option 5 routes to transaction OUAC",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "5"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-6",
+  "description": "Menu option 6 routes to transaction OCRA",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "6"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-7",
+  "description": "Menu option 7 routes to transaction OTFN",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "7"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "action-a",
+  "description": "Menu option A routes to transaction OCCA",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "A"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "invalid-action",
+  "description": "Invalid menu option 9",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACTION": "9"
+   }
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "pf3-exit",
+  "description": "PF3 ends the session",
+  "commarea_in": {
+   "aid": "PF3",
+   "commarea": "X"
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "clear",
+  "description": "CLEAR key",
+  "commarea_in": {
+   "aid": "CLEAR",
+   "commarea": "X"
+  },
+  "mode": "term",
+  "transid": "OMEN"
+ },
+ {
+  "program": "BNK1DCS",
+  "flow": "screen-odcs",
+  "case": "first-display",
+  "description": "Display/delete customer screen first entry",
+  "commarea_in": {
+   "aid": "ENTER"
+  },
+  "mode": "term",
+  "transid": "ODCS"
+ },
+ {
+  "program": "BNK1DCS",
+  "flow": "screen-odcs",
+  "case": "lookup-found",
+  "description": "Look up customer 2",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTNO": "0000000002"
+   }
+  },
+  "mode": "term",
+  "transid": "ODCS"
+ },
+ {
+  "program": "BNK1DCS",
+  "flow": "screen-odcs",
+  "case": "lookup-not-found",
+  "description": "Look up customer 999",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTNO": "0000000999"
+   }
+  },
+  "mode": "term",
+  "transid": "ODCS"
+ },
+ {
+  "program": "BNK1DCS",
+  "flow": "screen-odcs",
+  "case": "lookup-non-numeric",
+  "description": "Non-numeric customer number",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTNO": "ABC"
+   }
+  },
+  "mode": "term",
+  "transid": "ODCS"
+ },
+ {
+  "program": "BNK1CCS",
+  "flow": "screen-occs",
+  "case": "first-display",
+  "description": "Create customer screen first entry",
+  "commarea_in": {
+   "aid": "ENTER"
+  },
+  "mode": "term",
+  "transid": "OCCS"
+ },
+ {
+  "program": "BNK1CCS",
+  "flow": "screen-occs",
+  "case": "create-ok",
+  "description": "Create customer from the screen",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTTIT": "Mr",
+    "CHRISTN": "Screen",
+    "CUSTINS": "T",
+    "CUSTSN": "Tester",
+    "CUSTAD1": "10 Map Street",
+    "CUSTAD2": "Leeds",
+    "DOBDD": "01",
+    "DOBMM": "02",
+    "DOBYY": "1980"
+   }
+  },
+  "mode": "term",
+  "transid": "OCCS"
+ },
+ {
+  "program": "BNK1CCS",
+  "flow": "screen-occs",
+  "case": "invalid-title",
+  "description": "Create customer with invalid title",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTTIT": "King",
+    "CHRISTN": "Arthur",
+    "CUSTINS": "P",
+    "CUSTSN": "Pendragon",
+    "CUSTAD1": "1 Castle",
+    "DOBDD": "01",
+    "DOBMM": "01",
+    "DOBYY": "1970"
+   }
+  },
+  "mode": "term",
+  "transid": "OCCS"
+ },
+ {
+  "program": "BNK1CAC",
+  "flow": "screen-ocac",
+  "case": "first-display",
+  "description": "Create account screen first entry",
+  "commarea_in": {
+   "aid": "ENTER"
+  },
+  "mode": "term",
+  "transid": "OCAC"
+ },
+ {
+  "program": "BNK1CAC",
+  "flow": "screen-ocac",
+  "case": "create-ok",
+  "description": "Open SAVING account for customer 19",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTNO": "0000000019",
+    "ACCTYP": "SAVING  ",
+    "INTRT": "1.25   ",
+    "OVERDR": "0       "
+   }
+  },
+  "mode": "term",
+  "transid": "OCAC"
+ },
+ {
+  "program": "BNK1CAC",
+  "flow": "screen-ocac",
+  "case": "invalid-type",
+  "description": "Open account with type CHEQUE",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTNO": "0000000019",
+    "ACCTYP": "CHEQUE  ",
+    "INTRT": "1.25   ",
+    "OVERDR": "0       "
+   }
+  },
+  "mode": "term",
+  "transid": "OCAC"
+ },
+ {
+  "program": "BNK1DAC",
+  "flow": "screen-odac",
+  "case": "lookup-found",
+  "description": "Display account 3",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACCNO": "00000003"
+   }
+  },
+  "mode": "term",
+  "transid": "ODAC"
+ },
+ {
+  "program": "BNK1DAC",
+  "flow": "screen-odac",
+  "case": "lookup-not-found",
+  "description": "Display account 99999",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACCNO": "00099999"
+   }
+  },
+  "mode": "term",
+  "transid": "ODAC"
+ },
+ {
+  "program": "BNK1UAC",
+  "flow": "screen-ouac",
+  "case": "lookup",
+  "description": "Update account screen: look up account 3",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACCNO": "00000003"
+   }
+  },
+  "mode": "term",
+  "transid": "OUAC"
+ },
+ {
+  "program": "BNK1CRA",
+  "flow": "screen-ocra",
+  "case": "credit",
+  "description": "Credit 20.00 to account 1",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACCNO": "00000001",
+    "SIGN": "+",
+    "AMT": "20.00"
+   }
+  },
+  "mode": "term",
+  "transid": "OCRA"
+ },
+ {
+  "program": "BNK1CRA",
+  "flow": "screen-ocra",
+  "case": "debit-insufficient",
+  "description": "Debit 900.00 from account 76",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "ACCNO": "00000076",
+    "SIGN": "-",
+    "AMT": "900.00"
+   }
+  },
+  "mode": "term",
+  "transid": "OCRA"
+ },
+ {
+  "program": "BNK1TFN",
+  "flow": "screen-otfn",
+  "case": "transfer-ok",
+  "description": "Transfer 10.00 from 1 to 2",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "FACCNO": "00000001",
+    "TACCNO": "00000002",
+    "AMT": "10.00"
+   }
+  },
+  "mode": "term",
+  "transid": "OTFN"
+ },
+ {
+  "program": "BNK1TFN",
+  "flow": "screen-otfn",
+  "case": "non-numeric-amount",
+  "description": "Non-numeric amount",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "FACCNO": "00000001",
+    "TACCNO": "00000002",
+    "AMT": "ten"
+   }
+  },
+  "mode": "term",
+  "transid": "OTFN"
+ },
+ {
+  "program": "BNK1CCA",
+  "flow": "screen-occa",
+  "case": "list-accounts",
+  "description": "List accounts of customer 1",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTNO": "0000000001"
+   }
+  },
+  "mode": "term",
+  "transid": "OCCA"
+ },
+ {
+  "program": "BNK1CCA",
+  "flow": "screen-occa",
+  "case": "customer-not-found",
+  "description": "List accounts of customer 999",
+  "commarea_in": {
+   "aid": "ENTER",
+   "commarea": "X",
+   "map_fields": {
+    "CUSTNO": "0000000999"
+   }
+  },
+  "mode": "term",
+  "transid": "OCCA"
+ }
+]

@@ -1,0 +1,57 @@
+{
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "found-1",
+  "description": "Inquire ISA account 1",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "INQACC-SCODE": 987654,
+    "INQACC-ACCNO": 1
+  },
+  "commarea_out": {
+    "INQACC-EYE": "ACCT",
+    "INQACC-CUSTNO": 1,
+    "INQACC-SCODE": 987654,
+    "INQACC-ACCNO": 1,
+    "INQACC-ACC-TYPE": "ISA",
+    "INQACC-INT-RATE": 2.1,
+    "INQACC-OPENED": 21101967,
+    "INQACC-OVERDRAFT": 0,
+    "INQACC-LAST-STMT-DT": 1072021,
+    "INQACC-NEXT-STMT-DT": 1082021,
+    "INQACC-AVAIL-BAL": 623375.58,
+    "INQACC-ACTUAL-BAL": 623375.58,
+    "INQACC-SUCCESS": "Y",
+    "INQACC-PCB1-POINTER": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

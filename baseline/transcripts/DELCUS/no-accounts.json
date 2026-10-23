@@ -1,0 +1,96 @@
+{
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "no-accounts",
+  "description": "Delete customer with no accounts",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000030"
+  },
+  "commarea_out": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000030",
+    "COMM-NAME": "Professor Kimberley H Jones",
+    "COMM-ADDR": "75 Cypress Avenue, Fife",
+    "COMM-DOB": 18051973,
+    "COMM-CREDIT-SCORE": 253,
+    "COMM-CS-REVIEW-DATE": 31012026,
+    "COMM-DEL-SUCCESS": "Y",
+    "COMM-DEL-FAIL-CD": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "CUSTOMER_EYECATCHER": "CUST",
+          "CUSTOMER_SORTCODE": "987654",
+          "CUSTOMER_NUMBER": "0000000030",
+          "CUSTOMER_NAME": "Professor Kimberley H Jones",
+          "CUSTOMER_ADDRESS": "75 Cypress Avenue, Fife",
+          "CUSTOMER_DATE_OF_BIRTH": "1973-05-18",
+          "CUSTOMER_CREDIT_SCORE": 253,
+          "CUSTOMER_CS_REVIEW_DATE": "2026-01-31"
+        }
+      ]
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000000",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODC",
+          "PROCTRAN_DESC": "9876540000000030Professor Kimb18/05/1973",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ]
+  ],
+  "setup_sql": [
+    "DELETE FROM ACCOUNT WHERE ACCOUNT_CUSTOMER_NUMBER='0000000030';"
+  ]
+}

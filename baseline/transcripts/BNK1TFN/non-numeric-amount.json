@@ -1,0 +1,101 @@
+{
+  "program": "BNK1TFN",
+  "flow": "screen-otfn",
+  "case": "non-numeric-amount",
+  "description": "Non-numeric amount",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "FACCNO": "00000001",
+      "TACCNO": "00000002",
+      "AMT": "ten"
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1TF",
+        "BNK1TFM",
+        "3"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1TF",
+        "BNK1TFM",
+        "DATAONLY ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "FACCNO",
+        "00000001"
+      ],
+      [
+        "FIELD",
+        "TACCNO",
+        "00000002"
+      ],
+      [
+        "FIELD",
+        "AMT",
+        "ten"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "Please supply a numeric amount."
+      ],
+      [
+        "RETURN_TRANSID",
+        "OTFN",
+        "",
+        "29"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "0000000000000000000000000000\\x00"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RETURN_TRANSID",
+      "OTFN",
+      "",
+      "29"
+    ]
+  ],
+  "transid": "OTFN"
+}

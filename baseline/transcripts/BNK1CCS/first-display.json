@@ -1,0 +1,109 @@
+{
+  "program": "BNK1CCS",
+  "flow": "screen-occs",
+  "case": "first-display",
+  "description": "Create customer screen first entry",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER"
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "SEND_MAP",
+        "BNK1CC",
+        "BNK1CCM",
+        "ERASE CURSOR FREEKB "
+      ],
+      [
+        "FIELD",
+        "CUSTTIT",
+        ""
+      ],
+      [
+        "FIELD",
+        "CHRISTN",
+        ""
+      ],
+      [
+        "FIELD",
+        "CUSTINS",
+        ""
+      ],
+      [
+        "FIELD",
+        "CUSTSN",
+        ""
+      ],
+      [
+        "FIELD",
+        "CUSTAD1",
+        ""
+      ],
+      [
+        "FIELD",
+        "CUSTAD2",
+        ""
+      ],
+      [
+        "FIELD",
+        "CUSTAD3",
+        ""
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        ""
+      ],
+      [
+        "RETURN_TRANSID",
+        "OCCS",
+        "",
+        "248"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        " \\x00\\x00\\x03\\x87\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x03\\x87\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00 '_=WXh\"%>,123456789:#@\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x0c0000                                          +00000000+00000000+00000000"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RETURN_TRANSID",
+      "OCCS",
+      "",
+      "248"
+    ]
+  ],
+  "transid": "OCCS"
+}

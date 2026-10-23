@@ -1,0 +1,154 @@
+{
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "with-mortgage",
+  "description": "Delete customer 5 (ISA + MORTGAGE)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000005"
+  },
+  "commarea_out": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000005",
+    "COMM-NAME": "Sir Josephine R Hopkins",
+    "COMM-ADDR": "43 Pine Drive, Dover",
+    "COMM-DOB": 10081996,
+    "COMM-CREDIT-SCORE": 959,
+    "COMM-CS-REVIEW-DATE": 26012026,
+    "COMM-DEL-SUCCESS": "Y",
+    "COMM-DEL-FAIL-CD": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "CUSTOMER_EYECATCHER": "CUST",
+          "CUSTOMER_SORTCODE": "987654",
+          "CUSTOMER_NUMBER": "0000000005",
+          "CUSTOMER_NAME": "Sir Josephine R Hopkins",
+          "CUSTOMER_ADDRESS": "43 Pine Drive, Dover",
+          "CUSTOMER_DATE_OF_BIRTH": "1996-08-10",
+          "CUSTOMER_CREDIT_SCORE": 959,
+          "CUSTOMER_CS_REVIEW_DATE": "2026-01-26"
+        }
+      ]
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000005",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000016",
+          "ACCOUNT_TYPE": "ISA",
+          "ACCOUNT_INTEREST_RATE": 2.1,
+          "ACCOUNT_OPENED": "1996-08-10",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2021-07-01",
+          "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
+          "ACCOUNT_AVAILABLE_BALANCE": 485736.84,
+          "ACCOUNT_ACTUAL_BALANCE": 485736.84
+        },
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000005",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000074",
+          "ACCOUNT_TYPE": "MORTGAGE",
+          "ACCOUNT_INTEREST_RATE": 3.25,
+          "ACCOUNT_OPENED": "2026-01-10",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2026-01-10",
+          "ACCOUNT_NEXT_STATEMENT": "2026-02-09",
+          "ACCOUNT_AVAILABLE_BALANCE": -150000,
+          "ACCOUNT_ACTUAL_BALANCE": -150000
+        }
+      ]
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000016",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000005ISA     0107202101082021DELETE",
+          "PROCTRAN_AMOUNT": 485736.84
+        },
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000074",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000005MORTGAGE1001202609022026DELETE",
+          "PROCTRAN_AMOUNT": -150000
+        },
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000000",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODC",
+          "PROCTRAN_DESC": "9876540000000005Sir Josephine 10/08/1996",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "DELACC",
+      "126"
+    ],
+    [
+      "LINK",
+      "DELACC",
+      "126"
+    ]
+  ]
+}

@@ -1,0 +1,168 @@
+[
+ {
+  "program": "CREACC",
+  "flow": "seed-activity",
+  "case": "mortgage-5",
+  "description": "seed: open MORTGAGE account for customer 5",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 5,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "MORTGAGE",
+   "COMM-INT-RT": 3.25,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": -150000,
+   "COMM-ACT-BAL": -150000
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "seed-activity",
+  "case": "mortgage-12",
+  "description": "seed: open MORTGAGE account for customer 12",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 12,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "MORTGAGE",
+   "COMM-INT-RT": 2.99,
+   "COMM-OVERDR-LIM": 0,
+   "COMM-AVAIL-BAL": -98000.5,
+   "COMM-ACT-BAL": -98000.5
+  }
+ },
+ {
+  "program": "CREACC",
+  "flow": "seed-activity",
+  "case": "current-20",
+  "description": "seed: open CURRENT account for customer 20",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-EYECATCHER": "ACCT",
+   "COMM-CUSTNO": 20,
+   "COMM-KEY": {
+    "COMM-SORTCODE": 987654,
+    "COMM-NUMBER": 0
+   },
+   "COMM-ACC-TYPE": "CURRENT",
+   "COMM-INT-RT": 0,
+   "COMM-OVERDR-LIM": 500,
+   "COMM-AVAIL-BAL": 0,
+   "COMM-ACT-BAL": 0
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "seed-activity",
+  "case": "credit-1",
+  "description": "seed: credit of 250.0 on account 1",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-ACCNO": "00000001",
+   "COMM-AMT": 250.0,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "seed-activity",
+  "case": "debit-2",
+  "description": "seed: debit of -75.25 on account 2",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-ACCNO": "00000002",
+   "COMM-AMT": -75.25,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "seed-activity",
+  "case": "credit-3",
+  "description": "seed: credit of 1000 on account 3",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-ACCNO": "00000003",
+   "COMM-AMT": 1000,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "DBCRFUN",
+  "flow": "seed-activity",
+  "case": "debit-10",
+  "description": "seed: debit of -20.5 on account 10",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-ACCNO": "00000010",
+   "COMM-AMT": -20.5,
+   "COMM-SORTC": 987654,
+   "COMM-ORIGIN": {
+    "COMM-FACILTYPE": 0
+   }
+  }
+ },
+ {
+  "program": "XFRFUN",
+  "flow": "seed-activity",
+  "case": "xfr-4-6",
+  "description": "seed: transfer 125.00 from account 4 to 6",
+  "env": {
+   "CBSA_FIXED_TIME": "2026-01-10T09:00:00Z",
+   "CBSA_RANDOM_SEED": "42",
+   "CBSA_TASKN": "10"
+  },
+  "commarea_in": {
+   "COMM-FACCNO": 4,
+   "COMM-FSCODE": 987654,
+   "COMM-TACCNO": 6,
+   "COMM-TSCODE": 987654,
+   "COMM-AMT": 125.0
+  }
+ }
+]

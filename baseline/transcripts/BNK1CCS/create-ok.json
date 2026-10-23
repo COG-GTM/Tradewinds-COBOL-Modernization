@@ -1,0 +1,328 @@
+{
+  "program": "BNK1CCS",
+  "flow": "screen-occs",
+  "case": "create-ok",
+  "description": "Create customer from the screen",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "CUSTTIT": "Mr",
+      "CHRISTN": "Screen",
+      "CUSTINS": "T",
+      "CUSTSN": "Tester",
+      "CUSTAD1": "10 Map Street",
+      "CUSTAD2": "Leeds",
+      "DOBDD": "01",
+      "DOBMM": "02",
+      "DOBYY": "1980"
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1CC",
+        "BNK1CCM",
+        "9"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1CC",
+        "BNK1CCM",
+        "DATAONLY CURSOR ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "CUSTTIT",
+        "Mr"
+      ],
+      [
+        "FIELD",
+        "CHRISTN",
+        "Screen"
+      ],
+      [
+        "FIELD",
+        "CUSTINS",
+        "T"
+      ],
+      [
+        "FIELD",
+        "CUSTSN",
+        "Tester"
+      ],
+      [
+        "FIELD",
+        "CUSTAD1",
+        "10 Map Street"
+      ],
+      [
+        "FIELD",
+        "CUSTAD2",
+        "Leeds"
+      ],
+      [
+        "FIELD",
+        "DOBDD",
+        "01"
+      ],
+      [
+        "FIELD",
+        "DOBMM",
+        "02"
+      ],
+      [
+        "FIELD",
+        "DOBYY",
+        "1980"
+      ],
+      [
+        "FIELD",
+        "SORTC",
+        "987654"
+      ],
+      [
+        "FIELD",
+        "CUSTNO2",
+        "0000000031"
+      ],
+      [
+        "FIELD",
+        "CREDSC",
+        "673"
+      ],
+      [
+        "FIELD",
+        "SCRDTDD",
+        "30"
+      ],
+      [
+        "FIELD",
+        "SCRDTMM",
+        "01"
+      ],
+      [
+        "FIELD",
+        "SCRDTYY",
+        "2026"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "The Customer record has been successfully created"
+      ],
+      [
+        "RETURN_TRANSID",
+        "OCCS",
+        "",
+        "248"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "X\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00 '_=WXh\"%>,123456789:#@\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x0c0000                                          +00000000+00000000+00000000"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [
+        {
+          "CUSTOMER_EYECATCHER": "CUST",
+          "CUSTOMER_SORTCODE": "987654",
+          "CUSTOMER_NUMBER": "0000000031",
+          "CUSTOMER_NAME": "Mr Screen T Tester",
+          "CUSTOMER_ADDRESS": "10 Map Street                                               Leeds",
+          "CUSTOMER_DATE_OF_BIRTH": "1980-02-01",
+          "CUSTOMER_CREDIT_SCORE": 673,
+          "CUSTOMER_CS_REVIEW_DATE": "2026-01-30"
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000000",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103003",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "OCC",
+          "PROCTRAN_DESC": "9876540000000031Mr Screen T Te01/02/1980",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "CONTROL_NAME": "987654-CUSTOMER-COUNT"
+          },
+          "changes": {
+            "CONTROL_VALUE_NUM": [
+              30,
+              31
+            ]
+          }
+        },
+        {
+          "key": {
+            "CONTROL_NAME": "987654-CUSTOMER-LAST"
+          },
+          "changes": {
+            "CONTROL_VALUE_NUM": [
+              30,
+              31
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "CRECUST",
+      "261"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR1",
+      "CIPCREDCHANN",
+      "CHILDTKN00000001"
+    ],
+    [
+      "LINK",
+      "CRDTAGY1",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000001",
+      "CRDTAGY1",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR2",
+      "CIPCREDCHANN",
+      "CHILDTKN00000002"
+    ],
+    [
+      "LINK",
+      "CRDTAGY2",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000002",
+      "CRDTAGY2",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR3",
+      "CIPCREDCHANN",
+      "CHILDTKN00000003"
+    ],
+    [
+      "LINK",
+      "CRDTAGY3",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000003",
+      "CRDTAGY3",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR4",
+      "CIPCREDCHANN",
+      "CHILDTKN00000004"
+    ],
+    [
+      "LINK",
+      "CRDTAGY4",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000004",
+      "CRDTAGY4",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR5",
+      "CIPCREDCHANN",
+      "CHILDTKN00000005"
+    ],
+    [
+      "LINK",
+      "CRDTAGY5",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000005",
+      "CRDTAGY5",
+      "2.000"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000001",
+      "OCR1"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000002",
+      "OCR2"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000003",
+      "OCR3"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000004",
+      "OCR4"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000005",
+      "OCR5"
+    ],
+    [
+      "RETURN_TRANSID",
+      "OCCS",
+      "",
+      "248"
+    ]
+  ],
+  "transid": "OCCS"
+}

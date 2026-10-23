@@ -1,0 +1,62 @@
+{
+  "program": "INQCUST",
+  "flow": "random-customer",
+  "case": "random-seed-42",
+  "description": "Customer number 0000000000 returns a random existing customer (CBSA_RANDOM_SEED=42)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": 0
+  },
+  "commarea_out": {
+    "INQCUST-EYE": "CUST",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": 1,
+    "INQCUST-NAME": "Drs Adam N Renton",
+    "INQCUST-ADDR": "18 Rowan Boulevard, Leicester",
+    "INQCUST-DOB": {
+      "INQCUST-DOB-DD": 21,
+      "INQCUST-DOB-MM": 10,
+      "INQCUST-DOB-YYYY": 1967
+    },
+    "INQCUST-CREDIT-SCORE": 397,
+    "INQCUST-CS-REVIEW-DT": {
+      "INQCUST-CS-REVIEW-DD": 4,
+      "INQCUST-CS-REVIEW-MM": 2,
+      "INQCUST-CS-REVIEW-YYYY": 2026
+    },
+    "INQCUST-INQ-SUCCESS": "Y",
+    "INQCUST-INQ-FAIL-CD": "0",
+    "INQCUST-PCB-POINTER": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

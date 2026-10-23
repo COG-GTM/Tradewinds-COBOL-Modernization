@@ -1,0 +1,75 @@
+{
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "ignores-balance",
+  "description": "Balances in the COMMAREA are not applied",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 3,
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-INT-RATE": 0.1,
+    "COMM-OVERDRAFT": 100,
+    "COMM-AVAIL-BAL": 1,
+    "COMM-ACTUAL-BAL": 1
+  },
+  "commarea_out": {
+    "COMM-EYE": "ACCT",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 3,
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-INT-RATE": 0.1,
+    "COMM-OPENED": 21101967,
+    "COMM-OVERDRAFT": 100,
+    "COMM-LAST-STMT-DT": 1072021,
+    "COMM-NEXT-STMT-DT": 1082021,
+    "COMM-AVAIL-BAL": 510249.31,
+    "COMM-ACTUAL-BAL": 510249.31,
+    "COMM-SUCCESS": "Y"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000003"
+          },
+          "changes": {
+            "ACCOUNT_INTEREST_RATE": [
+              0,
+              0.1
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

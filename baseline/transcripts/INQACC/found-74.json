@@ -1,0 +1,57 @@
+{
+  "program": "INQACC",
+  "flow": "inquire-account",
+  "case": "found-74",
+  "description": "Inquire MORTGAGE account 74",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "INQACC-SCODE": 987654,
+    "INQACC-ACCNO": 74
+  },
+  "commarea_out": {
+    "INQACC-EYE": "ACCT",
+    "INQACC-CUSTNO": 5,
+    "INQACC-SCODE": 987654,
+    "INQACC-ACCNO": 74,
+    "INQACC-ACC-TYPE": "MORTGAGE",
+    "INQACC-INT-RATE": 3.25,
+    "INQACC-OPENED": 10012026,
+    "INQACC-OVERDRAFT": 0,
+    "INQACC-LAST-STMT-DT": 10012026,
+    "INQACC-NEXT-STMT-DT": 9022026,
+    "INQACC-AVAIL-BAL": -150000.0,
+    "INQACC-ACTUAL-BAL": -150000.0,
+    "INQACC-SUCCESS": "Y",
+    "INQACC-PCB1-POINTER": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

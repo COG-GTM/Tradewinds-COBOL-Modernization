@@ -1,0 +1,55 @@
+{
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "customer-not-found",
+  "description": "List accounts of non-existent customer 999",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "CUSTOMER-NUMBER": 999
+  },
+  "commarea_out": {
+    "NUMBER-OF-ACCOUNTS": 0,
+    "CUSTOMER-NUMBER": 999,
+    "COMM-SUCCESS": "N",
+    "COMM-FAIL-CODE": "1",
+    "CUSTOMER-FOUND": "N",
+    "COMM-PCB-POINTER": null,
+    "ACCOUNT-DETAILS": []
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ]
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "program": "DBCRFUN",
+  "flow": "credit",
+  "case": "credit-payment-api",
+  "description": "Payment-interface (FACILTYPE 496) credit to account 9",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-ACCNO": "00000009",
+    "COMM-AMT": 12.34,
+    "COMM-SORTC": 987654,
+    "COMM-ORIGIN": {
+      "COMM-FACILTYPE": 496
+    }
+  },
+  "commarea_out": {
+    "COMM-ACCNO": "00000009",
+    "COMM-AMT": 12.34,
+    "COMM-SORTC": 987654,
+    "COMM-AV-BAL": 932852.84,
+    "COMM-ACT-BAL": 932852.84,
+    "COMM-ORIGIN": {
+      "COMM-APPLID": "",
+      "COMM-USERID": "",
+      "COMM-FACILITY-NAME": "",
+      "COMM-NETWRK-ID": "",
+      "COMM-FACILTYPE": 496
+    },
+    "COMM-SUCCESS": "Y",
+    "COMM-FAIL-CODE": "0"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000009"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              932840.5,
+              932852.84
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              932840.5,
+              932852.84
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000009",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "PCR",
+          "PROCTRAN_DESC": "",
+          "PROCTRAN_AMOUNT": 12.34
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

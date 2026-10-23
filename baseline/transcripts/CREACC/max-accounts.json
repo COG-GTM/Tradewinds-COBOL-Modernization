@@ -1,0 +1,87 @@
+{
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "max-accounts",
+  "description": "Customer already has 10 accounts",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYECATCHER": "ACCT",
+    "COMM-CUSTNO": 30,
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 0
+    },
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-INT-RT": 1.5,
+    "COMM-OVERDR-LIM": 0,
+    "COMM-AVAIL-BAL": 0,
+    "COMM-ACT-BAL": 0
+  },
+  "commarea_out": {
+    "COMM-EYECATCHER": "ACCT",
+    "COMM-CUSTNO": 30,
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 0
+    },
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-INT-RT": 1.5,
+    "COMM-OPENED": 0,
+    "COMM-OVERDR-LIM": 0,
+    "COMM-LAST-STMT-DT": 0,
+    "COMM-NEXT-STMT-DT": 0,
+    "COMM-AVAIL-BAL": 0.0,
+    "COMM-ACT-BAL": 0.0,
+    "COMM-SUCCESS": "N",
+    "COMM-FAIL-CODE": "8"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ]
+  ],
+  "setup_sql": [
+    "INSERT INTO ACCOUNT SELECT 'ACCT','0000000030','987654',printf('%08d',100+value),'SAVING',1.0,'2020-01-01',0,'2025-12-01','2026-01-01',10,10 FROM (WITH RECURSIVE n(value) AS (SELECT 1 UNION ALL SELECT value+1 FROM n WHERE value<9) SELECT value FROM n);"
+  ]
+}

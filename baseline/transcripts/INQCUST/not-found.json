@@ -1,0 +1,62 @@
+{
+  "program": "INQCUST",
+  "flow": "inquire-customer",
+  "case": "not-found",
+  "description": "Inquire non-existent customer 999",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": 999
+  },
+  "commarea_out": {
+    "INQCUST-EYE": "",
+    "INQCUST-SCODE": "987654",
+    "INQCUST-CUSTNO": 999,
+    "INQCUST-NAME": "",
+    "INQCUST-ADDR": "",
+    "INQCUST-DOB": {
+      "INQCUST-DOB-DD": 0,
+      "INQCUST-DOB-MM": 0,
+      "INQCUST-DOB-YYYY": 0
+    },
+    "INQCUST-CREDIT-SCORE": 0,
+    "INQCUST-CS-REVIEW-DT": {
+      "INQCUST-CS-REVIEW-DD": 0,
+      "INQCUST-CS-REVIEW-MM": 0,
+      "INQCUST-CS-REVIEW-YYYY": 0
+    },
+    "INQCUST-INQ-SUCCESS": "N",
+    "INQCUST-INQ-FAIL-CD": "1",
+    "INQCUST-PCB-POINTER": null
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

@@ -1,0 +1,84 @@
+{
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "customer-5",
+  "description": "List accounts of customer 5 (ISA + MORTGAGE)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "CUSTOMER-NUMBER": 5
+  },
+  "commarea_out": {
+    "NUMBER-OF-ACCOUNTS": 2,
+    "CUSTOMER-NUMBER": 5,
+    "COMM-SUCCESS": "Y",
+    "COMM-FAIL-CODE": "0",
+    "CUSTOMER-FOUND": "Y",
+    "COMM-PCB-POINTER": null,
+    "ACCOUNT-DETAILS": [
+      {
+        "COMM-EYE": "ACCT",
+        "COMM-CUSTNO": "0000000005",
+        "COMM-SCODE": "987654",
+        "COMM-ACCNO": 16,
+        "COMM-ACC-TYPE": "ISA",
+        "COMM-INT-RATE": 2.1,
+        "COMM-OPENED": 10081996,
+        "COMM-OVERDRAFT": 0,
+        "COMM-LAST-STMT-DT": 1072021,
+        "COMM-NEXT-STMT-DT": 1082021,
+        "COMM-AVAIL-BAL": 485736.84,
+        "COMM-ACTUAL-BAL": 485736.84
+      },
+      {
+        "COMM-EYE": "ACCT",
+        "COMM-CUSTNO": "0000000005",
+        "COMM-SCODE": "987654",
+        "COMM-ACCNO": 74,
+        "COMM-ACC-TYPE": "MORTGAGE",
+        "COMM-INT-RATE": 3.25,
+        "COMM-OPENED": 10012026,
+        "COMM-OVERDRAFT": 0,
+        "COMM-LAST-STMT-DT": 10012026,
+        "COMM-NEXT-STMT-DT": 9022026,
+        "COMM-AVAIL-BAL": -150000.0,
+        "COMM-ACTUAL-BAL": -150000.0
+      }
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ]
+  ]
+}

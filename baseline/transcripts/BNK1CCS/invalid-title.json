@@ -1,0 +1,131 @@
+{
+  "program": "BNK1CCS",
+  "flow": "screen-occs",
+  "case": "invalid-title",
+  "description": "Create customer with invalid title",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "CUSTTIT": "King",
+      "CHRISTN": "Arthur",
+      "CUSTINS": "P",
+      "CUSTSN": "Pendragon",
+      "CUSTAD1": "1 Castle",
+      "DOBDD": "01",
+      "DOBMM": "01",
+      "DOBYY": "1970"
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1CC",
+        "BNK1CCM",
+        "8"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1CC",
+        "BNK1CCM",
+        "DATAONLY CURSOR ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "CUSTTIT",
+        "King"
+      ],
+      [
+        "FIELD",
+        "CHRISTN",
+        "Arthur"
+      ],
+      [
+        "FIELD",
+        "CUSTINS",
+        "P"
+      ],
+      [
+        "FIELD",
+        "CUSTSN",
+        "Pendragon"
+      ],
+      [
+        "FIELD",
+        "CUSTAD1",
+        "1 Castle"
+      ],
+      [
+        "FIELD",
+        "DOBDD",
+        "01"
+      ],
+      [
+        "FIELD",
+        "DOBMM",
+        "01"
+      ],
+      [
+        "FIELD",
+        "DOBYY",
+        "1970"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "Valid titles are: Mr,Mrs,Miss,Ms,Dr,Drs,Professor,Lord,Sir,Lady"
+      ],
+      [
+        "RETURN_TRANSID",
+        "OCCS",
+        "",
+        "248"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "X\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00 '_=WXh\"%>,123456789:#@\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x0c0000                                          +00000000+00000000+00000000"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RETURN_TRANSID",
+      "OCCS",
+      "",
+      "248"
+    ]
+  ],
+  "transid": "OCCS"
+}

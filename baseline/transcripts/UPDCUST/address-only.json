@@ -1,0 +1,69 @@
+{
+  "program": "UPDCUST",
+  "flow": "update-customer",
+  "case": "address-only",
+  "description": "Update address only (name blank)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000003",
+    "COMM-NAME": "",
+    "COMM-ADDR": "7 Changed Avenue, Derby"
+  },
+  "commarea_out": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000003",
+    "COMM-NAME": "Ms Natalie U Walker",
+    "COMM-ADDR": "7 Changed Avenue, Derby",
+    "COMM-DOB": 17081964,
+    "COMM-CREDIT-SCORE": 445,
+    "COMM-CS-REVIEW-DATE": 31012026,
+    "COMM-UPD-SUCCESS": "Y",
+    "COMM-UPD-FAIL-CD": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "CUSTOMER_SORTCODE": "987654",
+            "CUSTOMER_NUMBER": "0000000003"
+          },
+          "changes": {
+            "CUSTOMER_ADDRESS": [
+              "02 Nutmeg Lane, Bath",
+              "7 Changed Avenue, Derby"
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

@@ -1,0 +1,71 @@
+{
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "same-account",
+  "description": "Transfer to the same account",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-FACCNO": 3,
+    "COMM-FSCODE": 987654,
+    "COMM-TACCNO": 3,
+    "COMM-TSCODE": 987654,
+    "COMM-AMT": 10.0
+  },
+  "commarea_out": {
+    "COMM-FACCNO": 3,
+    "COMM-FSCODE": 987654,
+    "COMM-TACCNO": 3,
+    "COMM-TSCODE": 987654,
+    "COMM-AMT": 10.0,
+    "COMM-FAVBAL": 0.0,
+    "COMM-FACTBAL": 0.0,
+    "COMM-TAVBAL": 0.0,
+    "COMM-TACTBAL": 0.0,
+    "COMM-FAIL-CODE": "",
+    "COMM-SUCCESS": "N"
+  },
+  "abend": {
+    "code": "SAME",
+    "program": "XFRFUN"
+  },
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "ABNDPROC",
+      "681"
+    ],
+    [
+      "ABNDFILE",
+      "ABNDPROC",
+      "\\x009wF\\x18\\x00\\x00\\x0c0100CBSAHARNCBSA15/01/202610:30:30SAMEXFRFUN  +00000000+00000000+00000000UAD010 - Cannot transfer to the same account  EIBRESP=+00000000 RESP2=+00000000"
+    ]
+  ]
+}

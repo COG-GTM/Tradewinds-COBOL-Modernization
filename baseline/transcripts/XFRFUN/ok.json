@@ -1,0 +1,102 @@
+{
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "ok",
+  "description": "Transfer 250.00 from account 1 to account 2",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-FACCNO": 1,
+    "COMM-FSCODE": 987654,
+    "COMM-TACCNO": 2,
+    "COMM-TSCODE": 987654,
+    "COMM-AMT": 250.0
+  },
+  "commarea_out": {
+    "COMM-FACCNO": 1,
+    "COMM-FSCODE": 987654,
+    "COMM-TACCNO": 2,
+    "COMM-TSCODE": 987654,
+    "COMM-AMT": 250.0,
+    "COMM-FAVBAL": 623125.58,
+    "COMM-FACTBAL": 623125.58,
+    "COMM-TAVBAL": 329536.06,
+    "COMM-TACTBAL": 329536.06,
+    "COMM-FAIL-CODE": "",
+    "COMM-SUCCESS": "Y"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000001"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              623375.58,
+              623125.58
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              623375.58,
+              623125.58
+            ]
+          }
+        },
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000002"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              329286.06,
+              329536.06
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              329286.06,
+              329536.06
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000001",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "TFR",
+          "PROCTRAN_DESC": "TRANSFER                  98765400000002",
+          "PROCTRAN_AMOUNT": 250
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}
