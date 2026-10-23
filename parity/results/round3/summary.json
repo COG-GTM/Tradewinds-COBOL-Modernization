@@ -1,7 +1,7 @@
 {
  "round": "3",
- "generated": "2026-10-23T06:24:04Z",
- "head": "9d73b7d989eeac4915dce226891b65eb00d3ea6e",
+ "generated": "2026-10-23T06:35:51Z",
+ "head": "a393eb789df3ad764d78f5fee10a9b6c90993fa0",
  "databases": [
   "h2",
   "postgres"
@@ -411,8 +411,8 @@
    },
    {
     "round": "round3 H2",
-    "head": "9d73b7d",
-    "generated": "2026-10-23T06:24:04Z",
+    "head": "a393eb7",
+    "generated": "2026-10-23T06:35:51Z",
     "flows_total": 125,
     "flows_comparable": 125,
     "flows_matching": 125,
@@ -426,8 +426,8 @@
    },
    {
     "round": "round3 PostgreSQL",
-    "head": "9d73b7d",
-    "generated": "2026-10-23T06:24:04Z",
+    "head": "a393eb7",
+    "generated": "2026-10-23T06:35:51Z",
     "flows_total": 125,
     "flows_comparable": 125,
     "flows_matching": 125,

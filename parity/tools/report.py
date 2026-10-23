@@ -27,9 +27,14 @@ for r in ('round1', 'round2'):
 
 
 def psql_version():
+    """server_version of the PostgreSQL the parity run used (PARITY_PG_URL, same parsing as parity.pg_recreate_schema)."""
+    m = re.match(r'jdbc:postgresql://([^:/]+)(?::(\d+))?/([^?]+)', os.environ.get('PARITY_PG_URL', 'jdbc:postgresql://localhost:5432/cbsa'))
+    if not m:
+        return 'unknown'
     try:
-        return subprocess.run(['psql', '-tA', '-h', 'localhost', '-U', os.environ.get('PARITY_PG_USER', 'cbsa'), '-d', 'cbsa', '-c',
-                               'show server_version'], env=dict(os.environ, PGPASSWORD=os.environ.get('PARITY_PG_PASSWORD', 'cbsa')),
+        return subprocess.run(['psql', '-tA', '-h', m.group(1), '-p', m.group(2) or '5432', '-U', os.environ.get('PARITY_PG_USER', 'cbsa'),
+                               '-d', m.group(3), '-c', 'show server_version'],
+                              env=dict(os.environ, PGPASSWORD=os.environ.get('PARITY_PG_PASSWORD', 'cbsa')),
                               capture_output=True, text=True, timeout=10).stdout.strip() or 'unknown'
     except Exception:
         return 'unknown'

@@ -14,7 +14,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.297
+   "time_s": 0.578
   },
   {
    "class": "com.ibm.cics.cip.bank.core.abndproc.AbendRecordControllerTest",
@@ -22,7 +22,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.228
+   "time_s": 0.476
   },
   {
    "class": "com.ibm.cics.cip.bank.core.abndproc.AbendRecordEndpointDisabledTest",
@@ -30,7 +30,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.22
+   "time_s": 0.459
   },
   {
    "class": "com.ibm.cics.cip.bank.core.abndproc.AbendRecorderTest",
@@ -38,7 +38,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.017
+   "time_s": 0.036
   },
   {
    "class": "com.ibm.cics.cip.bank.core.bankdata.BankDataControllerTest",
@@ -46,7 +46,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.269
+   "time_s": 0.633
   },
   {
    "class": "com.ibm.cics.cip.bank.core.bankdata.BankDataEndpointDisabledTest",
@@ -54,7 +54,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.032
+   "time_s": 0.054
   },
   {
    "class": "com.ibm.cics.cip.bank.core.bankdata.BankDataGeneratorTest",
@@ -62,7 +62,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.024
+   "time_s": 0.041
   },
   {
    "class": "com.ibm.cics.cip.bank.core.bankdata.BankDataLegacyHarnessParityTest",
@@ -70,7 +70,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.168
+   "time_s": 0.164
   },
   {
    "class": "com.ibm.cics.cip.bank.core.common.TaskNumberSupplierTest",
@@ -78,7 +78,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.037
+   "time_s": 0.033
   },
   {
    "class": "com.ibm.cics.cip.bank.core.creacc.CreaccTranscriptReplayTest",
@@ -86,7 +86,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.754
+   "time_s": 1.312
   },
   {
    "class": "com.ibm.cics.cip.bank.core.creacc.CreateAccountConcurrencyTest",
@@ -94,7 +94,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.355
+   "time_s": 0.664
   },
   {
    "class": "com.ibm.cics.cip.bank.core.creacc.CreateAccountControllerTest",
@@ -102,7 +102,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.566
+   "time_s": 0.716
   },
   {
    "class": "com.ibm.cics.cip.bank.core.creacc.CreateAccountRollbackTest",
@@ -110,7 +110,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 3.281
+   "time_s": 4.935
   },
   {
    "class": "com.ibm.cics.cip.bank.core.creacc.StatementDatesTest",
@@ -118,7 +118,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.014
+   "time_s": 0.02
   },
   {
    "class": "com.ibm.cics.cip.bank.core.crecust.CreateCustomerControllerTest",
@@ -126,7 +126,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.082
+   "time_s": 0.103
   },
   {
    "class": "com.ibm.cics.cip.bank.core.crecust.CreateCustomerServiceTest",
@@ -134,7 +134,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.116
+   "time_s": 0.212
   },
   {
    "class": "com.ibm.cics.cip.bank.core.crecust.CrecustTranscriptReplayTest",
@@ -142,7 +142,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 2.555
+   "time_s": 4.507
   },
   {
    "class": "com.ibm.cics.cip.bank.core.crecust.CreditCheckServiceTest",
@@ -150,7 +150,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 3.514
+   "time_s": 3.517
   },
   {
    "class": "com.ibm.cics.cip.bank.core.crecust.DateOfBirthValidatorTest",
@@ -158,7 +158,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.008
+   "time_s": 0.016
   },
   {
    "class": "com.ibm.cics.cip.bank.core.crecust.TitleValidatorTest",
@@ -166,7 +166,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.008
+   "time_s": 0.017
   },
   {
    "class": "com.ibm.cics.cip.bank.core.dbcrfun.DbcrfunControllerTest",
@@ -174,7 +174,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.16
+   "time_s": 0.278
   },
   {
    "class": "com.ibm.cics.cip.bank.core.dbcrfun.DbcrfunTranscriptReplayTest",
@@ -182,7 +182,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.38
+   "time_s": 0.599
   },
   {
    "class": "com.ibm.cics.cip.bank.core.dbcrfun.DebitCreditServiceTest",
@@ -190,7 +190,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.348
+   "time_s": 0.567
   },
   {
    "class": "com.ibm.cics.cip.bank.core.delacc.DelaccTranscriptReplayTest",
@@ -198,7 +198,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.35
+   "time_s": 0.294
   },
   {
    "class": "com.ibm.cics.cip.bank.core.delacc.DeleteAccountFailureTest",
@@ -206,7 +206,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.46
+   "time_s": 0.472
   },
   {
    "class": "com.ibm.cics.cip.bank.core.delacc.DeleteAccountServiceTest",
@@ -214,7 +214,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.294
+   "time_s": 0.352
   },
   {
    "class": "com.ibm.cics.cip.bank.core.delcus.DelaccAccountDeletionTest",
@@ -222,7 +222,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.053
+   "time_s": 0.109
   },
   {
    "class": "com.ibm.cics.cip.bank.core.delcus.DelcusTranscriptReplayTest",
@@ -230,7 +230,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.327
+   "time_s": 0.589
   },
   {
    "class": "com.ibm.cics.cip.bank.core.delcus.DeleteCustomerServiceTest",
@@ -238,7 +238,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.076
+   "time_s": 0.092
   },
   {
    "class": "com.ibm.cics.cip.bank.core.inqacc.InqaccTranscriptReplayTest",
@@ -246,7 +246,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.099
+   "time_s": 0.131
   },
   {
    "class": "com.ibm.cics.cip.bank.core.inqacc.InquireAccountControllerTest",
@@ -254,7 +254,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.116
+   "time_s": 0.108
   },
   {
    "class": "com.ibm.cics.cip.bank.core.inqacc.InquireAccountServiceTest",
@@ -262,7 +262,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.042
+   "time_s": 0.061
   },
   {
    "class": "com.ibm.cics.cip.bank.core.inqcust.InquireCustomerControllerTest",
@@ -270,7 +270,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.475
+   "time_s": 0.438
   },
   {
    "class": "com.ibm.cics.cip.bank.core.inqcust.InquireCustomerServiceTest",
@@ -278,7 +278,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.119
+   "time_s": 0.17
   },
   {
    "class": "com.ibm.cics.cip.bank.core.inqcust.InquireCustomerTranscriptReplayTest",
@@ -286,7 +286,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.029
+   "time_s": 0.04
   },
   {
    "class": "com.ibm.cics.cip.bank.core.postgres.PostgresProfileMainFlowsTest",
@@ -294,7 +294,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 4,
-   "time_s": 0.0
+   "time_s": 0.001
   },
   {
    "class": "com.ibm.cics.cip.bank.core.proctran.ProcessedTransactionControllerTest",
@@ -302,7 +302,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.053
+   "time_s": 0.089
   },
   {
    "class": "com.ibm.cics.cip.bank.core.proctran.ProcessedTransactionServiceTest",
@@ -310,7 +310,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.113
+   "time_s": 0.181
   },
   {
    "class": "com.ibm.cics.cip.bank.core.screens.MenuRouterTest",
@@ -318,7 +318,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.031
+   "time_s": 0.025
   },
   {
    "class": "com.ibm.cics.cip.bank.core.screens.ScreenReviewFixesTest",
@@ -326,7 +326,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.291
+   "time_s": 0.408
   },
   {
    "class": "com.ibm.cics.cip.bank.core.screens.ScreenValidationTest",
@@ -334,7 +334,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.075
+   "time_s": 0.059
   },
   {
    "class": "com.ibm.cics.cip.bank.core.screens.TranscriptReplayTest",
@@ -342,7 +342,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.582
+   "time_s": 0.765
   },
   {
    "class": "com.ibm.cics.cip.bank.core.updacc.UpdaccTranscriptReplayTest",
@@ -350,7 +350,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.345
+   "time_s": 0.535
   },
   {
    "class": "com.ibm.cics.cip.bank.core.updacc.UpdateAccountControllerTest",
@@ -358,7 +358,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.102
+   "time_s": 0.143
   },
   {
    "class": "com.ibm.cics.cip.bank.core.updacc.UpdateAccountServiceTest",
@@ -366,7 +366,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.044
+   "time_s": 0.054
   },
   {
    "class": "com.ibm.cics.cip.bank.core.updcust.UpdateCustomerControllerTest",
@@ -374,7 +374,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.168
+   "time_s": 0.254
   },
   {
    "class": "com.ibm.cics.cip.bank.core.updcust.UpdateCustomerServiceTest",
@@ -382,7 +382,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.002
+   "time_s": 0.005
   },
   {
    "class": "com.ibm.cics.cip.bank.core.updcust.UpdateCustomerTranscriptReplayTest",
@@ -390,7 +390,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.12
+   "time_s": 0.234
   },
   {
    "class": "com.ibm.cics.cip.bank.core.xfrfun.TransferConcurrencyTest",
@@ -398,7 +398,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.217
+   "time_s": 0.419
   },
   {
    "class": "com.ibm.cics.cip.bank.core.xfrfun.TransferControllerTest",
@@ -406,7 +406,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.354
+   "time_s": 0.658
   },
   {
    "class": "com.ibm.cics.cip.bank.core.xfrfun.TransferServiceTest",
@@ -414,7 +414,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.022
+   "time_s": 0.03
   },
   {
    "class": "com.ibm.cics.cip.bank.core.xfrfun.XfrfunTranscriptReplayTest",
@@ -422,7 +422,7 @@
    "failures": 0,
    "errors": 0,
    "skipped": 0,
-   "time_s": 0.049
+   "time_s": 0.097
   }
  ]
 }
