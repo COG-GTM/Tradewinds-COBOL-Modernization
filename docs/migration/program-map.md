@@ -15,7 +15,7 @@ integration agent; tickets must not edit it). The *public service API* column is
 | `ACCOUNT.cpy` / `ACCDB2.cpy` EXEC SQL on ACCOUNT | `common.domain.Account`, `common.repository.AccountRepository` (`findByKey`, `findByCustomer`, `countByCustomer`, `findAll`, `count`, `maxAccountNumber`, `insert`, `updateTypeRateOverdraft`, `updateBalances`, `delete`) |
 | `PROCTRAN.cpy` / `PROCDB2.cpy` / `PROCISRT.cpy`, every `WRITE-PROCTRAN-DB2` paragraph | `common.domain.ProcessedTransaction`, `common.domain.ProctranType`, `common.repository.ProctranRepository`, `common.proctran.ProctranWriter` (`debitCredit`, `transfer`, `createCustomer`, `deleteCustomer`, `createAccount`, `deleteAccount`, generic `write`) |
 | `CONTDB2.cpy` / `CONTROLI.cpy` / CONTROL table | `common.domain.ControlRecord`, `common.repository.ControlRepository` |
-| NCS `CBSACUST`/`CBSAACCT` + ENQ/DEQ, `NEWCUSNO.cpy`/`NEWACCNO.cpy` (G/R/C) | `common.counter.CounterService` (`nextCustomerNumber`, `nextAccountNumber`, `current*`, `rollback*`) |
+| NCS `CBSACUST`/`CBSAACCT` + ENQ/DEQ, `NEWCUSNO.cpy`/`NEWACCNO.cpy` (G/C; R = transaction rollback) | `common.counter.CounterService` (`nextCustomerNumber`, `nextAccountNumber`, `current*`; atomic row-locked increment, rolled back with the caller's transaction) |
 | `EIBTASKN` (PROCTRAN_REF) | `common.proctran.TaskNumberSupplier` |
 | `EXEC CICS ASKTIME/FORMATTIME`, DB2 `CURRENT TIMESTAMP` | `java.time.Clock` bean (`common.config.ClockConfig`, property `cbsa.clock.fixed`) |
 | `FUNCTION RANDOM` | `common.config.CbsaRandom` / `CbsaRandomFactory` (property `cbsa.random.seed`) |

@@ -38,14 +38,14 @@ public class CustomerRepository {
     /** Case-insensitive substring match on CUSTOMER_NAME, ordered by customer number. */
     public List<Customer> findByNameContaining(String sortCode, String namePart, int limit, int offset) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM CUSTOMER WHERE CUSTOMER_SORTCODE = ? "
-                        + "AND UPPER(CUSTOMER_NAME) LIKE ? ORDER BY CUSTOMER_NUMBER LIMIT ? OFFSET ?")
+                        + "AND UPPER(CUSTOMER_NAME) LIKE ? ESCAPE '!' ORDER BY CUSTOMER_NUMBER LIMIT ? OFFSET ?")
                 .params(sortCode, likePattern(namePart), limit, offset)
                 .query(CustomerRepository::map)
                 .list();
     }
 
     public long countByNameContaining(String sortCode, String namePart) {
-        return jdbc.sql("SELECT COUNT(*) FROM CUSTOMER WHERE CUSTOMER_SORTCODE = ? AND UPPER(CUSTOMER_NAME) LIKE ?")
+        return jdbc.sql("SELECT COUNT(*) FROM CUSTOMER WHERE CUSTOMER_SORTCODE = ? AND UPPER(CUSTOMER_NAME) LIKE ? ESCAPE '!'")
                 .params(sortCode, likePattern(namePart))
                 .query(Long.class)
                 .single();
@@ -96,7 +96,7 @@ public class CustomerRepository {
 
     private static String likePattern(String namePart) {
         String p = namePart == null ? "" : namePart.trim().toUpperCase();
-        return "%" + p.replace("%", "").replace("_", "") + "%";
+        return "%" + p.replace("!", "!!").replace("%", "!%").replace("_", "!_") + "%";
     }
 
     static Date toSql(LocalDate d) {

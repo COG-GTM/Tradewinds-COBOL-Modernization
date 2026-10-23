@@ -9,11 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Named-counter equivalent (CICS NCS 'CBSACUST'/'CBSAACCT' + ENQ/DEQ, NEWCUSNO/NEWACCNO 'G'/'R'/'C').
+ * Named-counter equivalent (CICS NCS 'CBSACUST'/'CBSAACCT' + ENQ/DEQ, NEWCUSNO/NEWACCNO 'G'/'C').
  * Backed by CONTROL rows {@code <sortcode>-CUSTOMER-LAST/-COUNT} and {@code <sortcode>-ACCOUNT-LAST/-COUNT}
- * (the ACCOUNT names are the legacy CREACC/BANKDATA ones). Missing rows fall back to MAX(number).
- * Callers should invoke these inside their own @Transactional business method so that a failed
- * insert rolls the counter back too (the legacy 'R' function).
+ * (the ACCOUNT names are the legacy CREACC/BANKDATA ones); a missing row is initialised from MAX(number)/COUNT(*).
+ *
+ * <p>Allocation is an atomic {@code UPDATE ... SET n = n + 1} whose row lock lasts until the enclosing
+ * transaction ends (this replaces the ENQ/DEQ). Call {@code next*} from inside the business method's own
+ * {@code @Transactional} so that a failed insert rolls the counter back with it; that replaces the legacy
+ * NEWCUSNO/NEWACCNO 'R' function, so there is deliberately no explicit decrement API.
  */
 @Service
 public class CounterService {
@@ -38,16 +41,18 @@ public class CounterService {
 
     /** NEWCUSNO 'G': allocate the next customer number and bump the customer count. */
     @Transactional
-    public synchronized long nextCustomerNumber() {
-        return next(sortCode + CUSTOMER_LAST, sortCode + CUSTOMER_COUNT,
-                () -> customers.maxCustomerNumber(sortCode), () -> customers.count(sortCode));
+    public long nextCustomerNumber() {
+        long next = control.addAndGet(sortCode + CUSTOMER_LAST, 1, () -> customers.maxCustomerNumber(sortCode));
+        control.addAndGet(sortCode + CUSTOMER_COUNT, 1, () -> customers.count(sortCode));
+        return next;
     }
 
     /** NEWACCNO 'G': allocate the next account number and bump the account count. */
     @Transactional
-    public synchronized long nextAccountNumber() {
-        return next(sortCode + ACCOUNT_LAST, sortCode + ACCOUNT_COUNT,
-                () -> accounts.maxAccountNumber(sortCode), () -> accounts.count(sortCode));
+    public long nextAccountNumber() {
+        long next = control.addAndGet(sortCode + ACCOUNT_LAST, 1, () -> accounts.maxAccountNumber(sortCode));
+        control.addAndGet(sortCode + ACCOUNT_COUNT, 1, () -> accounts.count(sortCode));
+        return next;
     }
 
     /** NEWCUSNO 'C': last customer number allocated. */
@@ -60,34 +65,8 @@ public class CounterService {
         return current(sortCode + ACCOUNT_LAST, () -> accounts.maxAccountNumber(sortCode));
     }
 
-    /** NEWCUSNO 'R': give back the last customer number (legacy rollback on failed write). */
-    @Transactional
-    public synchronized void rollbackCustomerNumber() {
-        rollback(sortCode + CUSTOMER_LAST, sortCode + CUSTOMER_COUNT);
-    }
-
-    /** NEWACCNO 'R': give back the last account number. */
-    @Transactional
-    public synchronized void rollbackAccountNumber() {
-        rollback(sortCode + ACCOUNT_LAST, sortCode + ACCOUNT_COUNT);
-    }
-
-    private long next(String lastName, String countName, LongSupplier lastFallback, LongSupplier countFallback) {
-        long last = current(lastName, lastFallback) + 1;
-        long count = control.find(countName).map(r -> r.valueNum() == null ? 0L : r.valueNum())
-                .orElseGet(countFallback::getAsLong) + 1;
-        control.upsertNum(lastName, last);
-        control.upsertNum(countName, count);
-        return last;
-    }
-
     private long current(String lastName, LongSupplier fallback) {
         return control.find(lastName).map(r -> r.valueNum() == null ? 0L : r.valueNum())
                 .orElseGet(fallback::getAsLong);
-    }
-
-    private void rollback(String lastName, String countName) {
-        control.find(lastName).ifPresent(r -> control.upsertNum(lastName, Math.max(0, r.valueNum() - 1)));
-        control.find(countName).ifPresent(r -> control.upsertNum(countName, Math.max(0, r.valueNum() - 1)));
     }
 }

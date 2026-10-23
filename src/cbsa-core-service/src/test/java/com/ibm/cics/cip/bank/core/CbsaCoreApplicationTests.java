@@ -10,7 +10,12 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -87,6 +92,21 @@ class CbsaCoreApplicationTests {
         long second = counters.nextAccountNumber();
         assertThat(second).isEqualTo(first + 1);
         assertThat(counters.currentAccountNumber()).isEqualTo(second);
+    }
+
+    @Test
+    void concurrentAllocationsNeverReuseANumber() throws Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(8);
+        try {
+            List<Callable<Long>> calls = java.util.Collections.nCopies(40, counters::nextCustomerNumber);
+            List<Long> numbers = new java.util.ArrayList<>();
+            for (Future<Long> f : pool.invokeAll(calls)) {
+                numbers.add(f.get());
+            }
+            assertThat(numbers).doesNotHaveDuplicates().hasSize(40);
+        } finally {
+            pool.shutdown();
+        }
     }
 
     @Test
