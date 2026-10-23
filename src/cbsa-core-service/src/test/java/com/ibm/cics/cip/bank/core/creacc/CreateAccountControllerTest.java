@@ -70,6 +70,22 @@ class CreateAccountControllerTest {
     }
 
     @Test
+    void optionalOpeningBalancesAreWrittenAsCreaccDoes() throws Exception {
+        postJson("""
+                {"customerNumber":"9","accountType":"LOAN","interestRate":"3","overdraft":"0","sortCode":"987654",
+                 "availableBalance":-5000,"actualBalance":"-5000.00"}""")
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.availableBalance").value(-5000))
+                .andExpect(jsonPath("$.actualBalance").value(-5000));
+        Map<String, Object> row = jdbc.queryForMap(
+                "SELECT * FROM ACCOUNT WHERE ACCOUNT_SORTCODE='987654' AND ACCOUNT_NUMBER='00000077'");
+        assertThat(new java.math.BigDecimal(row.get("ACCOUNT_AVAILABLE_BALANCE").toString()))
+                .isEqualByComparingTo("-5000");
+        assertThat(new java.math.BigDecimal(row.get("ACCOUNT_ACTUAL_BALANCE").toString()))
+                .isEqualByComparingTo("-5000");
+    }
+
+    @Test
     void numericJsonValuesAndPaddedTypeAccepted() throws Exception {
         postJson(body("9", "\" LOAN \"", "0", "0", "987654"))
                 .andExpect(status().isCreated())

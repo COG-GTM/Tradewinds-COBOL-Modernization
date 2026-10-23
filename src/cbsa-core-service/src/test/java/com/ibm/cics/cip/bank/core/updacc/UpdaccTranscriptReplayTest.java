@@ -119,7 +119,7 @@ class UpdaccTranscriptReplayTest {
         long accno = in.path("COMM-ACCNO").asLong();
         String type = in.path("COMM-ACC-TYPE").asText();
         boolean legacyOk = "Y".equals(out.path("COMM-SUCCESS").asText());
-        boolean typeSupported = UpdateAccountController.VALID_ACCOUNT_TYPES.contains(type.trim());
+        boolean typeSupported = !type.isBlank() && type.charAt(0) != ' ';
 
         ObjectNode body = JSON.createObjectNode();
         body.put("id", CbsaFormats.accountNumber(accno));
