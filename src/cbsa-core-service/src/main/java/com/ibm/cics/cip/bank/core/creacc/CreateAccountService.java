@@ -8,6 +8,7 @@ import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
 import com.ibm.cics.cip.bank.core.common.error.CbsaException;
 import com.ibm.cics.cip.bank.core.common.proctran.ProctranWriter;
 import com.ibm.cics.cip.bank.core.common.repository.AccountRepository;
+import com.ibm.cics.cip.bank.core.common.repository.CustomerRepository;
 import com.ibm.cics.cip.bank.core.common.util.CbsaFormats;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -37,14 +38,14 @@ public class CreateAccountService {
     /** COMM-ACC-TYPE PIC X(8). */
     static final int ACCOUNT_TYPE_WIDTH = 8;
 
-    private final CustomerLock customers;
+    private final CustomerRepository customers;
     private final AccountRepository accounts;
     private final CounterService counters;
     private final ProctranWriter proctran;
     private final BankIdentity bank;
     private final Clock clock;
 
-    public CreateAccountService(CustomerLock customers, AccountRepository accounts, CounterService counters,
+    public CreateAccountService(CustomerRepository customers, AccountRepository accounts, CounterService counters,
             ProctranWriter proctran, BankIdentity bank, Clock clock) {
         this.customers = customers;
         this.accounts = accounts;
@@ -113,7 +114,7 @@ public class CreateAccountService {
      */
     private boolean customerExists(String sortCode, long customerNumber) {
         try {
-            return customers.lockIfExists(sortCode, customerNumber);
+            return customers.findByKeyForUpdate(sortCode, customerNumber).isPresent();
         } catch (DataAccessException e) {
             throw CbsaException.notFound("Customer number " + customerNumber + " cannot be found.", "1");
         }

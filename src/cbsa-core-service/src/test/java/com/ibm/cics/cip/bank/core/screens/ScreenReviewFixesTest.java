@@ -10,7 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.ibm.cics.cip.bank.core.common.bank.BankIdentity;
 import com.ibm.cics.cip.bank.core.common.error.CbsaAbendException;
+import com.ibm.cics.cip.bank.core.common.repository.AccountRepository;
+import com.ibm.cics.cip.bank.core.common.repository.CustomerRepository;
+import com.ibm.cics.cip.bank.core.screens.port.AccountScreenPort;
+import com.ibm.cics.cip.bank.core.screens.port.CustomerScreenPort;
+import com.ibm.cics.cip.bank.core.screens.port.PaymentScreenPort;
+import com.ibm.cics.cip.bank.core.screens.port.ScreenPorts;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
 
 @SpringBootTest(properties = {"cbsa.clock.fixed=2026-01-15T10:30:00Z", "cbsa.random.seed=42"})
 class ScreenReviewFixesTest {
@@ -18,7 +26,11 @@ class ScreenReviewFixesTest {
     @Autowired
     DisplayAccountScreen dac;
     @Autowired
-    CreateAccountScreen cac;
+    CustomerRepository customers;
+    @Autowired
+    AccountRepository accountRepository;
+    @Autowired
+    BankIdentity bank;
     @Autowired
     JdbcTemplate jdbc;
 
@@ -43,6 +55,10 @@ class ScreenReviewFixesTest {
 
     @Test
     void unwiredServiceAbendPropagatesInsteadOfBecomingAFailMessage() {
+        StaticListableBeanFactory none = new StaticListableBeanFactory();
+        CreateAccountScreen cac = new CreateAccountScreen(new ScreenPorts(none.getBeanProvider(CustomerScreenPort.class),
+                none.getBeanProvider(AccountScreenPort.class), none.getBeanProvider(PaymentScreenPort.class), customers,
+                accountRepository, bank));
         Map<String, String> ok = Map.of("CUSTNO", "0000000019", "ACCTYP", "SAVING  ", "INTRT", "1.25", "OVERDR", "0");
         assertThatThrownBy(() -> cac.handle(new ScreenInput(AidKey.ENTER, ok, Map.of())))
                 .isInstanceOf(CbsaAbendException.class)

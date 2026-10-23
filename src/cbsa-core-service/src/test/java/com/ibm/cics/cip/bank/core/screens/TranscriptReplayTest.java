@@ -18,15 +18,22 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ibm.cics.cip.bank.core.common.proctran.TaskNumberSupplier;
+import com.ibm.cics.cip.bank.core.common.seed.SeedDataLoader;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Replays every baseline/transcripts/&lt;PROGRAM&gt;/*.json case of the T-12 terminal programs against the Java
- * screen layer (canonical seed, fixed clock and random seed) and compares the terminal trace and the DB delta.
+ * screen layer (canonical seed, fixed clock and random seed) and compares the terminal trace and the full DB delta (inserted / updated / deleted rows, PROCTRAN_REF excluded).
  * RETURN_COMMAREA is not compared: the Java layer keeps a symbolic COMMAREA instead of the raw byte image.
+ * As in the legacy harness every case starts from a freshly loaded seed with EIBTASKN = {@code CBSA_TASKN}.
  */
 @SpringBootTest(properties = {"cbsa.clock.fixed=2026-01-15T10:30:00Z", "cbsa.random.seed=42"})
 class TranscriptReplayTest {
@@ -40,15 +47,39 @@ class TranscriptReplayTest {
      * Cases that cannot match yet, with the root cause. They are reported as skipped (never as passed).
      */
     static final Map<String, String> KNOWN_DEVIATIONS = Map.of(
-            "BNK1CAC/create-ok", "needs the CREACC service (T-06), not yet on devin/java21-cbsa-core",
-            "BNK1CCS/create-ok", "needs the CRECUST + CRDTAGY service (T-01), not yet on devin/java21-cbsa-core",
-            "BNK1CRA/credit", "needs the DBCRFUN service (T-09), not yet on devin/java21-cbsa-core",
-            "BNK1CRA/debit-insufficient", "needs the DBCRFUN service (T-09), not yet on devin/java21-cbsa-core",
-            "BNK1TFN/transfer-ok", "needs the XFRFUN service (T-10), not yet on devin/java21-cbsa-core",
-            "BNK1DCS/lookup-non-numeric", "DEEDIT('ABC') = 0000000000, which INQCUST (T-02) resolves to a seeded random"
-                    + " customer; the repository fallback has no random-customer lookup");
+            "BNK1DCS/lookup-non-numeric", "DEEDIT('ABC') = 0000000000 -> INQCUST random customer: same documented "
+                    + "deviation as INQCUST/random-seed-*.json (InquireCustomerTranscriptReplayTest); the legacy "
+                    + "GENERATE-RANDOM-CUSTOMER uses NCS-CUST-NO-VALUE before it is set and always lands on customer 1");
 
     static final ObjectMapper JSON = new ObjectMapper();
+
+    /** EIBTASKN that the legacy harness sets per case ({@code env.CBSA_TASKN}). */
+    static class ResettableTaskNumbers extends TaskNumberSupplier {
+        private final AtomicLong next = new AtomicLong(1);
+
+        void reset(long taskNumber) {
+            next.set(taskNumber);
+        }
+
+        @Override
+        public long nextTaskNumber() {
+            return next.getAndIncrement();
+        }
+    }
+
+    @TestConfiguration
+    static class TaskNumbers {
+        @Bean
+        @Primary
+        ResettableTaskNumbers resettableTaskNumbers() {
+            return new ResettableTaskNumbers();
+        }
+    }
+
+    @Autowired
+    ResettableTaskNumbers taskNumbers;
+    @Autowired
+    SeedDataLoader seed;
 
     @Autowired
     MenuRouter menu;
@@ -150,28 +181,18 @@ class TranscriptReplayTest {
         return raw;
     }
 
-    Map<String, List<String>> snapshot() {
-        Map<String, List<String>> s = new LinkedHashMap<>();
-        for (String t : TABLES) {
-            List<String> rows = new ArrayList<>();
-            jdbc.queryForList("SELECT * FROM " + t).forEach(r -> {
-                Map<String, Object> copy = new java.util.TreeMap<>(r);
-                copy.remove("PROCTRAN_REF");
-                rows.add(copy.toString());
-            });
-            rows.sort(null);
-            s.put(t, rows);
-        }
-        return s;
-    }
-
     @ParameterizedTest(name = "{0}")
     @MethodSource("cases")
     void replay(Path file) throws IOException {
         String id = caseId(file);
         Assumptions.assumeFalse(KNOWN_DEVIATIONS.containsKey(id), () -> id + ": " + KNOWN_DEVIATIONS.get(id));
         JsonNode t = JSON.readTree(file.toFile());
-        Map<String, List<String>> before = snapshot();
+        for (String table : TABLES) {
+            jdbc.update("DELETE FROM " + table);
+        }
+        seed.afterPropertiesSet();
+        taskNumbers.reset(t.path("env").path("CBSA_TASKN").asLong(1));
+        Map<String, List<Map<String, String>>> before = DbDelta.snapshot(jdbc);
 
         ScreenOutput out = handler(t.get("program").asText()).apply(input(t.get("commarea_in")));
 
@@ -180,14 +201,8 @@ class TranscriptReplayTest {
         assertThat(actual.events()).as(id + " events").isEqualTo(expected.events());
         assertThat(actual.fields()).as(id + " fields").isEqualTo(expected.fields());
 
-        Map<String, List<String>> after = snapshot();
-        for (String table : TABLES) {
-            JsonNode d = t.path("db_delta").path(table);
-            int changes = d.path("inserted").size() + d.path("updated").size() + d.path("deleted").size();
-            if (changes == 0) {
-                assertThat(after.get(table)).as(id + " " + table + " unchanged").isEqualTo(before.get(table));
-            }
-        }
+        assertThat(DbDelta.diff(before, DbDelta.snapshot(jdbc))).as(id + " db_delta")
+                .isEqualTo(DbDelta.expected(t.path("db_delta")));
         assertThat(t.get("abend").isNull()).as(id + " no abend expected").isTrue();
     }
 }

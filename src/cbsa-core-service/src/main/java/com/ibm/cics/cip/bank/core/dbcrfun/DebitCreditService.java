@@ -45,14 +45,12 @@ public class DebitCreditService {
     private static final String PROGRAM = "DBCRFUN";
 
     private final AccountRepository accounts;
-    private final AccountRowLock rowLock;
     private final ProctranWriter proctran;
     private final BankIdentity bank;
 
-    public DebitCreditService(AccountRepository accounts, AccountRowLock rowLock, ProctranWriter proctran,
+    public DebitCreditService(AccountRepository accounts, ProctranWriter proctran,
             BankIdentity bank) {
         this.accounts = accounts;
-        this.rowLock = rowLock;
         this.proctran = proctran;
         this.bank = bank;
     }
@@ -112,10 +110,7 @@ public class DebitCreditService {
     /** UAD010 {@code SELECT ... FROM ACCOUNT}, under a row lock held to the end of the transaction. */
     private Optional<Account> readAccount(String sortCode, long accountNumber) {
         try {
-            if (!rowLock.lock(sortCode, accountNumber)) {
-                return Optional.empty();
-            }
-            return accounts.findByKey(sortCode, accountNumber);
+            return accounts.findByKeyForUpdate(sortCode, accountNumber);
         } catch (DataAccessException e) {
             throw dataStoreFailure(e, accountNumber);
         }

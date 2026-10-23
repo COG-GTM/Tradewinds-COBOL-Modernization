@@ -35,6 +35,15 @@ public class AccountRepository {
                 .optional();
     }
 
+    /** {@code SELECT ... FOR UPDATE}: reads and row-locks the account until the caller's transaction ends. */
+    public Optional<Account> findByKeyForUpdate(String sortCode, long accountNumber) {
+        return jdbc.sql("SELECT " + COLUMNS + " FROM ACCOUNT WHERE ACCOUNT_SORTCODE = ? AND ACCOUNT_NUMBER = ?"
+                        + " FOR UPDATE")
+                .params(sortCode, CbsaFormats.accountNumber(accountNumber))
+                .query(AccountRepository::map)
+                .optional();
+    }
+
     /** INQACCCU cursor: accounts of a customer ordered by account number. */
     public List<Account> findByCustomer(String sortCode, long customerNumber) {
         return jdbc.sql("SELECT " + COLUMNS + " FROM ACCOUNT WHERE ACCOUNT_SORTCODE = ? "
