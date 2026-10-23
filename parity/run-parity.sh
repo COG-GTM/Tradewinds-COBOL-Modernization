@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
-# Legacy (GnuCOBOL 3.1.2 + C/SQLite stub harness) vs migrated (Java 21 / Spring Boot 3 / H2) parity, round 2 (round-1 results kept in parity/results/round1/ for the delta table).
+# Legacy (GnuCOBOL 3.1.2 + C/SQLite stub harness) vs migrated (Java 21 / Spring Boot 3) parity, round 3 (final).
+# The migrated side runs twice: H2 (default profile) and PostgreSQL (profile postgres). Rounds 1 and 2 are kept in
+# parity/results/round{1,2}/ for the round-by-round history.
 # Usage: parity/run-parity.sh            (writes parity/results/*.json and parity/report/parity-report.html)
 #        SKIP_MVN=1 parity/run-parity.sh (reuse target/ + surefire reports from a previous mvn verify)
+# Postgres: PARITY_PG_URL (default jdbc:postgresql://localhost:5432/cbsa), PARITY_PG_USER / PARITY_PG_PASSWORD (default
+# cbsa / cbsa), e.g. docker run -d -e POSTGRES_DB=cbsa -e POSTGRES_USER=cbsa -e POSTGRES_PASSWORD=cbsa -p 5432:5432 postgres:16.
+# The Postgres run is mandatory; SKIP_PG=1 skips it and the report then says so.
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(dirname "$HERE")"
@@ -13,6 +18,7 @@ mkdir -p "$RES" "$HERE/report" "$HERE/build"
 
 echo "== 1. legacy build + baseline replay (legacy/run-all.sh)"
 "$ROOT/legacy/build.sh" > "$HERE/build/legacy-build.log" 2>&1
+"$ROOT/legacy/run-all.sh" > "$HERE/build/legacy-run-all.log" 2>&1 || { tail -20 "$HERE/build/legacy-run-all.log"; exit 1; }
 python3 - "$ROOT" "$RES/legacy-replay-all.json" <<'PY'
 import glob, json, os, sys
 root, out = sys.argv[1], sys.argv[2]
@@ -45,50 +51,34 @@ json.dump({'tool': 'mvn -B verify (surefire)', 'classes': len(rows), 'totals': t
 print(len(rows), 'classes', tot)
 PY
 
-echo "== 3. React tests (src/bank-application-frontend; installs deps with corepack yarn if missing)"
+echo "== 3. React unit tests + production build (src/bank-application-frontend)"
 FE="$ROOT/src/bank-application-frontend"
-if [ ! -d "$FE/node_modules/react-scripts" ]; then
-  (cd "$FE" && corepack yarn install) > "$HERE/build/react-install.log" 2>&1 || true
-fi
-if [ -d "$FE/node_modules/react-scripts" ]; then
-  set +e
-  # attempt A: the suite exactly as committed
-  (cd "$FE" && CI=true timeout 600 npx react-scripts test --watchAll=false) > "$HERE/build/react-test.log" 2>&1
-  rc=$?
-  # attempt B: same suite plus a parity-only Jest setup file providing TextEncoder/TextDecoder/streams
-  (cd "$FE" && CI=true timeout 600 npx react-scripts test --watchAll=false --setupFiles "$HERE/tools/react-jest-polyfill.js") \
-    > "$HERE/build/react-test-polyfill.log" 2>&1
-  rc_b=$?
-  set -e
-else
-  echo "node_modules missing and corepack yarn install failed (see build/react-install.log)" > "$HERE/build/react-test.log"; rc=127
-  cp "$HERE/build/react-test.log" "$HERE/build/react-test-polyfill.log"; rc_b=127
-fi
-python3 - "$FE" "$HERE/build/react-test.log" "$rc" "$HERE/build/react-test-polyfill.log" "$rc_b" "$RES/tests-react.json" <<'PY'
+(cd "$FE" && corepack yarn install) > "$HERE/build/react-install.log" 2>&1 || { tail -20 "$HERE/build/react-install.log"; exit 1; }
+set +e
+(cd "$FE" && CI=true timeout 600 corepack yarn test --watchAll=false) > "$HERE/build/react-test.log" 2>&1
+rc=$?
+(cd "$FE" && GENERATE_SOURCEMAP=false timeout 900 corepack yarn build) > "$HERE/build/react-build.log" 2>&1
+rc_build=$?
+set -e
+python3 - "$FE" "$ROOT/src/cbsa-core-service/src/main/resources/static" "$HERE/build/react-test.log" "$rc" "$HERE/build/react-build.log" "$rc_build" "$RES/tests-react.json" <<'PY'
 import glob, json, os, re, sys
-fe, log, rc, logb, rcb, out = sys.argv[1], open(sys.argv[2]).read(), int(sys.argv[3]), open(sys.argv[4]).read(), int(sys.argv[5]), sys.argv[6]
-def g(pat, text):
-    m = re.search(pat, text)
-    return m.group(1).strip() if m else None
-# static check of what the committed test files import (relative imports must resolve, packages must be installed)
-imports = []
-for t in sorted(glob.glob(fe + '/src/**/*.test.js', recursive=True)):
-    for mod in re.findall(r"from '([^']+)'", open(t).read()):
-        if mod.startswith('.'):
-            base = os.path.normpath(os.path.join(os.path.dirname(t), mod))
-            ok = any(os.path.exists(base + e) for e in ('', '.js', '.jsx', '/index.js'))
-        else:
-            parts = mod.split('/')
-            ok = os.path.isdir(os.path.join(fe, 'node_modules', *parts[:2 if mod.startswith('@') else 1]))
-        imports.append({'test': os.path.relpath(t, fe), 'import': mod, 'resolves': ok})
-json.dump({'command': 'CI=true npx react-scripts test --watchAll=false', 'exit_code': rc,
+fe, static, log, rc, blog, rcb, out = sys.argv[1], sys.argv[2], open(sys.argv[3]).read(), int(sys.argv[4]), open(sys.argv[5]).read(), int(sys.argv[6]), sys.argv[7]
+g = lambda pat, text: (re.search(pat, text).group(1).strip() if re.search(pat, text) else None)
+num = lambda pat: int(g(pat, log) or 0)
+built = sorted(os.path.basename(p) for p in glob.glob(fe + '/build/static/js/main.*.js'))
+served = sorted(os.path.basename(p) for p in glob.glob(static + '/static/js/main.*.js'))
+json.dump({'command': 'CI=true corepack yarn test --watchAll=false', 'exit_code': rc,
            'suites': g(r'Test Suites:\s*(.*)', log), 'tests': g(r'Tests:\s*(.*)', log),
-           'first_error': g(r'(\w*Error: .*)', log) or g(r'(Cannot find module .*)', log),
-           'polyfill_attempt': {'command': 'same + --setupFiles parity/tools/react-jest-polyfill.js', 'exit_code': rcb,
-                                'suites': g(r'Test Suites:\s*(.*)', logb), 'tests': g(r'Tests:\s*(.*)', logb),
-                                'first_error': g(r'(Cannot find module .*)', logb) or g(r'(\w*Error: .*)', logb)},
-           'test_file_imports': imports, 'log_tail': log[-3000:]}, open(out, 'w'), indent=1)
-print('react exit', rc, g(r'Tests:\s*(.*)', log), '| polyfill exit', rcb, g(r'(Cannot find module .*)', logb))
+           'tests_passed': num(r'Tests:.*?(\d+) passed'), 'tests_failed': num(r'Tests:.*?(\d+) failed'),
+           'tests_total': num(r'Tests:.*?(\d+) total'), 'suites_total': num(r'Test Suites:.*?(\d+) total'),
+           'test_files': sorted(os.path.relpath(p, fe) for p in glob.glob(fe + '/src/**/*.test.js', recursive=True)),
+           'build': {'command': 'GENERATE_SOURCEMAP=false corepack yarn build', 'exit_code': rcb, 'bundle': built,
+                     'served_by_core_service': served, 'bundle_matches_served': bool(built) and built == served},
+           'log_tail': log[-3000:]}, open(out, 'w'), indent=1)
+print('react tests exit', rc, g(r'Tests:\s*(.*)', log), '| build exit', rcb, built, 'served', served)
+if rcb == 0 and not (built and built == served):
+    print('built bundle %s != bundle served by cbsa-core-service %s: browser checks would exercise a stale UI' % (built, served))
+sys.exit(0 if rc == 0 and rcb == 0 and built and built == served else 1)
 PY
 
 echo "== 4. side-by-side flow parity (parity/tools/parity.py)"
@@ -97,12 +87,35 @@ CP_FILE="$HERE/build/classpath.txt"
 CP="$HERE/build/classes:$SVC/target/classes:$(cat "$CP_FILE")"
 mkdir -p "$HERE/build/classes"
 javac -proc:none -d "$HERE/build/classes" -cp "$CP" "$HERE/tools/ScreenParity.java" "$HERE/tools/ParityServer.java"
-python3 "$HERE/tools/parity.py" "$CP" | tee "$HERE/build/parity.log" | sed '/ MATCH$/d'
-
-echo "== 4b. React UI in Chromium against the migrated service (parity/tools/react_ui_smoke.py)"
 python3 -c "from playwright.sync_api import sync_playwright" 2>/dev/null || pip install -q playwright
 python3 -m playwright install chromium-headless-shell > "$HERE/build/playwright-install.log" 2>&1 || python3 -m playwright install chromium >> "$HERE/build/playwright-install.log" 2>&1
-python3 "$HERE/tools/react_ui_smoke.py" "$CP" | tee "$HERE/build/react-ui.log"
+DBS="h2"
+[ -z "${SKIP_PG:-}" ] && DBS="h2 postgres"
+rm -f "$RES/flows-postgres.json" "$RES/react-ui-postgres.json"
+for db in $DBS; do
+  echo "-- 4.$db flows: legacy vs migrated on $db"
+  PARITY_DB=$db python3 "$HERE/tools/parity.py" "$CP" | tee "$HERE/build/parity-$db.log" | sed '/ MATCH$/d'
+  echo "-- 4b.$db React UI in Chromium against the migrated service on $db (parity/tools/react_ui_smoke.py)"
+  PARITY_DB=$db python3 "$HERE/tools/react_ui_smoke.py" "$CP" | tee "$HERE/build/react-ui-$db.log"
+done
+cp "$HERE/build/parity-h2.log" "$HERE/build/parity.log"
+rm -f "$RES/tests-postgres-it.json"
+if [ -z "${SKIP_PG:-}" ]; then
+  echo "-- 4c. opt-in PostgreSQL integration test (PostgresProfileMainFlowsTest, CBSA_PG_IT_URL)"
+  PGURL="${PARITY_PG_URL:-jdbc:postgresql://localhost:5432/cbsa}"
+  PGPASSWORD="${PARITY_PG_PASSWORD:-cbsa}" python3 -c "import sys;sys.path.insert(0,'$HERE/tools');import os;os.environ['PARITY_DB']='postgres';import parity;parity.pg_recreate_schema('cbsa_it')"
+  (cd "$SVC" && CBSA_PG_IT_URL="$PGURL" CBSA_PG_IT_USER="${PARITY_PG_USER:-cbsa}" CBSA_PG_IT_PASSWORD="${PARITY_PG_PASSWORD:-cbsa}" \
+     CBSA_PG_IT_SCHEMA=cbsa_it mvn -B -q test -Dtest=PostgresProfileMainFlowsTest -Dsurefire.failIfNoSpecifiedTests=false) \
+     > "$HERE/build/pg-it.log" 2>&1 || { tail -40 "$HERE/build/pg-it.log"; exit 1; }
+  python3 - "$SVC" "$RES/tests-postgres-it.json" <<'PY'
+import glob, json, sys, xml.etree.ElementTree as ET
+r = ET.parse(glob.glob(sys.argv[1] + '/target/surefire-reports/TEST-*PostgresProfileMainFlowsTest.xml')[0]).getroot()
+d = {'class': r.get('name'), **{k: int(r.get(k)) for k in ('tests', 'failures', 'errors', 'skipped')},
+     'cases': [c.get('name') for c in r.iter('testcase')]}
+json.dump(d, open(sys.argv[2], 'w'), indent=1)
+print(d)
+PY
+fi
 
 echo "== 5. evidence + report"
 python3 "$HERE/tools/report.py"

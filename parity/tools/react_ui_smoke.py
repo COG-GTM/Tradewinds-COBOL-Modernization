@@ -2,7 +2,7 @@
 """React UI end-to-end check: the unmodified Carbon React build (served by cbsa-core-service from static/) is driven in
 headless Chromium against the migrated service; every value the UI renders is compared with the same record in the
 legacy harness's seeded database (the data the legacy Liberty UI would render). Screenshots are kept for the report.
-Usage: react_ui_smoke.py <java classpath incl. parity/build/classes>"""
+Usage: [PARITY_DB=postgres] react_ui_smoke.py <java classpath incl. parity/build/classes>"""
 import base64, json, os, sqlite3, subprocess, sys, tempfile, time, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -10,6 +10,8 @@ PARITY = os.path.dirname(HERE)
 ROOT = os.path.dirname(PARITY)
 sys.path.insert(0, os.path.join(ROOT, 'legacy', 'tools'))
 import harness  # noqa: E402
+sys.path.insert(0, HERE)
+import parity  # noqa: E402  (PARITY_DB=h2|postgres selects the migrated database, as for parity.py)
 
 PORT = int(os.environ.get("PARITY_UI_PORT", "18190"))
 BASE = 'http://127.0.0.1:%d/webui-1.0/' % PORT
@@ -54,11 +56,10 @@ def compare(expected, cells):
 
 def main():
     cp = sys.argv[1]
-    log = open(os.path.join(PARITY, 'build', 'react-ui-server.log'), 'w')
+    log = open(os.path.join(PARITY, 'build', 'react-ui-server-%s.log' % parity.DB), 'w')
     proc = subprocess.Popen([JAVA, '-cp', cp, 'ParityServer', '--server.address=127.0.0.1', '--server.port=%d' % PORT,
                              '--cbsa.clock.fixed=' + harness.DEFAULT_ENV['CBSA_FIXED_TIME'], '--cbsa.random.seed=42',
-                             '--cbsa.seed.location=file:../../baseline/seed/seed.sql',
-                             '--spring.datasource.url=jdbc:h2:mem:parityui;MODE=PostgreSQL;DB_CLOSE_DELAY=-1'],
+                             '--cbsa.seed.location=file:../../baseline/seed/seed.sql'] + parity.db_args('parityui'),
                             cwd=os.path.join(ROOT, 'src', 'cbsa-core-service'), stdout=log, stderr=subprocess.STDOUT)
     results, shots = [], []
     try:
@@ -171,9 +172,9 @@ def main():
                         'fields': [], 'api_calls': []})
     finally:
         proc.terminate()
-    json.dump({'base': '/webui-1.0/ (static React build in cbsa-core-service, served by the migrated service)',
+    json.dump({'db': parity.DB, 'base': '/webui-1.0/ (static React build in cbsa-core-service, served by the migrated service)',
                'browser': 'Chromium headless (Playwright)', 'results': results, 'screenshots': shots},
-              open(os.path.join(PARITY, 'results', 'react-ui.json'), 'w'), indent=1)
+              open(os.path.join(PARITY, 'results', 'react-ui.json' if parity.DB == 'h2' else 'react-ui-%s.json' % parity.DB), 'w'), indent=1)
     for r in results:
         print('%-48s %s' % (r['id'], r['status']))
 

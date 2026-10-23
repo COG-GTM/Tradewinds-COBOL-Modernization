@@ -1,0 +1,546 @@
+{
+ "round": "3",
+ "generated": "2026-10-23T06:35:51Z",
+ "head": "a393eb789df3ad764d78f5fee10a9b6c90993fa0",
+ "databases": [
+  "h2",
+  "postgres"
+ ],
+ "postgres_server_version": "16.15 (Debian 16.15-1.pgdg13+2)",
+ "flows_total": 125,
+ "flows_comparable": 125,
+ "flows_matching": 125,
+ "flows_not_comparable": 0,
+ "by_kind": {
+  "transcript-link": {
+   "MATCH": 76
+  },
+  "api-variant": {
+   "MATCH": 5
+  },
+  "user-flow": {
+   "MATCH": 6
+  },
+  "api-crosscheck": {
+   "MATCH": 7
+  },
+  "transcript-terminal": {
+   "MATCH": 31
+  }
+ },
+ "execution_errors": [],
+ "per_database": {
+  "h2": {
+   "flows_total": 125,
+   "flows_comparable": 125,
+   "flows_matching": 125,
+   "flows_not_comparable": 0,
+   "execution_errors": [],
+   "by_kind": {
+    "transcript-link": {
+     "MATCH": 76
+    },
+    "api-variant": {
+     "MATCH": 5
+    },
+    "user-flow": {
+     "MATCH": 6
+    },
+    "api-crosscheck": {
+     "MATCH": 7
+    },
+    "transcript-terminal": {
+     "MATCH": 31
+    }
+   },
+   "migration_defects": {},
+   "react_ui_browser": {
+    "checks": 4,
+    "matching": 4,
+    "results": [
+     {
+      "id": "react-ui/customer-details-by-number",
+      "status": "MATCH"
+     },
+     {
+      "id": "react-ui/customer-accounts-expanded",
+      "status": "MATCH"
+     },
+     {
+      "id": "react-ui/customer-search-by-name",
+      "status": "MATCH"
+     },
+     {
+      "id": "react-ui/account-details-by-number",
+      "status": "MATCH"
+     }
+    ]
+   }
+  },
+  "postgres": {
+   "flows_total": 125,
+   "flows_comparable": 125,
+   "flows_matching": 125,
+   "flows_not_comparable": 0,
+   "execution_errors": [],
+   "by_kind": {
+    "transcript-link": {
+     "MATCH": 76
+    },
+    "api-variant": {
+     "MATCH": 5
+    },
+    "user-flow": {
+     "MATCH": 6
+    },
+    "api-crosscheck": {
+     "MATCH": 7
+    },
+    "transcript-terminal": {
+     "MATCH": 31
+    }
+   },
+   "migration_defects": {},
+   "react_ui_browser": {
+    "checks": 4,
+    "matching": 4,
+    "results": [
+     {
+      "id": "react-ui/customer-details-by-number",
+      "status": "MATCH"
+     },
+     {
+      "id": "react-ui/customer-accounts-expanded",
+      "status": "MATCH"
+     },
+     {
+      "id": "react-ui/customer-search-by-name",
+      "status": "MATCH"
+     },
+     {
+      "id": "react-ui/account-details-by-number",
+      "status": "MATCH"
+     }
+    ]
+   }
+  }
+ },
+ "classification": {},
+ "excluded_columns": [],
+ "migration_defects": {},
+ "known_limitations": {
+  "other": [
+   "Legacy ran under GnuCOBOL 3.1.2 + the C/SQLite CICS/DB2/VSAM stub runtime (legacy/), not on z/OS CICS/DB2/VSAM. Parity is against that harness (107/107 baseline transcripts replay with no golden fixtures).",
+   "The migrated side is driven through a parity-only test seam (parity/tools/ParityServer.java: /__parity reset, EIBTASKN restart, exec, dump); all business beans are the unmodified target/classes. ABNDPROC/record uses the property-gated, token-protected POST/GET /banking/admin/abend, enabled only on the parity server (disabled by default).",
+   "BANKDATA (batch) is not replayed per flow: its output is the canonical seed, and the seeded CUSTOMER/ACCOUNT/PROCTRAN/CONTROL dumps of both sides were verified identical before every flow on both databases.",
+   "3270 screen flows (BNKMENU/BNK1*) have no REST surface: they run in-process through the com.ibm.cics.cip.bank.core.screens handlers (parity/tools/ScreenParity.java). Screen fields and table dumps are compared; RETURN COMMAREA bytes are not (Java keeps a symbolic state map).",
+   "React UI in Chromium covers the read paths (customer by number, accounts of a customer, name search, account by number) on both databases. Create/update/delete screens were not driven in the browser in this round; their REST calls are covered by the API flows and by the React axios contract tests. (PR #26 reported a browser CRUD run on PostgreSQL; not re-observed here.)",
+   "Pre-existing UI quirk (production React source, unchanged): CustomerDetailsPage Submit toggles table visibility, so a consecutive search needs a second Submit.",
+   "PostgreSQL: flows run serially, one fresh schema per parity server (DROP/CREATE before start); concurrency on PostgreSQL is covered only by the opt-in PostgresProfileMainFlowsTest (concurrent counter allocation).",
+   "Comparison normalisation: CHAR right-trim, numbers to 2dp, row order. Nothing else is masked; PROCTRAN_REF and every other column is compared."
+  ]
+ },
+ "harness_findings": [
+  "First PostgreSQL run: CREACC/max-accounts and CREACC/ninth-account ended in ERROR before comparison because the harness translated their SQLite setup_sql (recursive CTE) to H2-only SYSTEM_RANGE; the migrated service correctly returned 500 for that statement. Fixed in parity/tools/parity.py (sqlite_to_migrated: generate_series on PostgreSQL). Both flows MATCH on PostgreSQL after the fix. Harness defect, not a migration defect.",
+  "PostgreSQL folds the unquoted legacy column names of the in-process 3270 dumps to lower case; parity/tools/ScreenParity.java upper-cases dump keys so the CUSTOMER/ACCOUNT/PROCTRAN/CONTROL dumps compare column by column."
+ ],
+ "pre_existing_legacy_defects": [
+  {
+   "ref": "README #1",
+   "text": "Abend time HH:MM:MM - the ABND-TIME STRING concatenates WS-TIME-NOW-GRP-MM twice instead of minutes then seconds. Present in 23 programs (all BNK1*, BNKMENU, CRDTAGY1-5, CREACC, CRECUST, DBCRFUN, DELACC, DELCUS, INQACC, INQACCCU, INQCUST, XFRFUN). Found by reading the source; no recorded flow reaches those abend paths.",
+   "flows": [
+    "ABNDPROC/record"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #2",
+   "text": "DBCRFUN ignores the overdraft limit - a payment-interface debit (COMM-FACILTYPE = 496) fails with code 3 whenever available balance + amount < 0, even inside the overdraft (DBCRFUN/within-overdraft: balance 0, limit 500, debit 400 -> refused).",
+   "flows": [
+    "DBCRFUN/credit-payment-api",
+    "DBCRFUN/debit-payment-api",
+    "DBCRFUN/loan-payment-api",
+    "DBCRFUN/mortgage-payment-api",
+    "DBCRFUN/within-overdraft"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #3",
+   "text": "Teller debits have no funds check - with any FACILTYPE other than 496 a debit can drive any account negative (DBCRFUN/insufficient-funds-teller, BNK1CRA/debit-insufficient).",
+   "flows": [
+    "DBCRFUN/credit-teller",
+    "TELLER-REST/credit-teller",
+    "DBCRFUN/debit-teller",
+    "TELLER-REST/debit-teller",
+    "DBCRFUN/insufficient-funds-teller",
+    "TELLER-REST/insufficient-funds-teller",
+    "DBCRFUN/loan-teller",
+    "TELLER-REST/loan-teller",
+    "TELLER-REST/not-found"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #4",
+   "text": "LOAN/MORTGAGE - only payment-interface requests are refused (fail code 4); teller credits/debits are applied (DBCRFUN/loan-teller).",
+   "flows": [
+    "DBCRFUN/loan-payment-api",
+    "DBCRFUN/loan-teller",
+    "TELLER-REST/loan-teller",
+    "DBCRFUN/mortgage-payment-api"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #5",
+   "text": "Zero amount - DBCRFUN with amount 0.00 succeeds and still writes a PROCTRAN row.",
+   "flows": [
+    "DBCRFUN/zero-amount"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #6",
+   "text": "XFRFUN has no funds check - XFRFUN/insufficient-funds succeeds and leaves the from-account negative; the same applies to BNK1TFN.",
+   "flows": [
+    "XFRFUN/insufficient-funds"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #7",
+   "text": "XFRFUN same account abends the task with SAME instead of returning a fail code.",
+   "flows": [
+    "XFRFUN/same-account"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #8",
+   "text": "XFRFUN to-account not found returns fail code 2 after two SYNCPOINT ROLLBACKs.",
+   "flows": [
+    "XFRFUN/to-not-found"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #9",
+   "text": "UPDACC does not validate the account type - CHEQUE is written (UPDACC/invalid-type); only a blank type is rejected. Balances in the COMMAREA are ignored.",
+   "flows": [
+    "UPDACC/invalid-type"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #10",
+   "text": "UPDCUST only updates name/address; DOB and credit score in the COMMAREA are ignored. A blank name keeps the old name.",
+   "flows": [
+    "UPDCUST/ignores-dob-and-score"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #11",
+   "text": "BNK1DCS non-numeric customer number - BIF DEEDIT turns ABC into 0000000000, which INQCUST treats as \"random customer\", so the screen shows a random customer with \"Customer lookup successful.\".",
+   "flows": [
+    "BNK1DCS/lookup-non-numeric"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #12",
+   "text": "BNK1CAC overdraft length underflow - SUBTRACT <trailing blanks> FROM OVERDRL assumes the field is transmitted with its trailing blanks. If a terminal sends a short field (e.g. 0 with L=1) OVERDRL goes negative and INSPECT OVERDRI(1:OVERDRL) is an invalid reference modification (GnuCOBOL runtime crash; undefined on z/OS without SSRANGE). Screen transcripts therefore send fields blank-padded to their full width, as a 3270 does for a field pre-filled with blanks.",
+   "flows": [
+    "BNK1CAC/create-ok",
+    "BNK1CAC/first-display",
+    "BNK1CAC/invalid-type"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #13",
+   "text": "BANKDATA account data - with 1,30,1,42 it creates no MORTGAGE accounts; LAST/NEXT statement dates are fixed literals; CURRENT overdraft limit is always 100.",
+   "flows": [],
+   "parity": "no flow exercises it directly (BANKDATA output = canonical seed, verified identical before every flow)"
+  },
+  {
+   "ref": "README #14",
+   "text": "CRECUST review date and BANKDATA use FUNCTION CURRENT-DATE (the real system clock), not CICS time - the only wall-clock dependency in the estate; the harness pins it via COB_CURRENT_DATE.",
+   "flows": [
+    "CRECUST/ok-seed-1234-taskn-500",
+    "CRECUST/ok-seed-42",
+    "CRECUST/ok-seed-7"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #15",
+   "text": "Credit scores depend on the CICS task number (RANDOM(EIBTASKN)), so on a real region two identical requests get different scores.",
+   "flows": [
+    "CRECUST/ok-seed-1234-taskn-500"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #16",
+   "text": "Typo in DELCUS abend free-form text: \"Unbale to DELETE CUSTOMER VSAM rec\".",
+   "flows": [],
+   "parity": "not exercised: no transcript forces the DELCUS VSAM-delete failure that writes this abend text"
+  },
+  {
+   "ref": "README #17",
+   "text": "INQACCCU returns success with 0 accounts for an existing customer without accounts, but fail code 1 for a non-existent customer.",
+   "flows": [
+    "INQACCCU/customer-not-found",
+    "INQACCCU/no-accounts"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "README #18",
+   "text": "CREACC rejects lower-case types (isa, fail code A); the 10th account is refused with fail code 8 (> 9 accounts check), the 9th is allowed.",
+   "flows": [
+    "CREACC/lowercase-type",
+    "CREACC/max-accounts",
+    "CREACC/ninth-account"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  },
+  {
+   "ref": "new in round 2",
+   "text": "INQCUST custno 0 (\"random customer\") always returns customer 0000000001 under the harness, whatever CBSA_RANDOM_SEED (GnuCOBOL -std=ibm COMPUTE truncation of RANDOM(EIBTASKN)); BNK1DCS non-numeric input inherits it.",
+   "flows": [
+    "INQCUST/random-seed-42",
+    "INQCUST/random-seed-7",
+    "BNK1DCS/lookup-non-numeric"
+   ],
+   "parity": "every flow exercising it is identical (legacy behaviour reproduced) on H2 and PostgreSQL"
+  }
+ ],
+ "tests": {
+  "legacy_transcripts": {
+   "match": 107,
+   "diff": 0,
+   "fixture": 0,
+   "total": 107
+  },
+  "migrated_mvn": {
+   "tests": 563,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 4,
+   "classes": 52
+  },
+  "postgres_it": {
+   "class": "com.ibm.cics.cip.bank.core.postgres.PostgresProfileMainFlowsTest",
+   "tests": 4,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "cases": [
+    "runsOnPostgresWithCanonicalSchemaAndSeed",
+    "readFlowsServeTheSeed",
+    "customerAndAccountLifecycleWithMoneyMovement",
+    "concurrentCreatesGetDistinctNumbersFromControl"
+   ]
+  },
+  "react": {
+   "command": "CI=true corepack yarn test --watchAll=false",
+   "exit_code": 0,
+   "suites": "6 passed, 6 total",
+   "tests": "22 passed, 22 total",
+   "tests_passed": 22,
+   "tests_failed": 0,
+   "tests_total": 22,
+   "suites_total": 6,
+   "test_files": [
+    "src/App.test.js",
+    "src/content/AccountCreationPage/AccountCreationPage.test.js",
+    "src/content/AccountDetailsPage/AccountDetailsPage.test.js",
+    "src/content/CustomerCreationPage/CustomerCreationPage.test.js",
+    "src/content/CustomerDeletePage/CustomerDeletePage.test.js",
+    "src/content/CustomerDetailsPage/CustomerDetailsPage.test.js"
+   ],
+   "build": {
+    "command": "GENERATE_SOURCEMAP=false corepack yarn build",
+    "exit_code": 0,
+    "bundle": [
+     "main.7be3e4d9.js"
+    ],
+    "served_by_core_service": [
+     "main.7be3e4d9.js"
+    ],
+    "bundle_matches_served": true
+   }
+  }
+ },
+ "history": {
+  "rounds": [
+   {
+    "round": "round1",
+    "head": "1e399d5",
+    "generated": "2026-10-23T05:28:51Z",
+    "flows_total": 124,
+    "flows_comparable": 123,
+    "flows_matching": 114,
+    "flows_not_comparable": 1,
+    "migration_defects": [
+     "MD-PROCTRAN-API"
+    ],
+    "known_difference_flows": 8,
+    "proctran_ref": "excluded",
+    "react_unit_tests": "0 total",
+    "database": "H2",
+    "postgres": "not exercised"
+   },
+   {
+    "round": "round2",
+    "head": "bf72c7a",
+    "generated": "2026-10-23T05:44:39Z",
+    "flows_total": 125,
+    "flows_comparable": 124,
+    "flows_matching": 116,
+    "flows_not_comparable": 1,
+    "migration_defects": [],
+    "known_difference_flows": 8,
+    "proctran_ref": "excluded",
+    "react_unit_tests": "0 total",
+    "database": "H2",
+    "postgres": "not exercised"
+   },
+   {
+    "round": "round3 H2",
+    "head": "a393eb7",
+    "generated": "2026-10-23T06:35:51Z",
+    "flows_total": 125,
+    "flows_comparable": 125,
+    "flows_matching": 125,
+    "flows_not_comparable": 0,
+    "execution_errors": 0,
+    "migration_defects": [],
+    "known_difference_flows": 0,
+    "proctran_ref": "compared",
+    "react_unit_tests": "22 passed, 22 total",
+    "database": "H2"
+   },
+   {
+    "round": "round3 PostgreSQL",
+    "head": "a393eb7",
+    "generated": "2026-10-23T06:35:51Z",
+    "flows_total": 125,
+    "flows_comparable": 125,
+    "flows_matching": 125,
+    "flows_not_comparable": 0,
+    "execution_errors": 0,
+    "migration_defects": [],
+    "known_difference_flows": 0,
+    "proctran_ref": "compared",
+    "react_unit_tests": "22 passed, 22 total",
+    "database": "PostgreSQL"
+   }
+  ],
+  "flows": [
+   {
+    "id": "ABNDPROC/record",
+    "round1": "NOT_COMPARABLE",
+    "round2": "NOT_COMPARABLE",
+    "class_before": "ABNDPROC",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "ABNDPROC had no REST trigger, so the flow was NOT_COMPARABLE.",
+    "resolution": "PR #27: AbendFile (ABNDFILE port) + property-gated, token-protected POST/GET /banking/admin/abend; response and ABNDFILE contents compared."
+   },
+   {
+    "id": "CREACC/type-isa",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-CREACC-BAL",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "POST /banking/account had no opening-balance fields: COBOL CREACC writes COMM-AVAIL-BAL/COMM-ACT-BAL (50, 100, -5000, -125000) while the migrated account opened at 0.00.",
+    "resolution": "PR #27: optional availableBalance/actualBalance on POST /banking/account (CREACC COMMAREA balances)."
+   },
+   {
+    "id": "CREACC/type-loan",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-CREACC-BAL",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "POST /banking/account had no opening-balance fields: COBOL CREACC writes COMM-AVAIL-BAL/COMM-ACT-BAL (50, 100, -5000, -125000) while the migrated account opened at 0.00.",
+    "resolution": "PR #27: optional availableBalance/actualBalance on POST /banking/account (CREACC COMMAREA balances)."
+   },
+   {
+    "id": "CREACC/type-mortgage",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-CREACC-BAL",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "POST /banking/account had no opening-balance fields: COBOL CREACC writes COMM-AVAIL-BAL/COMM-ACT-BAL (50, 100, -5000, -125000) while the migrated account opened at 0.00.",
+    "resolution": "PR #27: optional availableBalance/actualBalance on POST /banking/account (CREACC COMMAREA balances)."
+   },
+   {
+    "id": "CREACC/type-saving",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-CREACC-BAL",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "POST /banking/account had no opening-balance fields: COBOL CREACC writes COMM-AVAIL-BAL/COMM-ACT-BAL (50, 100, -5000, -125000) while the migrated account opened at 0.00.",
+    "resolution": "PR #27: optional availableBalance/actualBalance on POST /banking/account (CREACC COMMAREA balances)."
+   },
+   {
+    "id": "INQCUST/random-seed-42",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-RANDOM-CUST",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "INQCUST custno 0 (\"random customer\"): legacy RANDOM(EIBTASKN) + GnuCOBOL -std=ibm COMPUTE collapses to customer 0000000001; the migrated service drew from CbsaRandom (0000000022 for seed 42).",
+    "resolution": "PR #27: reproduces RANDOM(EIBTASKN) and the -std=ibm decimal alignment (drops 9 low digits)."
+   },
+   {
+    "id": "INQCUST/random-seed-7",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-RANDOM-CUST",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "INQCUST custno 0 (\"random customer\"): legacy RANDOM(EIBTASKN) + GnuCOBOL -std=ibm COMPUTE collapses to customer 0000000001; the migrated service drew from CbsaRandom (0000000022 for seed 42).",
+    "resolution": "PR #27: reproduces RANDOM(EIBTASKN) and the -std=ibm decimal alignment (drops 9 low digits)."
+   },
+   {
+    "id": "UPDACC/invalid-type",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-UPDACC-TYPE",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "Migrated PUT /banking/account returned 400 for type CHEQUE; COBOL UPDACC only rejects a blank type and writes CHEQUE (pre-existing legacy defect README #9).",
+    "resolution": "PR #27: UPDACC REST accepts any non-blank type, reproducing the COBOL rule."
+   },
+   {
+    "id": "api-crosscheck/processed-transactions",
+    "round1": "DIFF",
+    "round2": "MATCH",
+    "class_before": "MD-PROCTRAN-API",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "GET /banking/processedTransaction was not implemented in the migrated service (HTTP 404 vs 8 PROCTRAN rows served by legacy Liberty ProcessedTransactionResource).",
+    "resolution": "Implemented between round 1 and round 2; MATCH since round 2."
+   },
+   {
+    "id": "BNK1DCS/lookup-non-numeric",
+    "round1": "DIFF",
+    "round2": "DIFF",
+    "class_before": "KL-RANDOM-CUST",
+    "round3_h2": "MATCH",
+    "round3_postgres": "MATCH",
+    "root_cause": "INQCUST custno 0 (\"random customer\"): legacy RANDOM(EIBTASKN) + GnuCOBOL -std=ibm COMPUTE collapses to customer 0000000001; the migrated service drew from CbsaRandom (0000000022 for seed 42).",
+    "resolution": "PR #27: reproduces RANDOM(EIBTASKN) and the -std=ibm decimal alignment (drops 9 low digits)."
+   }
+  ]
+ }
+}
