@@ -40,7 +40,11 @@ public class InquireAccountService {
     /** INQACCCU COMM-FAIL-CODE '1': customer not found. */
     public static final String FAIL_CUSTOMER_NOT_FOUND = "1";
 
-    /** INQACCCU COMM-FAIL-CODE '2': DB2 cursor OPEN failed (RAD010). */
+    /**
+     * INQACCCU COMM-FAIL-CODE '2': DB2 cursor OPEN failed (RAD010). The COBOL also uses '3' (FETCH) and
+     * '4' (CLOSE), but {@link AccountRepository#findByCustomer} runs open/fetch/close in one JDBC call that
+     * cannot tell the phases apart, so every read failure reports '2'.
+     */
     public static final String FAIL_CURSOR = "2";
 
     private final AccountRepository accounts;
@@ -133,8 +137,8 @@ public class InquireAccountService {
      */
     private Optional<Account> readAccountLast() {
         try {
-            long last = accounts.maxAccountNumber(bank.sortCode());
-            Optional<Account> account = last == 0 ? Optional.empty() : accounts.findByKey(bank.sortCode(), last);
+            Optional<Account> account = accounts.count(bank.sortCode()) == 0 ? Optional.empty()
+                    : accounts.findByKey(bank.sortCode(), accounts.maxAccountNumber(bank.sortCode()));
             if (account.isEmpty()) {
                 throw new CbsaAbendException("HNCS", "INQACC",
                         "GLAD010 -ACCOUNT NCS CANNOT be accessed and DB2 SELECT failed. SQLCODE=+100");

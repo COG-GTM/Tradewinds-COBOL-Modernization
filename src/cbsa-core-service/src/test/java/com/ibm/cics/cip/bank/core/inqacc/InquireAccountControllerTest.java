@@ -88,6 +88,15 @@ class InquireAccountControllerTest {
     }
 
     @Test
+    void lastAccountWhenOnlyAccountZeroExists() throws Exception {
+        jdbc.update("DELETE FROM ACCOUNT WHERE ACCOUNT_NUMBER <> '00000001'");
+        jdbc.update("UPDATE ACCOUNT SET ACCOUNT_NUMBER = '00000000' WHERE ACCOUNT_NUMBER = '00000001'");
+        mvc.perform(get("/banking/account/99999999"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("00000000"));
+    }
+
+    @Test
     void blankAccountTypeIsTreatedAsNotFound() throws Exception {
         jdbc.update("UPDATE ACCOUNT SET ACCOUNT_TYPE = '        ' WHERE ACCOUNT_NUMBER = '00000002'");
         mvc.perform(get("/banking/account/2")).andExpect(status().isNotFound());
