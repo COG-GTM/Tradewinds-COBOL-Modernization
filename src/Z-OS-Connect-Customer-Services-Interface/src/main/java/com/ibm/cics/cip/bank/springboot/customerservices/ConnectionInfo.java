@@ -3,67 +3,84 @@
 /*                                                                        */
 package com.ibm.cics.cip.bank.springboot.customerservices;
 
-import com.beust.jcommander.Parameter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+/**
+ * Connection details for cbsa-core-service. Previously static fields fed by
+ * JCommander flags and the CBSA_ZOSCONN_HOST/CBSA_ZOSCONN_PORT system
+ * properties pointing at z/OS Connect; now bound from
+ * {@code cbsa.core.base-url} (default {@code http://localhost:8080}) and
+ * {@code cbsa.core.context-path} (default {@code /webui-1.0}); the sort code
+ * sent on create/update requests is {@code cbsa.core.sort-code} (default
+ * {@code 987654}).
+ */
+@Component
 public class ConnectionInfo
 {
 
+	private final String baseUrl;
+
+	private final String contextPath;
+
+	private final String sortCode;
 
 
-	@Parameter(names =
-	{ "--scheme", "-s" }, description = "Scheme/protocol to connect with")
-	private static String scheme = "http";
-
-	@Parameter(names =
-	{ "--port", "-p" }, description = "Port to connect with")
-	private static int port = 38417;
-
-	@Parameter(names =
-	{ "--address", "--url", "-a", "-u" }, description = "Address to use")
-	private static String address = "localhost";
-
-
-	private ConnectionInfo()
+	public ConnectionInfo(
+			@Value("${cbsa.core.base-url:http://localhost:8080}") String baseUrl,
+			@Value("${cbsa.core.context-path:/webui-1.0}") String contextPath,
+			@Value("${cbsa.core.sort-code:987654}") String sortCode)
 	{
-		throw new IllegalStateException("Static only");
+		this.baseUrl = stripTrailingSlash(baseUrl);
+		this.contextPath = normaliseContextPath(contextPath);
+		this.sortCode = sortCode.trim();
 	}
 
 
-public static String getAddressAndPort() {
-        return scheme + "://" + getAddress() + ":" + getPort();
-    }
-
-    public static int getPort() {
-        port = Integer.parseInt(System.getProperty("CBSA_ZOSCONN_PORT"));
-        return port;
-    }
-
-    public static String getPortString() {
-        return Integer.toString(getPort());
-    }
-
-    public static void setPort(int port) {
-        ConnectionInfo.port = port;
-    }
-
-    public static String getAddress() {
-        address = System.getProperty("CBSA_ZOSCONN_HOST");
-        return address;
-    }
-
-    public static void setAddress(String address) {
-        ConnectionInfo.address = address;
-    }
-
-	public static String getScheme()
+	/** Bank sort code sent on create/update requests (GETSCODE). */
+	public String getSortCode()
 	{
-		return scheme;
+		return sortCode;
 	}
 
 
-	public static void setScheme(String scheme)
+	/** Base URL including the cbsa-core-service context path. */
+	public String getAddressAndPort()
 	{
-		ConnectionInfo.scheme = scheme;
+		return baseUrl + contextPath;
 	}
 
+
+	public String getBaseUrl()
+	{
+		return baseUrl;
+	}
+
+
+	public String getContextPath()
+	{
+		return contextPath;
+	}
+
+
+	private static String stripTrailingSlash(String value)
+	{
+		String trimmed = value.trim();
+		while (trimmed.endsWith("/"))
+		{
+			trimmed = trimmed.substring(0, trimmed.length() - 1);
+		}
+		return trimmed;
+	}
+
+
+	private static String normaliseContextPath(String value)
+	{
+		String trimmed = stripTrailingSlash(value == null ? "" : value);
+		if (trimmed.isEmpty())
+		{
+			return "";
+		}
+		return trimmed.startsWith("/") ? trimmed : "/" + trimmed;
+	}
 }

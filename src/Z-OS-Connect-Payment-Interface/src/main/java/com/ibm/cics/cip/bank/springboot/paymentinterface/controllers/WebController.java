@@ -3,37 +3,28 @@
 /*                                                                        */
 package com.ibm.cics.cip.bank.springboot.paymentinterface.controllers;
 
+import com.ibm.cics.cip.bank.springboot.paymentinterface.CbsaCoreClient;
+import com.ibm.cics.cip.bank.springboot.paymentinterface.jsonclasses.paymentinterface.PaymentInterfaceJson;
+import com.ibm.cics.cip.bank.springboot.paymentinterface.jsonclasses.paymentinterface.TransferForm;
 import jakarta.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ibm.cics.cip.bank.springboot.paymentinterface.ConnectionInfo;
-import com.ibm.cics.cip.bank.springboot.paymentinterface.jsonclasses.paymentinterface.PaymentInterfaceJson;
-import com.ibm.cics.cip.bank.springboot.paymentinterface.jsonclasses.paymentinterface.TransferForm;
-
-// The code in this file is quite repetitive, however a try/catch block would've required too much over-engineering to do
-// Ideally I'd only need to send off one class and I'd only get either an account or customer object back to deserialise,
-// but all of the objects returned have slightly different formats and/or fields.
-
+/**
+ * Payment interface form. Sends a DBCRFUN PAYDBCR COMMAREA to
+ * cbsa-core-service ({@code PUT /webui-1.0/makepayment/dbcr}) and maps
+ * COMM-FAIL-CODE 1/3/4 to the legacy rejection messages.
+ */
 @Controller
 public class WebController implements WebMvcConfigurer
 {
-
 
 	private static final Logger log = LoggerFactory
 			.getLogger(WebController.class);
@@ -46,9 +37,18 @@ public class WebController implements WebMvcConfigurer
 
 	private static final String PAYMENT_ERROR = "Payment Error";
 
+	private final CbsaCoreClient cbsaCoreClient;
+
+
+	public WebController(CbsaCoreClient cbsaCoreClient)
+	{
+		this.cbsaCoreClient = cbsaCoreClient;
+	}
+
 
 	// Payment Interface
-	@GetMapping(value={"/",""})
+	@GetMapping(value =
+	{ "/", "" })
 	public String showForm(TransferForm personForm)
 	{
 		return FORM_NAME;
@@ -58,9 +58,7 @@ public class WebController implements WebMvcConfigurer
 	@PostMapping("/paydbcr")
 	public String checkPersonInfo(@Valid TransferForm transferForm,
 			BindingResult bindingResult, Model model)
-			throws JsonProcessingException
 	{
-
 		// The same page is returned, this time with the errors given as an
 		// object.
 		if (bindingResult.hasErrors())
@@ -70,39 +68,18 @@ public class WebController implements WebMvcConfigurer
 
 		PaymentInterfaceJson transferjson = new PaymentInterfaceJson(
 				transferForm);
-
-		// Serialise the object to JSON
 		log.info("{}", transferjson);
-		String jsonString = new ObjectMapper().writeValueAsString(transferjson);
-		log.info(jsonString);
-
-
-		// The port is set elsewhere as it changes frequently
-		WebClient client = WebClient.create(
-				ConnectionInfo.getAddressAndPort() + "/makepayment/dbcr");
 
 		try
 		{
-			// Create a response object - body of json, accept json back, and
-			// insert the
-			// request body created a couple lines up
-			ResponseSpec response = client.put()
-					.header("content-type", "application/json")
-					.accept(MediaType.APPLICATION_JSON)
-					.body(BodyInserters.fromValue(jsonString)).retrieve();
-			String responseBody = response.bodyToMono(String.class).block();
-			log.info(responseBody);
-
-			// Deserialise into a POJO
-			PaymentInterfaceJson responseObj = new ObjectMapper()
-					.readValue(responseBody, PaymentInterfaceJson.class);
+			PaymentInterfaceJson responseObj = cbsaCoreClient
+					.makePayment(transferjson);
 			log.info("{}", responseObj);
 
 			// Throws out different exceptions depending on the contents
 			checkIfResponseValidDbcr(responseObj);
 
 			// If successful...
-
 			if (transferForm.isDebit())
 			{
 				model.addAttribute(LARGE_TEXT, "Payment Successful");
@@ -113,16 +90,15 @@ public class WebController implements WebMvcConfigurer
 			}
 			model.addAttribute(SMALL_TEXT,
 					("Value: " + responseObj.getPAYDBCR().getCommAmt()));
-
-			// Otherwise...
 		}
-		catch (AccountNotFoundException | InsufficientFundsException | InvalidAccountTypeException e)
+		catch (AccountNotFoundException | InsufficientFundsException
+				| InvalidAccountTypeException e)
 		{
 			log.info(e.toString());
 			model.addAttribute(LARGE_TEXT, PAYMENT_ERROR);
 			model.addAttribute(SMALL_TEXT, e.getMessage());
 		}
-		catch (WebClientRequestException e)
+		catch (ResourceAccessException e)
 		{
 			log.info(e.toString());
 			model.addAttribute(LARGE_TEXT, PAYMENT_ERROR);
@@ -140,27 +116,34 @@ public class WebController implements WebMvcConfigurer
 		// The HTML template includes a clause to show the box for the results
 		// if this is set to true(the page is otherwise the same)
 		model.addAttribute("results", true);
-
 		return FORM_NAME;
 	}
 
 
+	/**
+	 * DBCRFUN COMM-FAIL-CODE: 1 account not found, 3 insufficient funds, 4
+	 * MORTGAGE/LOAN cannot take payments; anything else is treated as success
+	 * (as in the z/OS Connect version).
+	 */
 	public static void checkIfResponseValidDbcr(PaymentInterfaceJson response)
-			throws InsufficientFundsException, InvalidAccountTypeException, AccountNotFoundException
+			throws InsufficientFundsException, InvalidAccountTypeException,
+			AccountNotFoundException
 	{
-		switch (Integer.parseInt(response.getPAYDBCR().getCommFailCode()))
+		String failCode = response.getPAYDBCR().getCommFailCode();
+		switch (failCode == null ? "" : failCode.trim())
 		{
-		case 1:
+		case "1":
 			throw new AccountNotFoundException();
-		case 3:
+		case "3":
 			throw new InsufficientFundsException();
-		case 4:
+		case "4":
 			throw new InvalidAccountTypeException();
 		default:
 			break;
 		}
 	}
 }
+
 
 class InsufficientFundsException extends Exception
 {
