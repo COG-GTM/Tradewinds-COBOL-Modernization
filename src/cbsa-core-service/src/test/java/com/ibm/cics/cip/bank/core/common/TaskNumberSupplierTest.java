@@ -32,11 +32,46 @@ class TaskNumberSupplierTest {
     }
 
     @Test
-    void childTasksAreReservedAndUnscopedCallsAllocateFreshNumbers() {
+    void childTasksAreAllocatedWithTheParentAndUnscopedCallsAllocateFreshNumbers() {
         TaskNumberSupplier tasks = new TaskNumberSupplier();
         tasks.restartAt(100);
-        tasks.reserveChildTasks(100, 5);
+        long[] seen = new long[2];
+        tasks.inTask(() -> {
+            seen[0] = tasks.currentTaskNumberWithChildTasks(5);
+            seen[1] = tasks.currentTaskNumber();
+            return null;
+        });
+        assertThat(seen).containsExactly(100, 100);
         assertThat(tasks.currentTaskNumber()).isEqualTo(106);
         assertThat(tasks.currentTaskNumber()).isEqualTo(107);
+    }
+
+    @Test
+    void concurrentParentsNeverReceiveEachOthersChildNumbers() throws Exception {
+        TaskNumberSupplier tasks = new TaskNumberSupplier();
+        java.util.Set<Long> used = java.util.concurrent.ConcurrentHashMap.newKeySet();
+        java.util.List<Thread> threads = new java.util.ArrayList<>();
+        java.util.concurrent.atomic.AtomicBoolean overlap = new java.util.concurrent.atomic.AtomicBoolean();
+        for (int t = 0; t < 8; t++) {
+            Thread th = new Thread(() -> {
+                for (int i = 0; i < 1000; i++) {
+                    long parent = tasks.inTask(() -> tasks.currentTaskNumberWithChildTasks(5));
+                    for (long n = parent; n <= parent + 5; n++) {
+                        if (!used.add(n)) {
+                            overlap.set(true);
+                        }
+                    }
+                    if (!used.add(tasks.inTask(tasks::currentTaskNumber))) {
+                        overlap.set(true);
+                    }
+                }
+            });
+            threads.add(th);
+            th.start();
+        }
+        for (Thread th : threads) {
+            th.join();
+        }
+        assertThat(overlap).isFalse();
     }
 }

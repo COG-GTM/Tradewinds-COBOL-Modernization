@@ -79,13 +79,12 @@ public class CreateCustomerService {
                     "T");
         }
 
-        long taskNumber = taskNumbers.currentTaskNumber();
+        long taskNumber = taskNumbers.currentTaskNumberWithChildTasks(CREDIT_AGENCY_TASKS);
         LocalDate today = LocalDate.now(clock);
 
         Customer applicant = new Customer(Customer.EYECATCHER, bank.sortCode(), 0L, commName, commAddress,
                 validDate(birthYear, birthMonth, birthDay).orElse(null), 0, null);
         CreditCheckResult credit = creditCheck.check(applicant, taskNumber);
-        taskNumbers.reserveChildTasks(taskNumber, CREDIT_AGENCY_TASKS);
         if (!credit.ok()) {
             throw CbsaException.serverError(CreditCheckResult.FAIL_AGENCY_ABEND.equals(credit.failCode())
                     ? "Credit check failed: a credit agency abended"
