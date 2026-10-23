@@ -35,7 +35,7 @@ public class AccountDetails
 	private int commOpened;
 
 	@JsonProperty("CommCustno")
-	private int commCustno;
+	private long commCustno;
 
 	@JsonProperty("CommNextStmtDt")
 	private int commNextStatementDate;
@@ -125,13 +125,13 @@ public class AccountDetails
 	}
 
 
-	public int getCommCustno()
+	public long getCommCustno()
 	{
 		return commCustno;
 	}
 
 
-	public void setCommCustno(int commCustnoIn)
+	public void setCommCustno(long commCustnoIn)
 	{
 		commCustno = commCustnoIn;
 	}

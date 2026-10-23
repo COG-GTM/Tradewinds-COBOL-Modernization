@@ -121,6 +121,20 @@ class CustomerServicesAdapterTest
 	}
 
 
+	@Test
+	void enquireCustomerKeepsTenDigitNumbersAboveIntRange() throws Exception
+	{
+		server.expect(requestTo(CUSTOMER_URL + "/3000000000"))
+				.andRespond(withSuccess(
+						CUSTOMER_JSON.replace("0000000001", "3000000000"),
+						MediaType.APPLICATION_JSON));
+		mockMvc.perform(post("/enqcust").param("custNumber", "3000000000"))
+				.andExpect(model().attribute("smallText",
+						containsString("3000000000")));
+		server.verify();
+	}
+
+
 	// INQCUST
 	@Test
 	void enquireCustomerCallsGetCustomer() throws Exception

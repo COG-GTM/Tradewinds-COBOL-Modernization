@@ -48,4 +48,10 @@ public class OutputFormatUtils
 	{
 		return leadingZeroes(amount, String.valueOf(input));
 	}
+
+
+	public static String leadingZeroes(int amount, long input)
+	{
+		return leadingZeroes(amount, String.valueOf(input));
+	}
 }

@@ -52,7 +52,7 @@ public final class LegacyMapper
 	{
 		InqaccJson inqacc = new InqaccJson();
 		inqacc.setInqaccEyecatcher("ACCT");
-		inqacc.setInqaccCustno(toInt(a.customerNumber()));
+		inqacc.setInqaccCustno(toLong(a.customerNumber()));
 		inqacc.setInqaccSortcode(toInt(a.sortCode()));
 		inqacc.setInqaccAccno(toInt(a.id()));
 		inqacc.setInqaccAccType(trim(a.accountType()));
@@ -75,7 +75,7 @@ public final class LegacyMapper
 		InqCustZJson inqcust = new InqCustZJson();
 		inqcust.setInqcustEye("CUST");
 		inqcust.setInqcustSortcode(toInt(c.sortCode()));
-		inqcust.setInqcustCustno(toInt(c.id()));
+		inqcust.setInqcustCustno(toLong(c.id()));
 		inqcust.setInqcustName(c.customerName());
 		inqcust.setInqcustAddress(c.customerAddress());
 		int[] dob = dateParts(c.dateOfBirth());
@@ -102,7 +102,7 @@ public final class LegacyMapper
 	static ListAccJson toListAccounts(String customerNumber, CoreAccountList l)
 	{
 		InqAccczJson inqacccz = new InqAccczJson();
-		inqacccz.setCustomerNumber(toInt(customerNumber));
+		inqacccz.setCustomerNumber(toLong(customerNumber));
 		boolean found = l != null && !Boolean.FALSE.equals(l.customerFound());
 		inqacccz.setCustomerFound(found ? YES : "N");
 		inqacccz.setCommSuccess(found ? YES : "N");
@@ -126,7 +126,7 @@ public final class LegacyMapper
 	{
 		AccountDetails d = new AccountDetails();
 		d.setCommEye("ACCT");
-		d.setCommCustno(toInt(a.customerNumber()));
+		d.setCommCustno(toLong(a.customerNumber()));
 		d.setCommAccno(toInt(a.id()));
 		d.setCommAccType(trim(a.accountType()));
 		d.setCommInterestRate(toFloat(a.interestRate()));
@@ -261,7 +261,7 @@ public final class LegacyMapper
 		DelcusJson delcus = new DelcusJson();
 		delcus.setCommEye("CUST");
 		delcus.setCommSortcode(toInt(c.sortCode()));
-		delcus.setCommCustno(toInt(c.id()));
+		delcus.setCommCustno(toLong(c.id()));
 		delcus.setCommName(c.customerName());
 		delcus.setCommAddress(c.customerAddress());
 		delcus.setCommDateOfBirth(toDdmmyyyyString(c.dateOfBirth()));
@@ -355,6 +355,23 @@ public final class LegacyMapper
 	}
 
 
+	static long toLong(String value)
+	{
+		if (value == null || value.isBlank())
+		{
+			return 0L;
+		}
+		try
+		{
+			return Long.parseLong(value.trim());
+		}
+		catch (NumberFormatException e)
+		{
+			return 0L;
+		}
+	}
+
+
 	static int toInt(String value)
 	{
 		if (value == null || value.isBlank())
@@ -363,7 +380,7 @@ public final class LegacyMapper
 		}
 		try
 		{
-			return (int) Long.parseLong(value.trim());
+			return Integer.parseInt(value.trim());
 		}
 		catch (NumberFormatException e)
 		{

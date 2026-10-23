@@ -34,7 +34,7 @@ public class InqaccJson
 	private int inqaccOpened;
 
 	@JsonProperty("InqAccCustno")
-	private int inqaccCustno;
+	private long inqaccCustno;
 
 	@JsonProperty("InqAccAccType")
 	private String inqaccAccType;
@@ -139,13 +139,13 @@ public class InqaccJson
 	}
 
 
-	public int getInqaccCustno()
+	public long getInqaccCustno()
 	{
 		return inqaccCustno;
 	}
 
 
-	public void setInqaccCustno(int inqaccCustnoIn)
+	public void setInqaccCustno(long inqaccCustnoIn)
 	{
 		inqaccCustno = inqaccCustnoIn;
 	}

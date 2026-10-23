@@ -41,7 +41,7 @@ public class InqCustZJson
 	private String inqcustPcbPointer;
 
 	@JsonProperty("InqCustCustno")
-	private int inqcustCustno;
+	private long inqcustCustno;
 
 	@JsonProperty("InqCustCsReviewDt")
 	private InqCustReviewDate inqcustCsReviewDate;
@@ -161,13 +161,13 @@ public class InqCustZJson
 	}
 
 
-	public int getInqcustCustno()
+	public long getInqcustCustno()
 	{
 		return inqcustCustno;
 	}
 
 
-	public void setInqcustCustno(int inqcustCustnoIn)
+	public void setInqcustCustno(long inqcustCustnoIn)
 	{
 		inqcustCustno = inqcustCustnoIn;
 	}
