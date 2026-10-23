@@ -69,8 +69,9 @@ public class UpdateAccountService {
             throw CbsaException.serverError("Failed to update account number " + accountNumber + ".", null);
         }
 
-        // MOVE HV-ACCOUNT-* TO COMM-*: the row read in UAD010 with the three new values
-        return current.withTypeRateOverdraft(newType, newRate, newOverdraft);
+        // MOVE HV-ACCOUNT-* TO COMM-*: re-read so balances reflect any change committed since UAD010
+        return accounts.findByKey(sortCode, accountNumber)
+                .orElseGet(() -> current.withTypeRateOverdraft(newType, newRate, newOverdraft));
     }
 
     /** MOVE to PIC X(8): truncated to 8 characters; CHAR(8) trailing blanks are not significant. */
