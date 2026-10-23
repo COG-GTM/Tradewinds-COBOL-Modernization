@@ -86,6 +86,19 @@ class InquireCustomerServiceTest {
     }
 
     @Test
+    void randomCandidatesExcludeTheHighestNumberAsInCobol() {
+        CbsaRandom random = new CbsaRandom(42L);
+        for (int i = 0; i < 10_000; i++) {
+            assertThat(InquireCustomerService.randomCustomerNumber(30, random)).isBetween(1L, 29L);
+        }
+        when(repo.maxCustomerNumber(SC)).thenReturn(30L);
+        when(repo.findByKey(eq(SC), anyLong())).thenReturn(Optional.empty());
+        when(repo.findByKey(SC, 30)).thenReturn(Optional.of(customer(30)));
+        assertThat(service.inquire(0)).isEmpty();
+        assertThat(service.inquire(InquireCustomerService.LAST_CUSTOMER)).contains(customer(30));
+    }
+
+    @Test
     void lastCustomerIsHighestNumber() {
         when(repo.maxCustomerNumber(SC)).thenReturn(30L);
         when(repo.findByKey(SC, 30)).thenReturn(Optional.of(customer(30)));

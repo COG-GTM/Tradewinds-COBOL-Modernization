@@ -112,6 +112,12 @@ class InquireCustomerControllerTest {
     }
 
     @Test
+    void nameSearchPagePastTheLastMatchIsEmptyNot404() throws Exception {
+        call("/name?name=renton&limit=10&offset=50").andExpect(status().isOk())
+                .andExpect(content().json("{\"numberOfCustomers\":0,\"customers\":[]}", true));
+    }
+
+    @Test
     void nameSearchWithoutMatchesIs404() throws Exception {
         call("/name?name=zzzz-nobody").andExpect(status().isNotFound());
         call("/name?name=%25").andExpect(status().isNotFound());

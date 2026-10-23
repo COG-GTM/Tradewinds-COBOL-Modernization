@@ -48,7 +48,7 @@ public class InquireCustomerController {
         List<CustomerJson> customers = service.searchByName(name, limit(limit), offset(offset)).stream()
                 .map(CustomerJson::from)
                 .toList();
-        if (customers.isEmpty()) {
+        if (customers.isEmpty() && service.countByName(name) == 0) {
             throw CbsaException.notFound("No customers found with name containing '" + name + "'.");
         }
         return CustomerListJson.of(customers);

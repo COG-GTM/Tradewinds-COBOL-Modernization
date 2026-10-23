@@ -122,6 +122,9 @@ public class InquireCustomerService {
      * {@code GENERATE-RANDOM-CUSTOMER}: {@code ((NCS-CUST-NO-VALUE - 1) * FUNCTION RANDOM(EIBTASKN)) + 1},
      * re-drawn via {@code GENERATE-RANDOM-CUSTOMER-AGAIN} ({@code FUNCTION RANDOM}, same sequence) while
      * the key is NOTFND, up to {@value #MAX_RANDOM_RETRIES} times; then fail code 1.
+     *
+     * <p>As in the COBOL, candidates span 1 .. highest-1 (RANDOM &lt; 1), so the highest-numbered
+     * customer is only reachable through {@value #LAST_CUSTOMER}.
      */
     private Optional<Customer> generateRandomCustomer(String sortCode) {
         long highest = highestCustomerNumber(sortCode);
