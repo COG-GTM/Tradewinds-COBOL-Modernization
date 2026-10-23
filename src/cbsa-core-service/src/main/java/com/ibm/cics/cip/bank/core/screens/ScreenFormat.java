@@ -84,4 +84,28 @@ public final class ScreenFormat {
         }
         return true;
     }
+
+    /**
+     * {@code FUNCTION NUMVAL}: optional leading/trailing sign, embedded spaces trimmed. Returns null when the
+     * text is not a valid NUMVAL argument.
+     */
+    public static BigDecimal numval(String value) {
+        if (value == null) {
+            return null;
+        }
+        String t = value.trim();
+        boolean negative = false;
+        if (t.endsWith("-") || t.endsWith("+")) {
+            negative = t.endsWith("-");
+            t = t.substring(0, t.length() - 1).trim();
+        } else if (t.startsWith("-") || t.startsWith("+")) {
+            negative = t.startsWith("-");
+            t = t.substring(1).trim();
+        }
+        if (t.isEmpty() || !t.matches("[0-9]*\\.?[0-9]*") || t.equals(".")) {
+            return null;
+        }
+        BigDecimal v = new BigDecimal(t.startsWith(".") ? "0" + t : t);
+        return negative ? v.negate() : v;
+    }
 }
