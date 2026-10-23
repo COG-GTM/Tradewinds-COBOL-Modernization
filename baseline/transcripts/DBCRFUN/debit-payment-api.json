@@ -1,0 +1,90 @@
+{
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "debit-payment-api",
+  "description": "Payment-interface debit from account 11",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-ACCNO": "00000011",
+    "COMM-AMT": -10.0,
+    "COMM-SORTC": 987654,
+    "COMM-ORIGIN": {
+      "COMM-FACILTYPE": 496
+    }
+  },
+  "commarea_out": {
+    "COMM-ACCNO": "00000011",
+    "COMM-AMT": -10.0,
+    "COMM-SORTC": 987654,
+    "COMM-AV-BAL": 956247.97,
+    "COMM-ACT-BAL": 956247.97,
+    "COMM-ORIGIN": {
+      "COMM-APPLID": "",
+      "COMM-USERID": "",
+      "COMM-FACILITY-NAME": "",
+      "COMM-NETWRK-ID": "",
+      "COMM-FACILTYPE": 496
+    },
+    "COMM-SUCCESS": "Y",
+    "COMM-FAIL-CODE": "0"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000011"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              956257.97,
+              956247.97
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              956257.97,
+              956247.97
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000011",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "PDR",
+          "PROCTRAN_DESC": "",
+          "PROCTRAN_AMOUNT": -10
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

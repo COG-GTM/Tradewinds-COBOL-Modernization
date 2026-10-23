@@ -1,0 +1,69 @@
+{
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "first-display",
+  "description": "Initial menu display",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER"
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "SEND_MAP",
+        "BNK1ME",
+        "BNK1MAI",
+        "ERASE FREEKB "
+      ],
+      [
+        "RETURN_TRANSID",
+        "OMEN",
+        "",
+        "1"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        ""
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RETURN_TRANSID",
+      "OMEN",
+      "",
+      "1"
+    ]
+  ],
+  "transid": "OMEN"
+}

@@ -1,0 +1,75 @@
+{
+  "program": "ABNDPROC",
+  "flow": "record-abend",
+  "case": "record",
+  "description": "ABNDPROC records an abend record (written to ABNDFILE)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "ABND-VSAM-KEY": {
+      "ABND-UTIME-KEY": 123456789,
+      "ABND-TASKNO-KEY": 42
+    },
+    "ABND-APPLID": "CBSAHARN",
+    "ABND-TRANID": "ODCS",
+    "ABND-DATE": "15.01.2026",
+    "ABND-TIME": "10:30:00",
+    "ABND-CODE": "HWPT",
+    "ABND-PROGRAM": "INQCUST",
+    "ABND-RESPCODE": 13,
+    "ABND-RESP2CODE": 80,
+    "ABND-SQLCODE": 0,
+    "ABND-FREEFORM": "harness test abend"
+  },
+  "commarea_out": {
+    "ABND-VSAM-KEY": {
+      "ABND-UTIME-KEY": 123456789,
+      "ABND-TASKNO-KEY": 42
+    },
+    "ABND-APPLID": "CBSAHARN",
+    "ABND-TRANID": "ODCS",
+    "ABND-DATE": "15.01.2026",
+    "ABND-TIME": "10:30:00",
+    "ABND-CODE": "HWPT",
+    "ABND-PROGRAM": "INQCUST",
+    "ABND-RESPCODE": 13,
+    "ABND-RESP2CODE": 80,
+    "ABND-SQLCODE": 0,
+    "ABND-FREEFORM": "harness test abend"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "ABNDFILE",
+      "ABNDPROC",
+      "\\x00\\x00\\x00\\x124Vx\\x9c0042CBSAHARNODCS15.01.202610:30:00HWPTINQCUST 000000130000008000000000harness test abend"
+    ]
+  ]
+}

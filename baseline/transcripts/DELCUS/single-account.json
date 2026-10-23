@@ -1,0 +1,124 @@
+{
+  "program": "DELCUS",
+  "flow": "delete-customer",
+  "case": "single-account",
+  "description": "Delete customer 9 (one account)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000009"
+  },
+  "commarea_out": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000009",
+    "COMM-NAME": "Sir Patricia Q Corbett",
+    "COMM-ADDR": "23 Holly Close, Nottingham",
+    "COMM-DOB": 14091921,
+    "COMM-CREDIT-SCORE": 627,
+    "COMM-CS-REVIEW-DATE": 30012026,
+    "COMM-DEL-SUCCESS": "Y",
+    "COMM-DEL-FAIL-CD": ""
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "CUSTOMER_EYECATCHER": "CUST",
+          "CUSTOMER_SORTCODE": "987654",
+          "CUSTOMER_NUMBER": "0000000009",
+          "CUSTOMER_NAME": "Sir Patricia Q Corbett",
+          "CUSTOMER_ADDRESS": "23 Holly Close, Nottingham",
+          "CUSTOMER_DATE_OF_BIRTH": "1921-09-14",
+          "CUSTOMER_CREDIT_SCORE": 627,
+          "CUSTOMER_CS_REVIEW_DATE": "2026-01-30"
+        }
+      ]
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": [
+        {
+          "ACCOUNT_EYECATCHER": "ACCT",
+          "ACCOUNT_CUSTOMER_NUMBER": "0000000009",
+          "ACCOUNT_SORTCODE": "987654",
+          "ACCOUNT_NUMBER": "00000026",
+          "ACCOUNT_TYPE": "ISA",
+          "ACCOUNT_INTEREST_RATE": 2.1,
+          "ACCOUNT_OPENED": "1921-09-14",
+          "ACCOUNT_OVERDRAFT_LIMIT": 0,
+          "ACCOUNT_LAST_STATEMENT": "2021-07-01",
+          "ACCOUNT_NEXT_STATEMENT": "2021-08-01",
+          "ACCOUNT_AVAILABLE_BALANCE": 77897.1,
+          "ACCOUNT_ACTUAL_BALANCE": 77897.1
+        }
+      ]
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000026",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODA",
+          "PROCTRAN_DESC": "0000000009ISA     0107202101082021DELETE",
+          "PROCTRAN_AMOUNT": 77897.1
+        },
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000000",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "ODC",
+          "PROCTRAN_DESC": "9876540000000009Sir Patricia Q14/09/1921",
+          "PROCTRAN_AMOUNT": 0
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "DELACC",
+      "126"
+    ]
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "program": "CRECUST",
+  "flow": "create-customer",
+  "case": "dob-too-old",
+  "description": "Date of birth more than 150 years ago",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYECATCHER": "CUST",
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 0
+    },
+    "COMM-NAME": "Mr Very O Old",
+    "COMM-ADDRESS": "4 Ancient Way, Ely",
+    "COMM-DATE-OF-BIRTH": 1011800
+  },
+  "commarea_out": {
+    "COMM-EYECATCHER": "CUST",
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 0
+    },
+    "COMM-NAME": "Mr Very O Old",
+    "COMM-ADDRESS": "4 Ancient Way, Ely",
+    "COMM-DATE-OF-BIRTH": 1011800,
+    "COMM-CREDIT-SCORE": 673,
+    "COMM-CS-REVIEW-DATE": 30012026,
+    "COMM-SUCCESS": "N",
+    "COMM-FAIL-CODE": "O"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RUN_TRANSID",
+      "OCR1",
+      "CIPCREDCHANN",
+      "CHILDTKN00000001"
+    ],
+    [
+      "LINK",
+      "CRDTAGY1",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000001",
+      "CRDTAGY1",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR2",
+      "CIPCREDCHANN",
+      "CHILDTKN00000002"
+    ],
+    [
+      "LINK",
+      "CRDTAGY2",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000002",
+      "CRDTAGY2",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR3",
+      "CIPCREDCHANN",
+      "CHILDTKN00000003"
+    ],
+    [
+      "LINK",
+      "CRDTAGY3",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000003",
+      "CRDTAGY3",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR4",
+      "CIPCREDCHANN",
+      "CHILDTKN00000004"
+    ],
+    [
+      "LINK",
+      "CRDTAGY4",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000004",
+      "CRDTAGY4",
+      "2.000"
+    ],
+    [
+      "RUN_TRANSID",
+      "OCR5",
+      "CIPCREDCHANN",
+      "CHILDTKN00000005"
+    ],
+    [
+      "LINK",
+      "CRDTAGY5",
+      "0"
+    ],
+    [
+      "CHILD_DONE",
+      "CHILDTKN00000005",
+      "CRDTAGY5",
+      "2.000"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000001",
+      "OCR1"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000002",
+      "OCR2"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000003",
+      "OCR3"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000004",
+      "OCR4"
+    ],
+    [
+      "FETCH_CHILD",
+      "CHILDTKN00000005",
+      "OCR5"
+    ]
+  ]
+}

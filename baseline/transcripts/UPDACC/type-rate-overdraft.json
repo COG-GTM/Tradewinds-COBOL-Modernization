@@ -1,0 +1,81 @@
+{
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "type-rate-overdraft",
+  "description": "Change account 2 to CURRENT, rate 0.5, overdraft 300",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 2,
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-INT-RATE": 0.5,
+    "COMM-OVERDRAFT": 300
+  },
+  "commarea_out": {
+    "COMM-EYE": "ACCT",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 2,
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-INT-RATE": 0.5,
+    "COMM-OPENED": 21101967,
+    "COMM-OVERDRAFT": 300,
+    "COMM-LAST-STMT-DT": 1072021,
+    "COMM-NEXT-STMT-DT": 1082021,
+    "COMM-AVAIL-BAL": 329286.06,
+    "COMM-ACTUAL-BAL": 329286.06,
+    "COMM-SUCCESS": "Y"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000002"
+          },
+          "changes": {
+            "ACCOUNT_TYPE": [
+              "SAVING",
+              "CURRENT"
+            ],
+            "ACCOUNT_INTEREST_RATE": [
+              1.75,
+              0.5
+            ],
+            "ACCOUNT_OVERDRAFT_LIMIT": [
+              0,
+              300
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

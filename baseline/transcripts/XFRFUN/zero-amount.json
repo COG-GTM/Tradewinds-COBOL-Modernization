@@ -1,0 +1,57 @@
+{
+  "program": "XFRFUN",
+  "flow": "transfer",
+  "case": "zero-amount",
+  "description": "Zero transfer amount",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-FACCNO": 1,
+    "COMM-FSCODE": 987654,
+    "COMM-TACCNO": 2,
+    "COMM-TSCODE": 987654,
+    "COMM-AMT": 0.0
+  },
+  "commarea_out": {
+    "COMM-FACCNO": 1,
+    "COMM-FSCODE": 987654,
+    "COMM-TACCNO": 2,
+    "COMM-TSCODE": 987654,
+    "COMM-AMT": 0.0,
+    "COMM-FAVBAL": 0.0,
+    "COMM-FACTBAL": 0.0,
+    "COMM-TAVBAL": 0.0,
+    "COMM-TACTBAL": 0.0,
+    "COMM-FAIL-CODE": "4",
+    "COMM-SUCCESS": "N"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

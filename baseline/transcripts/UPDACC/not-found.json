@@ -1,0 +1,60 @@
+{
+  "program": "UPDACC",
+  "flow": "update-account",
+  "case": "not-found",
+  "description": "Update non-existent account 99999",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 99999,
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-INT-RATE": 1,
+    "COMM-OVERDRAFT": 0
+  },
+  "commarea_out": {
+    "COMM-EYE": "ACCT",
+    "COMM-CUSTNO": "",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": 99999,
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-INT-RATE": 1.0,
+    "COMM-OPENED": 0,
+    "COMM-OVERDRAFT": 0,
+    "COMM-LAST-STMT-DT": 0,
+    "COMM-NEXT-STMT-DT": 0,
+    "COMM-AVAIL-BAL": 0.0,
+    "COMM-ACTUAL-BAL": 0.0,
+    "COMM-SUCCESS": "N"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

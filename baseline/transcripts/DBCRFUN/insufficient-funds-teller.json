@@ -1,0 +1,90 @@
+{
+  "program": "DBCRFUN",
+  "flow": "debit",
+  "case": "insufficient-funds-teller",
+  "description": "Teller debit larger than balance + overdraft (account 76)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-ACCNO": "00000076",
+    "COMM-AMT": -600.0,
+    "COMM-SORTC": 987654,
+    "COMM-ORIGIN": {
+      "COMM-FACILTYPE": 0
+    }
+  },
+  "commarea_out": {
+    "COMM-ACCNO": "00000076",
+    "COMM-AMT": -600.0,
+    "COMM-SORTC": 987654,
+    "COMM-AV-BAL": -600.0,
+    "COMM-ACT-BAL": -600.0,
+    "COMM-ORIGIN": {
+      "COMM-APPLID": "",
+      "COMM-USERID": "",
+      "COMM-FACILITY-NAME": "",
+      "COMM-NETWRK-ID": "",
+      "COMM-FACILTYPE": 0
+    },
+    "COMM-SUCCESS": "Y",
+    "COMM-FAIL-CODE": "0"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000076"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              0,
+              -600
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              0,
+              -600
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000076",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "DEB",
+          "PROCTRAN_DESC": "COUNTER WTHDRW",
+          "PROCTRAN_AMOUNT": -600
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": []
+}

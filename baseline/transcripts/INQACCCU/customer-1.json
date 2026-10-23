@@ -1,0 +1,112 @@
+{
+  "program": "INQACCCU",
+  "flow": "list-accounts",
+  "case": "customer-1",
+  "description": "List accounts of customer 1 (4 accounts)",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "CUSTOMER-NUMBER": 1
+  },
+  "commarea_out": {
+    "NUMBER-OF-ACCOUNTS": 4,
+    "CUSTOMER-NUMBER": 1,
+    "COMM-SUCCESS": "Y",
+    "COMM-FAIL-CODE": "0",
+    "CUSTOMER-FOUND": "Y",
+    "COMM-PCB-POINTER": null,
+    "ACCOUNT-DETAILS": [
+      {
+        "COMM-EYE": "ACCT",
+        "COMM-CUSTNO": "0000000001",
+        "COMM-SCODE": "987654",
+        "COMM-ACCNO": 1,
+        "COMM-ACC-TYPE": "ISA",
+        "COMM-INT-RATE": 2.1,
+        "COMM-OPENED": 21101967,
+        "COMM-OVERDRAFT": 0,
+        "COMM-LAST-STMT-DT": 1072021,
+        "COMM-NEXT-STMT-DT": 1082021,
+        "COMM-AVAIL-BAL": 623375.58,
+        "COMM-ACTUAL-BAL": 623375.58
+      },
+      {
+        "COMM-EYE": "ACCT",
+        "COMM-CUSTNO": "0000000001",
+        "COMM-SCODE": "987654",
+        "COMM-ACCNO": 2,
+        "COMM-ACC-TYPE": "SAVING",
+        "COMM-INT-RATE": 1.75,
+        "COMM-OPENED": 21101967,
+        "COMM-OVERDRAFT": 0,
+        "COMM-LAST-STMT-DT": 1072021,
+        "COMM-NEXT-STMT-DT": 1082021,
+        "COMM-AVAIL-BAL": 329286.06,
+        "COMM-ACTUAL-BAL": 329286.06
+      },
+      {
+        "COMM-EYE": "ACCT",
+        "COMM-CUSTNO": "0000000001",
+        "COMM-SCODE": "987654",
+        "COMM-ACCNO": 3,
+        "COMM-ACC-TYPE": "CURRENT",
+        "COMM-INT-RATE": 0.0,
+        "COMM-OPENED": 21101967,
+        "COMM-OVERDRAFT": 100,
+        "COMM-LAST-STMT-DT": 1072021,
+        "COMM-NEXT-STMT-DT": 1082021,
+        "COMM-AVAIL-BAL": 510249.31,
+        "COMM-ACTUAL-BAL": 510249.31
+      },
+      {
+        "COMM-EYE": "ACCT",
+        "COMM-CUSTNO": "0000000001",
+        "COMM-SCODE": "987654",
+        "COMM-ACCNO": 4,
+        "COMM-ACC-TYPE": "LOAN",
+        "COMM-INT-RATE": 17.9,
+        "COMM-OPENED": 21101967,
+        "COMM-OVERDRAFT": 0,
+        "COMM-LAST-STMT-DT": 1072021,
+        "COMM-NEXT-STMT-DT": 1082021,
+        "COMM-AVAIL-BAL": -593243.54,
+        "COMM-ACTUAL-BAL": -593243.54
+      }
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ]
+  ]
+}

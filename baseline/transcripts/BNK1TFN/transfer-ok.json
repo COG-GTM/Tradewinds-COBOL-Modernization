@@ -1,0 +1,191 @@
+{
+  "program": "BNK1TFN",
+  "flow": "screen-otfn",
+  "case": "transfer-ok",
+  "description": "Transfer 10.00 from 1 to 2",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "FACCNO": "00000001",
+      "TACCNO": "00000002",
+      "AMT": "10.00"
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1TF",
+        "BNK1TFM",
+        "3"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1TF",
+        "BNK1TFM",
+        "DATAONLY ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "FACCNO",
+        "00000001"
+      ],
+      [
+        "FIELD",
+        "TACCNO",
+        "00000002"
+      ],
+      [
+        "FIELD",
+        "AMT",
+        "10.00"
+      ],
+      [
+        "FIELD",
+        "FACCNO2",
+        "00000001"
+      ],
+      [
+        "FIELD",
+        "TACCNO2",
+        "00000002"
+      ],
+      [
+        "FIELD",
+        "FSORTC",
+        "987654"
+      ],
+      [
+        "FIELD",
+        "TSORTC",
+        "987654"
+      ],
+      [
+        "FIELD",
+        "FACTBAL",
+        "+0000623365.58"
+      ],
+      [
+        "FIELD",
+        "TACTBAL",
+        "+0000329296.06"
+      ],
+      [
+        "FIELD",
+        "FAVBAL",
+        "+0000623365.58"
+      ],
+      [
+        "FIELD",
+        "TAVBAL",
+        "+0000329296.06"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "Transfer successfully applied."
+      ],
+      [
+        "RETURN_TRANSID",
+        "OTFN",
+        "",
+        "29"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "0000000000000000000000000000\\x00"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000001"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              623375.58,
+              623365.58
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              623375.58,
+              623365.58
+            ]
+          }
+        },
+        {
+          "key": {
+            "ACCOUNT_SORTCODE": "987654",
+            "ACCOUNT_NUMBER": "00000002"
+          },
+          "changes": {
+            "ACCOUNT_AVAILABLE_BALANCE": [
+              329286.06,
+              329296.06
+            ],
+            "ACCOUNT_ACTUAL_BALANCE": [
+              329286.06,
+              329296.06
+            ]
+          }
+        }
+      ],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [
+        {
+          "PROCTRAN_EYECATCHER": "PRTR",
+          "PROCTRAN_SORTCODE": "987654",
+          "PROCTRAN_NUMBER": "00000001",
+          "PROCTRAN_DATE": "2026-01-15",
+          "PROCTRAN_TIME": "103000",
+          "PROCTRAN_REF": "000000000100",
+          "PROCTRAN_TYPE": "TFR",
+          "PROCTRAN_DESC": "TRANSFER                  98765400000002",
+          "PROCTRAN_AMOUNT": 10
+        }
+      ],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "XFRFUN",
+      "90"
+    ],
+    [
+      "RETURN_TRANSID",
+      "OTFN",
+      "",
+      "29"
+    ]
+  ],
+  "transid": "OTFN"
+}

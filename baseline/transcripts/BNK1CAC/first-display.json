@@ -1,0 +1,74 @@
+{
+  "program": "BNK1CAC",
+  "flow": "screen-ocac",
+  "case": "first-display",
+  "description": "Create account screen first entry",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER"
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "SEND_MAP",
+        "BNK1CA",
+        "BNK1CAM",
+        "ERASE CURSOR FREEKB "
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        ""
+      ],
+      [
+        "RETURN_TRANSID",
+        "OCAC",
+        "",
+        "32"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "0000000000        00000000000000"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "RETURN_TRANSID",
+      "OCAC",
+      "",
+      "32"
+    ]
+  ],
+  "transid": "OCAC"
+}

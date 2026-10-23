@@ -1,0 +1,84 @@
+{
+  "program": "CREACC",
+  "flow": "create-account",
+  "case": "invalid-type",
+  "description": "Account type CHEQUE is rejected",
+  "runtime": "gnucobol-stub",
+  "mode": "link",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "COMM-EYECATCHER": "ACCT",
+    "COMM-CUSTNO": 9,
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 0
+    },
+    "COMM-ACC-TYPE": "CHEQUE",
+    "COMM-INT-RT": 1.5,
+    "COMM-OVERDR-LIM": 0,
+    "COMM-AVAIL-BAL": 0,
+    "COMM-ACT-BAL": 0
+  },
+  "commarea_out": {
+    "COMM-EYECATCHER": "ACCT",
+    "COMM-CUSTNO": 9,
+    "COMM-KEY": {
+      "COMM-SORTCODE": 987654,
+      "COMM-NUMBER": 0
+    },
+    "COMM-ACC-TYPE": "CHEQUE",
+    "COMM-INT-RT": 1.5,
+    "COMM-OPENED": 0,
+    "COMM-OVERDR-LIM": 0,
+    "COMM-LAST-STMT-DT": 0,
+    "COMM-NEXT-STMT-DT": 0,
+    "COMM-AVAIL-BAL": 0.0,
+    "COMM-ACT-BAL": 0.0,
+    "COMM-SUCCESS": "N",
+    "COMM-FAIL-CODE": "A"
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "LINK",
+      "INQACCCU",
+      "1985"
+    ],
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ]
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "program": "BNKMENU",
+  "flow": "screen-omen",
+  "case": "pf3-exit",
+  "description": "PF3 ends the session",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "PF3",
+    "commarea": "X"
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "SEND_TEXT",
+        "ERASE",
+        "Session Ended"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [],
+  "transid": "OMEN"
+}

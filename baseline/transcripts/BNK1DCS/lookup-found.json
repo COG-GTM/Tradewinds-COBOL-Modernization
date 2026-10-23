@@ -1,0 +1,159 @@
+{
+  "program": "BNK1DCS",
+  "flow": "screen-odcs",
+  "case": "lookup-found",
+  "description": "Look up customer 2",
+  "runtime": "gnucobol-stub",
+  "mode": "term",
+  "env": {
+    "CBSA_FIXED_TIME": "2026-01-15T10:30:00Z",
+    "CBSA_RANDOM_SEED": "42",
+    "CBSA_TASKN": "100"
+  },
+  "commarea_in": {
+    "aid": "ENTER",
+    "commarea": "X",
+    "map_fields": {
+      "CUSTNO": "0000000002"
+    }
+  },
+  "commarea_out": {
+    "screen": [
+      [
+        "RECEIVE_MAP",
+        "BNK1DC",
+        "BNK1DCM",
+        "1"
+      ],
+      [
+        "SEND_MAP",
+        "BNK1DC",
+        "BNK1DCM",
+        "DATAONLY CURSOR ALARM FREEKB "
+      ],
+      [
+        "FIELD",
+        "CUSTNO",
+        "0000000002"
+      ],
+      [
+        "FIELD",
+        "SORTC",
+        "987654"
+      ],
+      [
+        "FIELD",
+        "CUSTNO2",
+        "0000000002"
+      ],
+      [
+        "FIELD",
+        "CUSTNAM",
+        "Dr James A Wilmore"
+      ],
+      [
+        "FIELD",
+        "CUSTAD1",
+        "39 Gorse Grove, Peterborough"
+      ],
+      [
+        "FIELD",
+        "CUSTAD2",
+        ""
+      ],
+      [
+        "FIELD",
+        "CUSTAD3",
+        ""
+      ],
+      [
+        "FIELD",
+        "DOBDD",
+        "03"
+      ],
+      [
+        "FIELD",
+        "DOBMM",
+        "07"
+      ],
+      [
+        "FIELD",
+        "DOBYY",
+        "1979"
+      ],
+      [
+        "FIELD",
+        "CREDSC",
+        "630"
+      ],
+      [
+        "FIELD",
+        "SCRDTDD",
+        "26"
+      ],
+      [
+        "FIELD",
+        "SCRDTMM",
+        "01"
+      ],
+      [
+        "FIELD",
+        "SCRDTYY",
+        "2026"
+      ],
+      [
+        "FIELD",
+        "MESSAGE",
+        "Customer lookup successful. <PF5> to Delete. <PF10> to Update."
+      ],
+      [
+        "RETURN_TRANSID",
+        "ODCS",
+        "",
+        "266"
+      ],
+      [
+        "RETURN_COMMAREA",
+        "-",
+        "X\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00"
+      ]
+    ]
+  },
+  "abend": null,
+  "db_delta": {
+    "CUSTOMER": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "ACCOUNT": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "PROCTRAN": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    },
+    "CONTROL": {
+      "inserted": [],
+      "updated": [],
+      "deleted": []
+    }
+  },
+  "trace": [
+    [
+      "LINK",
+      "INQCUST",
+      "269"
+    ],
+    [
+      "RETURN_TRANSID",
+      "ODCS",
+      "",
+      "266"
+    ]
+  ],
+  "transid": "ODCS"
+}
