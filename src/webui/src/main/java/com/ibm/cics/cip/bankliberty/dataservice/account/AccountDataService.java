@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,7 +51,13 @@ public class AccountDataService
 			"MORTGAGE", "SAVING", "CURRENT", "LOAN" };
 
 	private static final DateTimeFormatter DDMMYYYY = DateTimeFormatter
-			.ofPattern("ddMMuuuu");
+			.ofPattern("ddMMuuuu").withResolverStyle(ResolverStyle.STRICT);
+
+	private static final DateTimeFormatter ISO_DATE = DateTimeFormatter
+			.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
+
+	/** Server-side failures are logged in full but not echoed to callers. */
+	static final String SERVER_ERROR_MESSAGE = "Data service failure; see server log";
 
 	private final AccountDao dao;
 
@@ -484,7 +491,7 @@ public class AccountDataService
 		try
 		{
 			return raw.length() == 8 ? LocalDate.parse(raw, DDMMYYYY)
-					: LocalDate.parse(raw);
+					: LocalDate.parse(raw, ISO_DATE);
 		}
 		catch (DateTimeParseException e)
 		{
@@ -553,7 +560,8 @@ public class AccountDataService
 		{
 			body.put("abendCode", e.getAbendCode());
 		}
-		body.put("message", e.getMessage());
+		body.put("message", e.getHttpStatus() >= 500 ? SERVER_ERROR_MESSAGE
+				: e.getMessage());
 		return new ServiceResult(e.getHttpStatus(), body);
 	}
 }

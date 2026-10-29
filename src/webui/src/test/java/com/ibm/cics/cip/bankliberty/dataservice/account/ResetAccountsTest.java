@@ -83,6 +83,20 @@ class ResetAccountsTest extends PostgresTestBase
 
 
 	@Test
+	@DisplayName("Impossible calendar dates are rejected, not silently adjusted (31 Feb, 29 Feb in a non-leap year)")
+	void impossibleDatesAreRejected() throws Exception
+	{
+		for (String bad : new String[] { "31022021", "29022021", "2021-02-30" })
+		{
+			String body = "[" + acct("10", "5").replace("\"opened\":\"01012000\"", "\"opened\":\"" + bad + "\"") + "]";
+			assertEquals(400, service().reset(SORTCODE, body, null, null).getStatus(), bad);
+		}
+		assertEquals(200, service().reset(SORTCODE,
+				"[" + acct("10", "5").replace("01012000", "29022020") + "]", null, null).getStatus());
+	}
+
+
+	@Test
 	@DisplayName("A body that is not a JSON array is rejected with 400")
 	void nonArrayBodyIsRejected()
 	{

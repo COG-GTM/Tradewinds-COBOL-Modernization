@@ -1,7 +1,6 @@
 package com.ibm.cics.cip.bankliberty.dataservice.account;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -117,6 +116,6 @@ class InquireAccountTest extends PostgresTestBase
 		ServiceResult r = service().inquire(SORTCODE, "1");
 		assertEquals(500, r.getStatus());
 		assertEquals("HRAC", r.getBody().get("abendCode"));
-		assertTrue(r.getBody().get("message").toString().contains("ACCOUNT"));
+		assertEquals(AccountDataService.SERVER_ERROR_MESSAGE, r.getBody().get("message"));
 	}
 }

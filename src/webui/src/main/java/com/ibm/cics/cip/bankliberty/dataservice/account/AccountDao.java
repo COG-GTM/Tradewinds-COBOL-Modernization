@@ -83,6 +83,16 @@ public class AccountDao
 
 	private static final String SQL_INSERT_CONTROL = "INSERT INTO CONTROL (CONTROL_NAME, CONTROL_VALUE_NUM, CONTROL_VALUE_STR) VALUES (?,?,?)";
 
+	/**
+	 * Transaction-scoped advisory lock serialising account-number allocation
+	 * and bulk reset per sortcode (the CONTROL rows cannot be the lock target
+	 * because reset deletes and recreates them).
+	 */
+	private static final String SQL_LOCK_SORTCODE = "SELECT pg_advisory_xact_lock(?, ?)";
+
+	/** Advisory-lock namespace: 'ACCT'. */
+	static final int ACCOUNT_LOCK_CLASS = 0x41434354;
+
 	private static final String SQL_INSERT_PROCTRAN = "INSERT INTO PROCTRAN (PROCTRAN_EYECATCHER, PROCTRAN_SORTCODE, "
 			+ "PROCTRAN_NUMBER, PROCTRAN_DATE, PROCTRAN_TIME, PROCTRAN_REF, PROCTRAN_TYPE, "
 			+ "PROCTRAN_DESC, PROCTRAN_AMOUNT) VALUES (?,?,?,?,?,?,?,?,?)";
@@ -195,6 +205,7 @@ public class AccountDao
 			throws DataServiceException
 	{
 		return inTransaction(() -> {
+			lockSortcode(req.sortcode);
 			String lastName = controlName(req.sortcode,
 					CONTROL_ACCOUNT_LAST_SUFFIX);
 			String countName = controlName(req.sortcode,
@@ -381,6 +392,7 @@ public class AccountDao
 			throws DataServiceException
 	{
 		return inTransaction(() -> {
+			lockSortcode(sortcode);
 			try (PreparedStatement ps = conn
 					.prepareStatement(SQL_DELETE_ACCOUNTS_FOR_SORTCODE))
 			{
@@ -457,6 +469,17 @@ public class AccountDao
 	static String controlName(String sortcode, String suffix)
 	{
 		return sortcode + suffix;
+	}
+
+
+	private void lockSortcode(String sortcode) throws SQLException
+	{
+		try (PreparedStatement ps = conn.prepareStatement(SQL_LOCK_SORTCODE))
+		{
+			ps.setInt(1, ACCOUNT_LOCK_CLASS);
+			ps.setInt(2, Integer.parseInt(sortcode));
+			ps.executeQuery().close();
+		}
 	}
 
 

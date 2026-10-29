@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Minimal RFC 8259 JSON reader/writer over Map / List / String / Number /
@@ -22,6 +23,9 @@ import java.util.Map;
  */
 public final class JsonCodec
 {
+
+	private static final Pattern JSON_NUMBER = Pattern
+			.compile("-?(0|[1-9][0-9]*)(\\.[0-9]+)?([eE][+-]?[0-9]+)?");
 
 	private final String text;
 
@@ -225,6 +229,10 @@ public final class JsonCodec
 			pos++;
 		}
 		String n = text.substring(start, pos);
+		if (!JSON_NUMBER.matcher(n).matches())
+		{
+			throw error("Bad number '" + n + "'");
+		}
 		try
 		{
 			BigDecimal d = new BigDecimal(n);
