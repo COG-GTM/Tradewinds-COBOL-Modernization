@@ -50,7 +50,7 @@ for side in a b; do
 done
 
 echo "== Start databases"
-if ! docker ps --format '{{.Names}}' | grep -qx db2a; then
+if ! docker ps --format '{{.Names}}' | grep -x db2a >/dev/null; then
   docker rm -f db2a >/dev/null 2>&1 || true
   docker run -d --name db2a --privileged -p 50000:50000 -e LICENSE=accept \
     -e DB2INST1_PASSWORD="$DB2_PASSWORD" -e DBNAME=CBSA -e ARCHIVE_LOGS=false \
