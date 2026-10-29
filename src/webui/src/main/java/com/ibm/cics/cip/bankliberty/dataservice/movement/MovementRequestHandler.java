@@ -179,7 +179,10 @@ public final class MovementRequestHandler
 		}
 		catch (IllegalArgumentException e)
 		{
-			return invalid(e);
+			json.success = "N";
+			json.failCode = FAIL_CODE_INVALID_REQUEST;
+			json.errorMessage = e.getMessage();
+			return new DataServiceResult(400, json);
 		}
 		catch (SQLException e)
 		{
