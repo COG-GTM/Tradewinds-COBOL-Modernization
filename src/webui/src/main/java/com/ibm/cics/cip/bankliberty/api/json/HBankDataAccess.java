@@ -8,7 +8,8 @@ package com.ibm.cics.cip.bankliberty.api.json;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -24,7 +25,8 @@ import com.ibm.cics.server.RolledBackException;
 import com.ibm.cics.server.Task;
 
 /**
- * This class is used to hold a HashTable which in turn holds Db2 Connections
+ * This class is used to hold a HashTable which in turn holds PostgreSQL
+ * connections, one per CICS task (or per thread when running standalone)
  *
  */
 
@@ -36,10 +38,9 @@ public class HBankDataAccess
 
 	static int connectionCount = 0;
 
-	private static final String DB2CONN = "DB2CONN";
+	private static final String DBCONN = "DBCONN";
 
-	@SuppressWarnings("rawtypes")
-	static HashMap cornedBeef = null;
+	static Map<String, Connection> cornedBeef = null;
 
 	private static Logger logger = Logger
 			.getLogger("com.ibm.cics.cip.bankliberty.api.json");
@@ -61,37 +62,37 @@ public class HBankDataAccess
 
 	private static void createHashMap()
 	{
-		cornedBeef = new HashMap<>();
+		cornedBeef = new ConcurrentHashMap<>();
 
 	}
 
 
 	protected void openConnection()
 	{
-		// Open a connection to the DB2 database
+		// Open a connection to the PostgreSQL database
 		logger.entering(this.getClass().getName(), "openConnection()");
 
-		Integer taskNumberInteger = Task.getTask().getTaskNumber();
-		String db2ConnString = DB2CONN.concat(taskNumberInteger.toString());
+		Integer taskNumberInteger = BankRuntime.taskNumber();
+		String dbConnString = DBCONN.concat(taskNumberInteger.toString());
 		logger.log(Level.FINE,
-				() -> "Attempting to get DB2CONN for task number "
+				() -> "Attempting to get DBCONN for task number "
 						+ taskNumberInteger.toString());
-		this.conn = (Connection) cornedBeef.get(db2ConnString);
+		this.conn = cornedBeef.get(dbConnString);
 		if (this.conn == null)
 		{
 			HBankDataAccess.incrementConnCount();
 			logger.log(Level.FINE,
-					() -> "Attempting to create DB2CONN for task number "
+					() -> "Attempting to create DBCONN for task number "
 							+ taskNumberInteger.toString());
 			// Attempt to open a connection
 			openConnectionInternal();
 			logger.log(Level.FINE,
-					() -> "Creation succcessful for DB2CONN for task number "
+					() -> "Creation succcessful for DBCONN for task number "
 							+ taskNumberInteger.toString());
 		}
 		else
 		{
-			logger.log(Level.FINE, () -> "Reusing DB2CONN for task number "
+			logger.log(Level.FINE, () -> "Reusing DBCONN for task number "
 					+ taskNumberInteger.toString());
 
 			try
@@ -100,7 +101,7 @@ public class HBankDataAccess
 				if (this.conn.isClosed())
 				{
 					logger.warning(
-							"DB2 connection was closed, attempting to reopen");
+							"PostgreSQL connection was closed, attempting to reopen");
 					openConnectionInternal();
 				}
 			}
@@ -123,67 +124,89 @@ public class HBankDataAccess
 
 	public void closeConnection()
 	{
-		// Close the connection to the DB2 database
+		// Close the connection to the PostgreSQL database
 		logger.entering(this.getClass().getName(), "closeConnection()");
 
 		HBankDataAccess.decrementConnCount();
 
-		Integer taskNumberInterger = Task.getTask().getTaskNumber();
-		String db2ConnString = DB2CONN.concat(taskNumberInterger.toString());
-		this.conn = (Connection) cornedBeef.get(db2ConnString);
+		Integer taskNumberInterger = BankRuntime.taskNumber();
+		String dbConnString = DBCONN.concat(taskNumberInterger.toString());
+		this.conn = cornedBeef.get(dbConnString);
 		// If there is an open connection
 		if (this.conn != null)
 		{
-			logger.log(Level.FINE, () -> "We have a DB2 connection to close");
+			logger.log(Level.FINE, () -> "We have a PostgreSQL connection to close");
 			try
 			{
 				logger.log(Level.FINE, () -> "Syncpointing");
-				Task.getTask().commit();
-				// Close the connection
-				this.conn.close();
-				cornedBeef.remove(db2ConnString);
+				if (!this.conn.getAutoCommit())
+				{
+					this.conn.commit();
+				}
+				if (!BankRuntime.isStandalone())
+				{
+					Task.getTask().commit();
+				}
 			}
 			catch (SQLException e)
 			{
 				logger.severe(
-						"SQLException in com.ibm.cics.cip.bankliberty.web.db2.Customer "
+						"SQLException committing PostgreSQL connection "
 								+ e.getErrorCode() + "," + e.getSQLState() + ","
 								+ e.getMessage());
+				try
+				{
+					BankRuntime.rollback();
+				}
+				catch (InvalidRequestException e2)
+				{
+					logger.severe(e2.getLocalizedMessage());
+				}
 			}
 			catch (InvalidRequestException | RolledBackException e)
 			{
 				logger.severe(e.getLocalizedMessage());
+			}
+			finally
+			{
+				cornedBeef.remove(dbConnString);
+				try
+				{
+					this.conn.close();
+				}
+				catch (SQLException e)
+				{
+					logger.severe("SQLException closing PostgreSQL connection "
+							+ e.getMessage());
+				}
 			}
 		}
 		logger.exiting(this.getClass().getName(), "closeConnection()");
 	}
 
 
-	@SuppressWarnings("unchecked")
 	void openConnectionInternal()
 	{
 		logger.entering(this.getClass().getName(), "openConnectionInternal");
-		String jndiString = "jdbc/defaultCICSDataSource";
-		Context ctx;
-
 		try
 		{
-			ctx = new InitialContext();
-			DataSource ds = (DataSource) ctx.lookup(jndiString);
-			logger.log(Level.FINE, () -> "jndi string is " + jndiString);
 			// If there is no current connection
 			if (this.conn == null)
 			{
 				logger.log(Level.FINE,
-						() -> "About to attempt to get DB2 connection");
+						() -> "About to attempt to get PostgreSQL connection");
 				// Try and get a connection
-				this.conn = ds.getConnection();
+				this.conn = newConnection();
+				// PostgreSQL has no READ UNCOMMITTED (it is treated as READ
+				// COMMITTED). Statements run in an explicit transaction that
+				// closeConnection() commits and BankRuntime.rollback() undoes.
 				this.conn.setTransactionIsolation(
-						Connection.TRANSACTION_READ_UNCOMMITTED);
-				Integer taskNumberInterger = Task.getTask().getTaskNumber();
-				String db2ConnString = DB2CONN
+						Connection.TRANSACTION_READ_COMMITTED);
+				this.conn.setAutoCommit(false);
+				Integer taskNumberInterger = BankRuntime.taskNumber();
+				String dbConnString = DBCONN
 						.concat(taskNumberInterger.toString());
-				cornedBeef.put(db2ConnString, this.conn);
+				cornedBeef.put(dbConnString, this.conn);
 				HBankDataAccess.incrementConnCount();
 
 			}
@@ -193,15 +216,62 @@ public class HBankDataAccess
 				if (this.conn.isClosed())
 				{
 					logger.log(Level.FINE,
-							() -> "DB2 connection was closed, getting a new one");
-					this.conn = ds.getConnection();
+							() -> "PostgreSQL connection was closed, getting a new one");
+					this.conn = newConnection();
+					this.conn.setAutoCommit(false);
+					cornedBeef.put(DBCONN.concat(Integer
+							.toString(BankRuntime.taskNumber())), this.conn);
 				}
 			}
 		}
 		catch (NamingException | SQLException e)
 		{
 			logger.severe(e.getMessage());
+			if (BankRuntime.isStandalone())
+			{
+				throw new IllegalStateException(e);
+			}
 			Task.getTask().abend("HDB2");
+		}
+	}
+
+
+	private Connection newConnection() throws NamingException, SQLException
+	{
+		if (BankRuntime.isStandalone())
+		{
+			return BankRuntime.standaloneConnection();
+		}
+		String jndiString = "jdbc/defaultCICSDataSource";
+		Context ctx = new InitialContext();
+		DataSource ds = (DataSource) ctx.lookup(jndiString);
+		logger.log(Level.FINE, () -> "jndi string is " + jndiString);
+		return ds.getConnection();
+	}
+
+
+	static void rollbackCurrentConnection()
+	{
+		if (cornedBeef == null)
+		{
+			return;
+		}
+		Connection current = cornedBeef.get(
+				DBCONN.concat(Integer.toString(BankRuntime.taskNumber())));
+		if (current == null)
+		{
+			return;
+		}
+		try
+		{
+			if (!current.isClosed() && !current.getAutoCommit())
+			{
+				current.rollback();
+			}
+		}
+		catch (SQLException e)
+		{
+			logger.severe("Rollback failed " + e.getMessage());
 		}
 	}
 

@@ -31,7 +31,6 @@ import jakarta.ws.rs.core.Response;
 
 import com.ibm.cics.cip.bankliberty.web.vsam.Customer;
 import com.ibm.cics.server.InvalidRequestException;
-import com.ibm.cics.server.Task;
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 
@@ -320,7 +319,7 @@ public class CustomerResource
 			{
 				logger.severe(
 						"Customer: createCustomer: Failed to write to PROCTRAN");
-				Task.getTask().rollback();
+				BankRuntime.rollback();
 			}
 			catch (InvalidRequestException e)
 			{
@@ -649,7 +648,7 @@ public class CustomerResource
 									+ ",account not found");
 					logger.log(Level.SEVERE,
 							() -> "Customer: deleteAccount: Failed to delete account, not found");
-					Task.getTask().rollback();
+					BankRuntime.rollback();
 					Response myResponse = Response.status(404)
 							.entity(response.toString()).build();
 					logger.log(Level.WARNING,
@@ -666,7 +665,7 @@ public class CustomerResource
 							+ accountToDeleteLong + " for customer " + id);
 					logger.log(Level.SEVERE,
 							() -> "Customer: deleteAccount: Failed to delete account, error");
-					Task.getTask().rollback();
+					BankRuntime.rollback();
 					Response myResponse = Response
 							.status(deleteAccountResponse.getStatus())
 							.entity(response.toString()).build();
@@ -742,7 +741,7 @@ public class CustomerResource
 			{
 				logger.log(Level.SEVERE,
 						() -> "Customer: deleteCustomer: Failed to write to proctran");
-				Task.getTask().rollback();
+				BankRuntime.rollback();
 			}
 			catch (InvalidRequestException e)
 			{

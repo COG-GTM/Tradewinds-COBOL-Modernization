@@ -1,0 +1,5 @@
+-- Copyright IBM Corp. 2023, 2025
+-- PostgreSQL equivalent of etc/install/base/db2jcl/DROPDB2.jcl
+DROP TABLE IF EXISTS PROCTRAN;
+DROP TABLE IF EXISTS ACCOUNT;
+DROP TABLE IF EXISTS CONTROL;

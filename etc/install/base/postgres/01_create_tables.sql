@@ -1,0 +1,52 @@
+-- Copyright IBM Corp. 2023, 2025
+--
+-- PostgreSQL port of the CBSA DDL in etc/install/base/db2jcl/INSTDB2.jcl.
+-- Column names, types, lengths and index keys are unchanged; the DB2-only
+-- clauses (CREATE DATABASE/STOGROUP/TABLESPACE, IN CBSA.*, NOT VOLATILE,
+-- CARDINALITY, AUDIT NONE, DATA CAPTURE NONE, USING STOGROUP) are dropped.
+-- DECIMAL(p,s) -> NUMERIC(p,s); CHAR, DATE and INTEGER map one to one.
+--
+-- Run as the owner of the target database, e.g.
+--   psql "$CBSA_PG_URL" -v ON_ERROR_STOP=1 -f 01_create_tables.sql
+
+CREATE TABLE IF NOT EXISTS ACCOUNT (
+    ACCOUNT_EYECATCHER             CHAR(4),
+    ACCOUNT_CUSTOMER_NUMBER        CHAR(10),
+    ACCOUNT_SORTCODE               CHAR(6) NOT NULL,
+    ACCOUNT_NUMBER                 CHAR(8) NOT NULL,
+    ACCOUNT_TYPE                   CHAR(8),
+    ACCOUNT_INTEREST_RATE          NUMERIC(6, 2),
+    ACCOUNT_OPENED                 DATE,
+    ACCOUNT_OVERDRAFT_LIMIT        INTEGER,
+    ACCOUNT_LAST_STATEMENT         DATE,
+    ACCOUNT_NEXT_STATEMENT         DATE,
+    ACCOUNT_AVAILABLE_BALANCE      NUMERIC(12, 2),
+    ACCOUNT_ACTUAL_BALANCE         NUMERIC(12, 2)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS ACCTINDX
+    ON ACCOUNT (ACCOUNT_SORTCODE, ACCOUNT_NUMBER);
+
+CREATE INDEX IF NOT EXISTS ACCTCUST
+    ON ACCOUNT (ACCOUNT_SORTCODE, ACCOUNT_CUSTOMER_NUMBER);
+
+CREATE TABLE IF NOT EXISTS PROCTRAN (
+    PROCTRAN_EYECATCHER            CHAR(4),
+    PROCTRAN_SORTCODE              CHAR(6) NOT NULL,
+    PROCTRAN_NUMBER                CHAR(8) NOT NULL,
+    PROCTRAN_DATE                  DATE,
+    PROCTRAN_TIME                  CHAR(6),
+    PROCTRAN_REF                   CHAR(12),
+    PROCTRAN_TYPE                  CHAR(3),
+    PROCTRAN_DESC                  CHAR(40),
+    PROCTRAN_AMOUNT                NUMERIC(12, 2)
+);
+
+CREATE TABLE IF NOT EXISTS CONTROL (
+    CONTROL_NAME                   CHAR(32),
+    CONTROL_VALUE_NUM              INTEGER,
+    CONTROL_VALUE_STR              CHAR(40)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS CONTINDX
+    ON CONTROL (CONTROL_NAME);

@@ -1,5 +1,4 @@
        CBL CICS('SP,EDF')
-       CBL SQL
       ******************************************************************
       *                                                                *
       *  Copyright IBM Corp. 2023                                      *
@@ -45,78 +44,24 @@
 
        77 SYSIDERR-RETRY PIC 999.
 
-      * Get the ACCOUNT DB2 copybook
-           EXEC SQL
-              INCLUDE ACCDB2
-           END-EXEC.
+      * Account data service (DATASVC) areas
+       01 WS-DSV.
+          COPY DATASVC.
 
-      * ACCOUNT Host variables for DB2
-       01 HOST-ACCOUNT-ROW.
-          03 HV-ACCOUNT-EYECATCHER          PIC X(4).
-          03 HV-ACCOUNT-CUST-NO             PIC X(10).
-          03 HV-ACCOUNT-SORTCODE            PIC X(6).
-          03 HV-ACCOUNT-ACC-NO              PIC X(8).
-          03 HV-ACCOUNT-ACC-TYPE            PIC X(8).
-          03 HV-ACCOUNT-INT-RATE            PIC S9(4)V99 COMP-3.
-          03 HV-ACCOUNT-OPENED              PIC X(10).
-          03 HV-ACCOUNT-OPENED-GROUP REDEFINES HV-ACCOUNT-OPENED.
-             05 HV-ACCOUNT-OPENED-DAY       PIC XX.
-             05 HV-ACCOUNT-OPENED-DELIM1    PIC X.
-             05 HV-ACCOUNT-OPENED-MONTH     PIC XX.
-             05 HV-ACCOUNT-OPENED-DELIM2    PIC X.
-             05 HV-ACCOUNT-OPENED-YEAR      PIC X(4).
-          03 HV-ACCOUNT-OVERDRAFT-LIM       PIC S9(9) COMP.
-          03 HV-ACCOUNT-LAST-STMT           PIC X(10).
-          03 HV-ACCOUNT-LAST-STMT-GROUP
-             REDEFINES HV-ACCOUNT-LAST-STMT.
-             05 HV-ACCOUNT-LAST-STMT-DAY    PIC XX.
-             05 HV-ACCOUNT-LAST-STMT-DELIM1 PIC X.
-             05 HV-ACCOUNT-LAST-STMT-MONTH  PIC XX.
-             05 HV-ACCOUNT-LAST-STMT-DELIM2 PIC X.
-             05 HV-ACCOUNT-LAST-STMT-YEAR   PIC X(4).
-          03 HV-ACCOUNT-NEXT-STMT           PIC X(10).
-          03 HV-ACCOUNT-NEXT-STMT-GROUP
-             REDEFINES HV-ACCOUNT-NEXT-STMT.
-             05 HV-ACCOUNT-NEXT-STMT-DAY    PIC XX.
-             05 HV-ACCOUNT-NEXT-STMT-DELIM1 PIC X.
-             05 HV-ACCOUNT-NEXT-STMT-MONTH  PIC XX.
-             05 HV-ACCOUNT-NEXT-STMT-DELIM2 PIC X.
-             05 HV-ACCOUNT-NEXT-STMT-YEAR   PIC X(4).
-          03 HV-ACCOUNT-AVAIL-BAL           PIC S9(10)V99 COMP-3.
-          03 HV-ACCOUNT-ACTUAL-BAL          PIC S9(10)V99 COMP-3.
+      * Envelope + created account returned by POST /data/account
+       01 WS-DSV-RESP.
+          03 WS-RESP-SUCCESS            PIC X.
+          03 WS-RESP-FAILCODE           PIC X.
+          03 WS-RESP-ABEND              PIC X(4).
+          03 WS-RESP-ACCOUNT.
+             COPY ACCJSON.
 
-
-       01 SQLCODE-DISPLAY                   PIC S9(8) DISPLAY
-           SIGN LEADING SEPARATE.
-
-      * PROCTRAN DB2 copybook
-          EXEC SQL
-             INCLUDE PROCDB2
-          END-EXEC.
-
-      * PROCTRAN host variables for DB2
-       01 HOST-PROCTRAN-ROW.
-          03 HV-PROCTRAN-EYECATCHER         PIC X(4).
-          03 HV-PROCTRAN-SORT-CODE          PIC X(6).
-          03 HV-PROCTRAN-ACC-NUMBER         PIC X(8).
-          03 HV-PROCTRAN-DATE               PIC X(10).
-          03 HV-PROCTRAN-TIME               PIC X(6).
-          03 HV-PROCTRAN-REF                PIC X(12).
-          03 HV-PROCTRAN-TYPE               PIC X(3).
-          03 HV-PROCTRAN-DESC               PIC X(40).
-          03 HV-PROCTRAN-AMOUNT             PIC S9(10)V99 COMP-3.
-
-      * CONTROL Host variables for DB2
-       01 HOST-CONTROL-ROW.
-           03 HV-CONTROL-NAME                  PIC X(32).
-           03 HV-CONTROL-VALUE-NUM             PIC S9(9) COMP.
-           03 HV-CONTROL-VALUE-STR             PIC X(40).
-
-
-      * Pull in the SQL COMMAREA
-       EXEC SQL
-          INCLUDE SQLCA
-       END-EXEC.
+       01 WS-PTR                        PIC S9(8) COMP.
+       01 WS-DSV-TASKREF                PIC 9(12) VALUE 0.
+       01 WS-EDIT-RATE                  PIC Z(3)9.99.
+       01 WS-EDIT-OVERDRAFT             PIC Z(7)9.
+       01 WS-EDIT-AVAIL-BAL             PIC -(10)9.99.
+       01 WS-EDIT-ACTUAL-BAL            PIC -(10)9.99.
 
        01 PROCTRAN-AREA.
           COPY PROCTRAN.
@@ -371,11 +316,7 @@
       *
       *    Get the next ACCOUNT number from the ACCOUNT CONTROL Table
       *
-           PERFORM FIND-NEXT-ACCOUNT.
-
-           PERFORM WRITE-ACCOUNT-DB2
-
-
+           PERFORM WRITE-ACCOUNT-DATASVC.
            PERFORM GET-ME-OUT-OF-HERE.
 
        P999.
@@ -426,489 +367,103 @@
            EXIT.
 
 
-       FIND-NEXT-ACCOUNT SECTION.
-       FNA010.
-
-           MOVE 1 TO NCS-ACC-NO-INC.
-
-           INITIALIZE OUTPUT-DATA.
-
-      * <<sortcode>>-ACCOUNT-LAST
-           MOVE SPACES TO HV-CONTROL-NAME
-           MOVE ZERO TO HV-CONTROL-VALUE-NUM
-           MOVE SPACES TO HV-CONTROL-VALUE-STR
-           STRING REQUIRED-SORT-CODE DELIMITED BY SIZE
-           '-' DELIMITED BY SIZE
-           'ACCOUNT-LAST' DELIMITED BY SIZE
-           INTO HV-CONTROL-NAME
-           EXEC SQL
-              SELECT CONTROL_NAME,
-                       CONTROL_VALUE_NUM,
-                       CONTROL_VALUE_STR
-              INTO :HV-CONTROL-NAME,
-                      :HV-CONTROL-VALUE-NUM,
-                      :HV-CONTROL-VALUE-STR
-              FROM CONTROL
-              WHERE CONTROL_NAME = :HV-CONTROL-NAME
-           END-EXEC.
-
-           IF SQLCODE IS NOT EQUAL TO ZERO
-
-             MOVE SQLCODE TO SQLCODE-DISPLAY
-
+       WRITE-ACCOUNT-DATASVC SECTION.
+       WAD010.
       *
-      *      Preserve the RESP and RESP2, then set up the
-      *      standard ABEND info before getting the applid,
-      *      date/time etc. and linking to the Abend Handler
-      *      program.
+      *    POST /data/account replaces FIND-NEXT-ACCOUNT (CONTROL
+      *    SELECT/UPDATE), WRITE-ACCOUNT-DB2 (INSERT ACCOUNT) and
+      *    WRITE-PROCTRAN-DB2 (INSERT PROCTRAN 'OCA') as one unit of
+      *    work. accountNumber is omitted so the data service
+      *    allocates it from CONTROL <sortcode>-ACCOUNT-LAST, and it
+      *    sets opened/last statement = today, next = today + 30.
       *
-             INITIALIZE ABNDINFO-REC
-             MOVE EIBRESP    TO ABND-RESPCODE
-             MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *      Get supplemental information
-      *
-             EXEC CICS ASSIGN APPLID(ABND-APPLID)
-             END-EXEC
+           MOVE EIBTASKN TO WS-DSV-TASKREF.
+           MOVE COMM-INT-RT IN DFHCOMMAREA TO WS-EDIT-RATE.
+           MOVE COMM-OVERDR-LIM IN DFHCOMMAREA TO WS-EDIT-OVERDRAFT.
+           MOVE COMM-AVAIL-BAL IN DFHCOMMAREA TO WS-EDIT-AVAIL-BAL.
+           MOVE COMM-ACT-BAL IN DFHCOMMAREA TO WS-EDIT-ACTUAL-BAL.
 
-             MOVE EIBTASKN   TO ABND-TASKNO-KEY
-             MOVE EIBTRNID   TO ABND-TRANID
+           MOVE SPACES TO DSV-PATH DSV-REQ-BODY.
+           SET DSV-POST TO TRUE.
+           MOVE '/data/account' TO DSV-PATH.
+           MOVE 1 TO WS-PTR.
+           STRING '{"sortcode":"' DELIMITED BY SIZE
+                  SORTCODE DELIMITED BY SIZE
+                  '","customerNumber":"' DELIMITED BY SIZE
+                  COMM-CUSTNO IN DFHCOMMAREA DELIMITED BY SIZE
+                  '","accountType":"' DELIMITED BY SIZE
+                  COMM-ACC-TYPE IN DFHCOMMAREA DELIMITED BY SIZE
+                  '","interestRate":"' DELIMITED BY SIZE
+                  FUNCTION TRIM(WS-EDIT-RATE) DELIMITED BY SIZE
+                  '","overdraftLimit":' DELIMITED BY SIZE
+                  FUNCTION TRIM(WS-EDIT-OVERDRAFT) DELIMITED BY SIZE
+                  ',"availableBalance":"' DELIMITED BY SIZE
+                  FUNCTION TRIM(WS-EDIT-AVAIL-BAL) DELIMITED BY SIZE
+                  '","actualBalance":"' DELIMITED BY SIZE
+                  FUNCTION TRIM(WS-EDIT-ACTUAL-BAL) DELIMITED BY SIZE
+                  '","taskRef":"' DELIMITED BY SIZE
+                  WS-DSV-TASKREF DELIMITED BY SIZE
+                  '"}' DELIMITED BY SIZE
+             INTO DSV-REQ-BODY WITH POINTER WS-PTR
+           END-STRING.
+           COMPUTE DSV-REQ-LEN = WS-PTR - 1.
 
-             PERFORM POPULATE-TIME-DATE2
+           PERFORM CALL-DATASVC.
 
-             MOVE WS-ORIG-DATE TO ABND-DATE
-             STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                    ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                     ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                     INTO ABND-TIME
-             END-STRING
-
-             MOVE WS-U-TIME   TO ABND-UTIME-KEY
-             MOVE 'HNCS'      TO ABND-CODE
-
-             EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-             END-EXEC
-
-             MOVE SQLCODE-DISPLAY    TO ABND-SQLCODE
-
-             STRING 'FNAND010 - ACCOUNT NCS '
-                    DELIMITED BY SIZE,
-                    NCS-ACC-NO-NAME DELIMITED BY SIZE,
-                    ' Cannot be accessed and DB2 SELECT failed.'
-                    DELIMITED BY SIZE,
-                    ' EIBRESP=' DELIMITED BY SIZE,
-                    ABND-RESPCODE DELIMITED BY SIZE,
-                    ' RESP2=' DELIMITED BY SIZE,
-                    ABND-RESP2CODE DELIMITED BY SIZE
-                    INTO ABND-FREEFORM
-             END-STRING
-
-             EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                        COMMAREA(ABNDINFO-REC)
-             END-EXEC
-
-
-             DISPLAY 'CREACC - ACCOUNT NCS ' NCS-ACC-NO-NAME
-                ' CANNOT BE ACCESSED AND DB2 SELECT FAILED. SQLCODE='
-                SQLCODE-DISPLAY
-
-             EXEC CICS ABEND
-                       ABCODE('HNCS')
-                       NODUMP
-             END-EXEC
-           ELSE
-      D      MOVE SQLCODE TO SQLCODE-DISPLAY
-      D      DISPLAY 'SELECT WAS ' SQLCODE-DISPLAY ' AND FOUND '
-      D        HV-CONTROL-VALUE-NUM
-             ADD 1 TO HV-CONTROL-VALUE-NUM GIVING
-             COMM-NUMBER ACCOUNT-NUMBER REQUIRED-ACCT-NUMBER3
-             NCS-ACC-NO-VALUE HV-CONTROL-VALUE-NUM
-
-             EXEC SQL
-               UPDATE CONTROL
-               SET CONTROL_VALUE_NUM = :HV-CONTROL-VALUE-NUM
-               WHERE (CONTROL_NAME = :HV-CONTROL-NAME)
-             END-EXEC
-             IF SQLCODE IS NOT EQUAL TO ZERO
-               MOVE SQLCODE TO SQLCODE-DISPLAY
-
-      *
-      *        Preserve the RESP and RESP2, then set up the
-      *        standard ABEND info before getting the applid,
-      *        date/time etc. and linking to the Abend Handler
-      *        program.
-      *
-               INITIALIZE ABNDINFO-REC
-               MOVE EIBRESP    TO ABND-RESPCODE
-               MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *        Get supplemental information
-      *
-               EXEC CICS ASSIGN APPLID(ABND-APPLID)
-               END-EXEC
-
-               MOVE EIBTASKN   TO ABND-TASKNO-KEY
-               MOVE EIBTRNID   TO ABND-TRANID
-
-               PERFORM POPULATE-TIME-DATE2
-
-               MOVE WS-ORIG-DATE TO ABND-DATE
-               STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                    ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                     ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                     INTO ABND-TIME
-               END-STRING
-
-               MOVE WS-U-TIME   TO ABND-UTIME-KEY
-               MOVE 'HNCS'      TO ABND-CODE
-
-               EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-               END-EXEC
-
-               MOVE SQLCODE-DISPLAY    TO ABND-SQLCODE
-
-               STRING 'FNAND010(2) - ACCOUNT NCS '
-                    DELIMITED BY SIZE,
-                    NCS-ACC-NO-NAME DELIMITED BY SIZE,
-                    ' Cannot be accessed and DB2 UPDATE failed.'
-                    DELIMITED BY SIZE,
-                    ' EIBRESP=' DELIMITED BY SIZE,
-                    ABND-RESPCODE DELIMITED BY SIZE,
-                    ' RESP2=' DELIMITED BY SIZE,
-                    ABND-RESP2CODE DELIMITED BY SIZE
-                    INTO ABND-FREEFORM
-               END-STRING
-
-               EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                        COMMAREA(ABNDINFO-REC)
-               END-EXEC
-
-
-               DISPLAY 'CREACC - ACCOUNT NCS ' NCS-ACC-NO-NAME
-                  ' CANNOT BE ACCESSED AND DB2 UPDATE FAILED. SQLCODE='
-                SQLCODE-DISPLAY
-
-               EXEC CICS ABEND
-                         ABCODE('HNCS')
-                         NODUMP
-               END-EXEC
-             END-IF
-           END-IF
-
-           MOVE NCS-ACC-NO-VALUE TO
-           COMM-NUMBER ACCOUNT-NUMBER REQUIRED-ACCT-NUMBER3.
-           MOVE SPACES TO HV-CONTROL-NAME
-           MOVE ZERO TO HV-CONTROL-VALUE-NUM
-           MOVE SPACES TO HV-CONTROL-VALUE-STR
-           STRING SORTCODE DELIMITED BY SIZE
-           '-' DELIMITED BY SIZE
-           'ACCOUNT-COUNT' DELIMITED BY SIZE
-           INTO HV-CONTROL-NAME
-           EXEC SQL
-              SELECT CONTROL_NAME,
-                       CONTROL_VALUE_NUM,
-                       CONTROL_VALUE_STR
-              INTO :HV-CONTROL-NAME,
-                      :HV-CONTROL-VALUE-NUM,
-                      :HV-CONTROL-VALUE-STR
-              FROM CONTROL
-              WHERE CONTROL_NAME = :HV-CONTROL-NAME
-           END-EXEC.
-
-           IF SQLCODE IS NOT EQUAL TO ZERO
-             MOVE SQLCODE TO SQLCODE-DISPLAY
-
-      *
-      *      Preserve the RESP and RESP2, then set up the
-      *      standard ABEND info before getting the applid,
-      *      date/time etc. and linking to the Abend Handler
-      *      program.
-      *
-             INITIALIZE ABNDINFO-REC
-             MOVE EIBRESP    TO ABND-RESPCODE
-             MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *      Get supplemental information
-      *
-             EXEC CICS ASSIGN APPLID(ABND-APPLID)
-             END-EXEC
-
-             MOVE EIBTASKN   TO ABND-TASKNO-KEY
-             MOVE EIBTRNID   TO ABND-TRANID
-
-             PERFORM POPULATE-TIME-DATE2
-
-             MOVE WS-ORIG-DATE TO ABND-DATE
-             STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                    ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                     ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                     INTO ABND-TIME
-             END-STRING
-
-             MOVE WS-U-TIME   TO ABND-UTIME-KEY
-             MOVE 'HNCS'      TO ABND-CODE
-
-             EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-             END-EXEC
-
-             MOVE SQLCODE-DISPLAY    TO ABND-SQLCODE
-
-             STRING 'FNAND010(3) - ACCOUNT NCS '
-                    DELIMITED BY SIZE,
-                    NCS-ACC-NO-NAME DELIMITED BY SIZE,
-                    ' Cannot be accessed and DB2 SELECT failed.'
-                    DELIMITED BY SIZE,
-                    ' EIBRESP=' DELIMITED BY SIZE,
-                    ABND-RESPCODE DELIMITED BY SIZE,
-                    ' RESP2=' DELIMITED BY SIZE,
-                    ABND-RESP2CODE DELIMITED BY SIZE
-                    INTO ABND-FREEFORM
-             END-STRING
-
-             EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                        COMMAREA(ABNDINFO-REC)
-             END-EXEC
-
-
-             DISPLAY 'CREACC - ACCOUNT NCS ' NCS-ACC-NO-NAME
-                ' CANNOT BE ACCESSED AND DB2 SELECT FAILED. SQLCODE='
-                SQLCODE-DISPLAY
-
-             EXEC CICS ABEND
-                       ABCODE('HNCS')
-                       NODUMP
-             END-EXEC
-           ELSE
-      D      MOVE SQLCODE TO SQLCODE-DISPLAY
-      D      DISPLAY 'SELECT WAS ' SQLCODE-DISPLAY ' AND FOUND '
-      D        HV-CONTROL-VALUE-NUM
-             ADD 1 TO HV-CONTROL-VALUE-NUM GIVING
-             HV-CONTROL-VALUE-NUM
-
-             EXEC SQL
-               UPDATE CONTROL
-               SET CONTROL_VALUE_NUM = :HV-CONTROL-VALUE-NUM
-               WHERE (CONTROL_NAME = :HV-CONTROL-NAME)
-             END-EXEC
-             IF SQLCODE IS NOT EQUAL TO ZERO
-               MOVE SQLCODE TO SQLCODE-DISPLAY
-
-      *
-      *        Preserve the RESP and RESP2, then set up the
-      *        standard ABEND info before getting the applid,
-      *        date/time etc. and linking to the Abend Handler
-      *        program.
-      *
-               INITIALIZE ABNDINFO-REC
-               MOVE EIBRESP    TO ABND-RESPCODE
-               MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *        Get supplemental information
-      *
-               EXEC CICS ASSIGN APPLID(ABND-APPLID)
-               END-EXEC
-
-               MOVE EIBTASKN   TO ABND-TASKNO-KEY
-               MOVE EIBTRNID   TO ABND-TRANID
-
-               PERFORM POPULATE-TIME-DATE2
-
-               MOVE WS-ORIG-DATE TO ABND-DATE
-               STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                    ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                     ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                     INTO ABND-TIME
-               END-STRING
-
-               MOVE WS-U-TIME   TO ABND-UTIME-KEY
-               MOVE 'HNCS'      TO ABND-CODE
-
-               EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-               END-EXEC
-
-               MOVE SQLCODE-DISPLAY    TO ABND-SQLCODE
-
-               STRING 'FNAND010(4) - ACCOUNT NCS '
-                    DELIMITED BY SIZE,
-                    NCS-ACC-NO-NAME DELIMITED BY SIZE,
-                    ' Cannot be accessed and DB2 UPDATE failed.'
-                    DELIMITED BY SIZE,
-                    ' EIBRESP=' DELIMITED BY SIZE,
-                    ABND-RESPCODE DELIMITED BY SIZE,
-                    ' RESP2=' DELIMITED BY SIZE,
-                    ABND-RESP2CODE DELIMITED BY SIZE
-                    INTO ABND-FREEFORM
-               END-STRING
-
-               EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                        COMMAREA(ABNDINFO-REC)
-               END-EXEC
-
-
-               DISPLAY 'CREACC - ACCOUNT NCS ' NCS-ACC-NO-NAME
-                  ' CANNOT BE ACCESSED AND DB2 UPDATE FAILED. SQLCODE='
-                SQLCODE-DISPLAY
-
-               EXEC CICS ABEND
-                         ABCODE('HNCS')
-                         NODUMP
-               END-EXEC
-             END-IF
+      *    Transport failure: legacy abended HNCS when the CONTROL
+      *    table (first database access) could not be used.
+           IF DSV-RC NOT = '0'
+              DISPLAY 'CREACC: data service call failed RC=' DSV-RC
+                 ' RESP=' DSV-CICS-RESP ' RESP2=' DSV-CICS-RESP2
+              PERFORM DEQ-NAMED-COUNTER
+              EXEC CICS ABEND
+                   ABCODE('HNCS')
+              END-EXEC
            END-IF.
 
-       FNA999.
-           EXIT.
+           INITIALIZE WS-DSV-RESP.
+           JSON PARSE DSV-RESP-BODY(1:DSV-RESP-LEN)
+                INTO WS-DSV-RESP
+                NAME OF WS-RESP-SUCCESS  IS 'success'
+                     WS-RESP-FAILCODE    IS 'failCode'
+                     WS-RESP-ABEND       IS 'abendCode'
+                     WS-RESP-ACCOUNT     IS 'account'
+                     COPY ACCJSONN.
+                ON EXCEPTION
+                   DISPLAY 'CREACC: bad data service response HTTP='
+                      DSV-HTTP-STATUS ' JSON-CODE=' JSON-CODE
+                   PERFORM DEQ-NAMED-COUNTER
+                   EXEC CICS ABEND
+                        ABCODE('HNCS')
+                   END-EXEC
+           END-JSON.
 
-
-      *
-      * Write the DB2 ACCOUNT table
-      *
-       WRITE-ACCOUNT-DB2 SECTION.
-       WAD010.
-
-           INITIALIZE HOST-ACCOUNT-ROW.
-           MOVE 'ACCT' TO HV-ACCOUNT-EYECATCHER.
-           MOVE COMM-CUSTNO IN DFHCOMMAREA  TO HV-ACCOUNT-CUST-NO.
-           MOVE SORTCODE  TO HV-ACCOUNT-SORTCODE.
-
-           MOVE NCS-ACC-NO-VALUE TO NCS-ACC-NO-DISP.
-           MOVE NCS-ACC-NO-DISP(9:8) TO HV-ACCOUNT-ACC-NO.
-           MOVE COMM-ACC-TYPE IN DFHCOMMAREA    TO HV-ACCOUNT-ACC-TYPE.
-           MOVE COMM-INT-RT      TO HV-ACCOUNT-INT-RATE.
-           MOVE COMM-OVERDR-LIM  TO HV-ACCOUNT-OVERDRAFT-LIM.
-           MOVE COMM-AVAIL-BAL IN DFHCOMMAREA   TO HV-ACCOUNT-AVAIL-BAL.
-           MOVE COMM-ACT-BAL     TO HV-ACCOUNT-ACTUAL-BAL.
-
-           PERFORM CALCULATE-DATES.
-
-      *
-      *    Convert gregorian date (YYYYMMDD) to an integer
-      *
-           STRING WS-ORIG-DATE-YYYY DELIMITED BY SIZE,
-                  WS-ORIG-DATE-MM   DELIMITED BY SIZE,
-                  WS-ORIG-DATE-DD   DELIMITED BY SIZE
-           INTO WS-STDT-X.
-
-           MOVE WS-STDT-9-NUM TO WS-STDT-9-NUMERIC.
-
-           COMPUTE WS-INTEGER =
-              FUNCTION INTEGER-OF-DATE(WS-STDT-9-NUMERIC).
-
-      *
-      *    Add 30 days to the date
-      *
-           COMPUTE WS-INTEGER = WS-INTEGER + 30.
-
-      *
-      *    Convert integer date back to a Gregorian date (YYYYMMDD)
-      *
-           COMPUTE WS-FUTURE-DATE =
-              FUNCTION DATE-OF-INTEGER (WS-INTEGER).
-
-      *
-      *    Store the answer back in the  Next Statement Date
-      *
-           MOVE WS-FUTURE-DATE      TO WS-FUT-9.
-           MOVE WS-FUT-X-YY         TO HV-ACCOUNT-NEXT-STMT-YEAR.
-           MOVE '.'                 TO HV-ACCOUNT-NEXT-STMT-DELIM2.
-           MOVE WS-FUT-X-MM         TO HV-ACCOUNT-NEXT-STMT-MONTH.
-           MOVE '.'                 TO HV-ACCOUNT-NEXT-STMT-DELIM1.
-           MOVE WS-FUT-X-DD         TO HV-ACCOUNT-NEXT-STMT-DAY.
-
-           EXEC SQL
-              INSERT INTO ACCOUNT
-                     (ACCOUNT_EYECATCHER,
-                      ACCOUNT_CUSTOMER_NUMBER,
-                      ACCOUNT_SORTCODE,
-                      ACCOUNT_NUMBER,
-                      ACCOUNT_TYPE,
-                      ACCOUNT_INTEREST_RATE,
-                      ACCOUNT_OPENED,
-                      ACCOUNT_OVERDRAFT_LIMIT,
-                      ACCOUNT_LAST_STATEMENT,
-                      ACCOUNT_NEXT_STATEMENT,
-                      ACCOUNT_AVAILABLE_BALANCE,
-                      ACCOUNT_ACTUAL_BALANCE
-                      )
-              VALUES (:HV-ACCOUNT-EYECATCHER,
-                      :HV-ACCOUNT-CUST-NO,
-                      :HV-ACCOUNT-SORTCODE,
-                      :HV-ACCOUNT-ACC-NO,
-                      :HV-ACCOUNT-ACC-TYPE,
-                      :HV-ACCOUNT-INT-RATE,
-                      :HV-ACCOUNT-OPENED,
-                      :HV-ACCOUNT-OVERDRAFT-LIM,
-                      :HV-ACCOUNT-LAST-STMT,
-                      :HV-ACCOUNT-NEXT-STMT,
-                      :HV-ACCOUNT-AVAIL-BAL,
-                      :HV-ACCOUNT-ACTUAL-BAL
-                     )
-           END-EXEC.
-
-      *
-      *    Check if the INSERT was unsuccessful and take action.
-      *
-           IF SQLCODE NOT = 0
-              MOVE SQLCODE TO SQLCODE-DISPLAY
-              MOVE 'N' TO COMM-SUCCESS IN DFHCOMMAREA
-              MOVE '7' TO COMM-FAIL-CODE IN DFHCOMMAREA
+      *    HNCS (CONTROL failure) or HWPT (PROCTRAN insert failure):
+      *    the data service has rolled everything back.
+           IF WS-RESP-ABEND NOT = SPACES
               PERFORM DEQ-NAMED-COUNTER
-              MOVE SQLCODE TO SQLCODE-DISPLAY
+              EXEC CICS ABEND
+                   ABCODE(WS-RESP-ABEND)
+              END-EXEC
+           END-IF.
 
+      *    'A' = account type not allowed, '7' = ACCOUNT insert failed
+           IF WS-RESP-SUCCESS NOT = 'Y'
+              MOVE 'N' TO COMM-SUCCESS IN DFHCOMMAREA
+              MOVE WS-RESP-FAILCODE TO COMM-FAIL-CODE IN DFHCOMMAREA
+              PERFORM DEQ-NAMED-COUNTER
               PERFORM GET-ME-OUT-OF-HERE
            END-IF.
 
-      *
-      *    If the INSERT was successful the WRITE to PROCTRAN datastore
-      *
-           MOVE HV-ACCOUNT-SORTCODE       TO STORED-SORTCODE.
-           MOVE HV-ACCOUNT-ACC-NO         TO STORED-ACCNO.
-           MOVE HV-ACCOUNT-CUST-NO        TO STORED-CUSTNO.
-           MOVE HV-ACCOUNT-ACC-TYPE       TO STORED-ACCTYPE.
-           MOVE HV-ACCOUNT-LAST-STMT(1:2) TO STORED-LST-STMT(1:2).
-           MOVE HV-ACCOUNT-LAST-STMT(4:2) TO STORED-LST-STMT(3:2).
-           MOVE HV-ACCOUNT-LAST-STMT(7:4) TO STORED-LST-STMT(5:4).
-           MOVE HV-ACCOUNT-NEXT-STMT(1:2) TO STORED-NXT-STMT(1:2).
-           MOVE HV-ACCOUNT-NEXT-STMT(4:2) TO STORED-NXT-STMT(3:2).
-           MOVE HV-ACCOUNT-NEXT-STMT(7:4) TO STORED-NXT-STMT(5:4).
-
-           PERFORM WRITE-PROCTRAN.
-
            PERFORM DEQ-NAMED-COUNTER.
 
-      *
-      *    Set up the missing data in the COMMAREA ready for return
-      *
-           MOVE HV-ACCOUNT-SORTCODE    TO COMM-SORTCODE.
-           MOVE HV-ACCOUNT-ACC-NO      TO COMM-NUMBER.
-
-           MOVE HV-ACCOUNT-OPENED-DAY(1:2)
-             TO COMM-OPENED IN DFHCOMMAREA(1:2).
-           MOVE HV-ACCOUNT-OPENED-MONTH(1:2)
-             TO COMM-OPENED IN DFHCOMMAREA(3:2).
-           MOVE HV-ACCOUNT-OPENED-YEAR(1:4)
-             TO COMM-OPENED IN DFHCOMMAREA(5:4).
-           MOVE HV-ACCOUNT-LAST-STMT-DAY(1:2)
-              TO COMM-LAST-STMT-DT IN DFHCOMMAREA(1:2).
-           MOVE HV-ACCOUNT-LAST-STMT-MONTH(1:2)
-              TO COMM-LAST-STMT-DT IN DFHCOMMAREA(3:2).
-           MOVE HV-ACCOUNT-LAST-STMT-YEAR(1:4)
-              TO COMM-LAST-STMT-DT IN DFHCOMMAREA(5:4).
-           MOVE HV-ACCOUNT-NEXT-STMT-DAY(1:2)
-              TO COMM-NEXT-STMT-DT IN DFHCOMMAREA(1:2).
-           MOVE HV-ACCOUNT-NEXT-STMT-MONTH(1:2)
-              TO COMM-NEXT-STMT-DT IN DFHCOMMAREA(3:2).
-           MOVE HV-ACCOUNT-NEXT-STMT-YEAR(1:4)
-              TO COMM-NEXT-STMT-DT IN DFHCOMMAREA(5:4).
-
+           MOVE JA-SCODE               TO COMM-SORTCODE.
+           MOVE JA-ACCNO               TO COMM-NUMBER.
+           MOVE JA-OPENED              TO COMM-OPENED IN DFHCOMMAREA.
+           MOVE JA-LAST-STMT
+              TO COMM-LAST-STMT-DT IN DFHCOMMAREA.
+           MOVE JA-NEXT-STMT
+              TO COMM-NEXT-STMT-DT IN DFHCOMMAREA.
            MOVE 'ACCT'                 TO COMM-EYECATCHER.
            MOVE 'Y' TO COMM-SUCCESS IN DFHCOMMAREA.
            MOVE ' ' TO COMM-FAIL-CODE IN DFHCOMMAREA.
@@ -917,154 +472,20 @@
            EXIT.
 
 
-       WRITE-PROCTRAN SECTION.
-       WP010.
-
-               PERFORM WRITE-PROCTRAN-DB2.
-       WP999.
-           EXIT.
-
-
-       WRITE-PROCTRAN-DB2 SECTION.
-       WPD010.
-      *
-      *    Write the successfully processed transaction to the PROCTRAN
-      *    table.
-      *
-           INITIALIZE HOST-PROCTRAN-ROW.
-           INITIALIZE WS-EIBTASKN12.
-
-           MOVE 'PRTR'   TO HV-PROCTRAN-EYECATCHER.
-           MOVE SORTCODE TO HV-PROCTRAN-SORT-CODE.
-           MOVE STORED-ACCNO TO HV-PROCTRAN-ACC-NUMBER.
-           MOVE EIBTASKN TO WS-EIBTASKN12.
-           MOVE WS-EIBTASKN12 TO HV-PROCTRAN-REF.
-
-      *
-      *    Populate the time and date
-      *
-           EXEC CICS ASKTIME
-              ABSTIME(WS-U-TIME)
+       CALL-DATASVC SECTION.
+       CDS010.
+           EXEC CICS LINK PROGRAM('DATASVC')
+                COMMAREA(WS-DSV)
+                RESP(WS-CICS-RESP)
+                RESP2(WS-CICS-RESP2)
            END-EXEC.
-
-           EXEC CICS FORMATTIME
-                     ABSTIME(WS-U-TIME)
-                     DDMMYYYY(WS-ORIG-DATE)
-                     TIME(HV-PROCTRAN-TIME)
-                     DATESEP('.')
-           END-EXEC.
-
-           MOVE WS-ORIG-DATE TO WS-ORIG-DATE-GRP-X.
-           MOVE WS-ORIG-DATE-GRP-X TO HV-PROCTRAN-DATE.
-
-           MOVE STORED-CUSTNO     TO HV-PROCTRAN-DESC(1:10).
-           MOVE STORED-ACCTYPE    TO HV-PROCTRAN-DESC(11:8).
-           MOVE STORED-LST-STMT   TO HV-PROCTRAN-DESC(19:8).
-           MOVE STORED-NXT-STMT   TO HV-PROCTRAN-DESC(27:8).
-           MOVE SPACES            TO HV-PROCTRAN-DESC(35:6).
-
-           MOVE 'OCA'             TO HV-PROCTRAN-TYPE.
-           MOVE 0                 TO HV-PROCTRAN-AMOUNT.
-
-           EXEC SQL
-              INSERT INTO PROCTRAN
-                     (
-                      PROCTRAN_EYECATCHER,
-                      PROCTRAN_SORTCODE,
-                      PROCTRAN_NUMBER,
-                      PROCTRAN_DATE,
-                      PROCTRAN_TIME,
-                      PROCTRAN_REF,
-                      PROCTRAN_TYPE,
-                      PROCTRAN_DESC,
-                      PROCTRAN_AMOUNT
-                     )
-              VALUES
-                     (
-                      :HV-PROCTRAN-EYECATCHER,
-                      :HV-PROCTRAN-SORT-CODE,
-                      :HV-PROCTRAN-ACC-NUMBER,
-                      :HV-PROCTRAN-DATE,
-                      :HV-PROCTRAN-TIME,
-                      :HV-PROCTRAN-REF,
-                      :HV-PROCTRAN-TYPE,
-                      :HV-PROCTRAN-DESC,
-                      :HV-PROCTRAN-AMOUNT
-                     )
-           END-EXEC.
-
-      *
-      *    Check the SQLCODE
-      *
-           IF SQLCODE NOT = 0
-              DISPLAY 'In CREACC (WPD010) '
-              'UNABLE TO WRITE TO PROCTRAN ROW DATASTORE'
-              ' RESP CODE=' WS-CICS-RESP, ' RESP2=' WS-CICS-RESP2
-              'WITH THE FOLLOWING DATA:' HOST-PROCTRAN-ROW
-
-
-              PERFORM DEQ-NAMED-COUNTER
-              MOVE SQLCODE TO SQLCODE-DISPLAY
-
-      *
-      *       Preserve the RESP and RESP2, then set up the
-      *       standard ABEND info before getting the applid,
-      *       date/time etc. and linking to the Abend Handler
-      *       program.
-      *
-              INITIALIZE ABNDINFO-REC
-              MOVE EIBRESP    TO ABND-RESPCODE
-              MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *       Get supplemental information
-      *
-              EXEC CICS ASSIGN APPLID(ABND-APPLID)
-              END-EXEC
-
-              MOVE EIBTASKN   TO ABND-TASKNO-KEY
-              MOVE EIBTRNID   TO ABND-TRANID
-
-              PERFORM POPULATE-TIME-DATE2
-
-              MOVE WS-ORIG-DATE TO ABND-DATE
-              STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                    ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                     ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                     INTO ABND-TIME
-              END-STRING
-
-              MOVE WS-U-TIME   TO ABND-UTIME-KEY
-              MOVE 'HWPT'      TO ABND-CODE
-
-              EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-              END-EXEC
-
-              MOVE SQLCODE-DISPLAY    TO ABND-SQLCODE
-
-              STRING 'WPD010  - PROCTRAN DB2 INSERT issue.'
-                    DELIMITED BY SIZE,
-                    ' EIBRESP=' DELIMITED BY SIZE,
-                    ABND-RESPCODE DELIMITED BY SIZE,
-                    ' RESP2=' DELIMITED BY SIZE,
-                    ABND-RESP2CODE DELIMITED BY SIZE
-                    INTO ABND-FREEFORM
-              END-STRING
-
-              EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                        COMMAREA(ABNDINFO-REC)
-              END-EXEC
-
-              EXEC CICS ABEND
-                 ABCODE ('HWPT')
-              END-EXEC
+           IF WS-CICS-RESP NOT = DFHRESP(NORMAL)
+              MOVE '9' TO DSV-RC
+              MOVE WS-CICS-RESP TO DSV-CICS-RESP
+              MOVE WS-CICS-RESP2 TO DSV-CICS-RESP2
            END-IF.
-
-       WPD999.
+       CDS999.
            EXIT.
-
-
        GET-ME-OUT-OF-HERE SECTION.
        GMOFH010.
       *
@@ -1092,117 +513,6 @@
            END-EXEC.
 
        CAC999.
-           EXIT.
-
-
-       CALCULATE-DATES SECTION.
-       CD010.
-      *
-      *    Store today's date as the ACCOUNT-OPENED date and calculate
-      *    the LAST-STMT-DATE (which should be today) and the
-      *    NEXT-STMT-DATE (which should be today + 30 days).
-      *
-
-      *
-      *    Populate the time and date
-      *
-           EXEC CICS ASKTIME
-              ABSTIME(WS-U-TIME)
-           END-EXEC.
-
-           EXEC CICS FORMATTIME
-                     ABSTIME(WS-U-TIME)
-                     DDMMYYYY(WS-ORIG-DATE)
-                     TIME(PROC-TRAN-TIME OF PROCTRAN-AREA)
-                     DATESEP
-           END-EXEC.
-
-      *
-      *    Convert gregorian date (YYYYMMDD) to an integer
-      *
-
-           STRING WS-ORIG-DATE-YYYY DELIMITED BY SIZE,
-                  WS-ORIG-DATE-MM   DELIMITED BY SIZE,
-                  WS-ORIG-DATE-DD   DELIMITED BY SIZE
-              INTO WS-STDT-X.
-
-           MOVE WS-STDT-9-NUM TO WS-STDT-9-NUMERIC.
-
-           COMPUTE WS-INTEGER =
-              FUNCTION INTEGER-OF-DATE(WS-STDT-9-NUMERIC).
-
-      *
-      *    Add 30 days to the date
-      *
-           EVALUATE WS-ORIG-DATE-MM
-              WHEN 1
-              WHEN 3
-              WHEN 5
-              WHEN 7
-              WHEN 8
-              WHEN 10
-              WHEN 12
-                 COMPUTE WS-INTEGER = WS-INTEGER + 30
-              WHEN 9
-              WHEN 4
-              WHEN 6
-              WHEN 11
-                 COMPUTE WS-INTEGER = WS-INTEGER + 30
-              WHEN 2
-                 COMPUTE WS-INTEGER = WS-INTEGER + 28
-                 DIVIDE WS-ORIG-DATE-YYYY BY 4 GIVING DONT-CARE
-                 REMAINDER LEAP-YEAR
-
-                 IF LEAP-YEAR = ZERO
-                    DIVIDE WS-ORIG-DATE-YYYY BY 100 GIVING DONT-CARE
-                       REMAINDER LEAP-YEAR
-
-                    IF LEAP-YEAR > 0
-                       ADD 1 TO WS-INTEGER GIVING WS-INTEGER
-                    ELSE
-                       DIVIDE WS-ORIG-DATE-YYYY BY 400 GIVING DONT-CARE
-                          REMAINDER LEAP-YEAR
-                       IF LEAP-YEAR = ZERO
-                         ADD 1 TO WS-INTEGER GIVING WS-INTEGER
-                       END-IF
-                    END-IF
-                 END-IF
-
-           END-EVALUATE.
-
-
-      *
-      *    Convert integer date back to a Gregorian date (YYYYMMDD)
-      *
-           COMPUTE WS-FUTURE-DATE =
-              FUNCTION DATE-OF-INTEGER (WS-INTEGER).
-
-      *
-      *    Store the answer back in the Next Statement Date
-      *
-
-           MOVE WS-FUTURE-DATE(1:4) TO ACCOUNT-NEXT-STMT-DATE(5:4).
-           MOVE WS-FUTURE-DATE(5:2) TO ACCOUNT-NEXT-STMT-DATE(3:2).
-           MOVE WS-FUTURE-DATE(7:2) TO ACCOUNT-NEXT-STMT-DATE(1:2).
-
-           MOVE WS-ORIG-DATE-DD   TO ACCOUNT-OPENED(1:2).
-           MOVE WS-ORIG-DATE-MM   TO ACCOUNT-OPENED(3:2).
-           MOVE WS-ORIG-DATE-YYYY TO ACCOUNT-OPENED(5:4).
-           MOVE ACCOUNT-OPENED    TO ACCOUNT-LAST-STMT-DATE.
-
-           MOVE WS-ORIG-DATE-DD   TO HV-ACCOUNT-OPENED-DAY.
-           MOVE '.'               TO HV-ACCOUNT-OPENED-DELIM1.
-           MOVE WS-ORIG-DATE-MM   TO HV-ACCOUNT-OPENED-MONTH.
-           MOVE '.'               TO HV-ACCOUNT-OPENED-DELIM2.
-           MOVE WS-ORIG-DATE-YYYY TO HV-ACCOUNT-OPENED-YEAR.
-
-           MOVE WS-ORIG-DATE-DD   TO HV-ACCOUNT-LAST-STMT-DAY.
-           MOVE '.'               TO HV-ACCOUNT-LAST-STMT-DELIM1.
-           MOVE WS-ORIG-DATE-MM   TO HV-ACCOUNT-LAST-STMT-MONTH.
-           MOVE '.'               TO HV-ACCOUNT-LAST-STMT-DELIM2.
-           MOVE WS-ORIG-DATE-YYYY TO HV-ACCOUNT-LAST-STMT-YEAR.
-
-       CD999.
            EXIT.
 
 
