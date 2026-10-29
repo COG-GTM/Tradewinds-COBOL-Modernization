@@ -112,18 +112,19 @@
 //* which replaces the ACCOUNT and account CONTROL rows for the    *
 //* sortcode in one transaction (formerly Db2 SQL in BANKDATA).    *
 //* The file is converted from EBCDIC to UTF-8 first; curl -f      *
-//* gives a non-zero RC on any HTTP error.                         *
+//* gives a non-zero RC on any HTTP error. Every STDPARM line is a *
+//* complete command ending in &&, so the script works whether     *
+//* BPXBATCH joins the records with or without newlines.           *
 //******************************************************************
 //BANKDAT6 EXEC PGM=BPXBATCH,COND=(4,LT)
 //STDOUT   DD SYSOUT=*
 //STDERR   DD SYSOUT=*
 //STDPARM  DD *
 SH cd @BANK_JSON_DIR@ &&
- iconv -f IBM-1047 -t UTF-8 bankdata-accounts.json
- > bankdata-accounts.utf8.json &&
+ F=bankdata-accounts.utf8.json &&
+ iconv -f IBM-1047 -t UTF-8 bankdata-accounts.json > $F &&
  U=@BANK_DATASVC_URL@/banking/data/admin/account &&
- curl -sS -f -X POST
- -H 'Content-Type: application/json'
- --data-binary @bankdata-accounts.utf8.json
- "$U/reset?sortcode=@BANK_SORTCODE@"
+ Q="$U/reset?sortcode=@BANK_SORTCODE@" &&
+ H='Content-Type: application/json' &&
+ curl -sS -f -X POST -H "$H" --data-binary @$F "$Q"
 /*
