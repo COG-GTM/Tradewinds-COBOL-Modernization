@@ -17,9 +17,9 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ibm.cics.cip.bankliberty.api.json.BankRuntime;
 import com.ibm.cics.cip.bankliberty.api.json.HBankDataAccess;
 import com.ibm.cics.cip.bankliberty.datainterfaces.PROCTRAN;
-import com.ibm.cics.server.Task;
 
 public class ProcessedTransaction extends HBankDataAccess
 {
@@ -112,6 +112,8 @@ public class ProcessedTransaction extends HBankDataAccess
 	private String timeString;
 
 	private String dateString;
+
+	private Date writeDate;
 
 	private String taskRef;
 
@@ -242,7 +244,7 @@ public class ProcessedTransaction extends HBankDataAccess
 		String sortCodeString = myStringBuilder.toString();
 
 		openConnection();
-		String sql = "SELECT * from (SELECT p.*,row_number() over() as rn from PROCTRAN as p where PROCTRAN_SORTCODE like ? ORDER BY PROCTRAN_DATE ASC, PROCTRAN_TIME ASC) as col where rn between ? and ?";
+		String sql = "SELECT * from PROCTRAN where PROCTRAN_SORTCODE like ? ORDER BY PROCTRAN_DATE ASC, PROCTRAN_TIME ASC LIMIT ? OFFSET ?";
 		logger.log(Level.FINE, () -> "About to issue query SQL <" + sql + ">");
 
 
@@ -251,8 +253,8 @@ public class ProcessedTransaction extends HBankDataAccess
 		{
 
 			stmt.setString(1, sortCodeString);
-			stmt.setInt(2, offset + 1);
-			stmt.setInt(3, (limit + offset));
+			stmt.setInt(2, limit);
+			stmt.setInt(3, offset);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next())
 			{
@@ -523,7 +525,7 @@ public class ProcessedTransaction extends HBankDataAccess
 			stmt.setString(2, sortcode);
 			stmt.setString(3,
 					String.format("%08d", Integer.parseInt(accountNumber)));
-			stmt.setString(4, dateString);
+			stmt.setDate(4, writeDate);
 			stmt.setString(5, timeString);
 			stmt.setString(6, taskRef);
 			stmt.setString(7, PROCTRAN.PROC_TY_DEBIT);
@@ -557,7 +559,7 @@ public class ProcessedTransaction extends HBankDataAccess
 			stmt.setString(2, sortcode);
 			stmt.setString(3,
 					String.format("%08d", Integer.parseInt(accountNumber)));
-			stmt.setString(4, dateString);
+			stmt.setDate(4, writeDate);
 			stmt.setString(5, timeString);
 			stmt.setString(6, taskRef);
 			stmt.setString(7, PROCTRAN.PROC_TY_CREDIT);
@@ -604,7 +606,7 @@ public class ProcessedTransaction extends HBankDataAccess
 			stmt.setString(2, sortCode2);
 			stmt.setString(3,
 					String.format("%08d", Integer.parseInt(accountNumber2)));
-			stmt.setString(4, dateString);
+			stmt.setDate(4, writeDate);
 			stmt.setString(5, timeString);
 			stmt.setString(6, taskRef);
 			stmt.setString(7, PROCTRAN.PROC_TY_TRANSFER);
@@ -670,7 +672,7 @@ public class ProcessedTransaction extends HBankDataAccess
 			stmt.setString(2, sortCode2);
 			stmt.setString(3,
 					String.format("%08d", Integer.parseInt(accountNumber)));
-			stmt.setString(4, dateString);
+			stmt.setDate(4, writeDate);
 			stmt.setString(5, timeString);
 			stmt.setString(6, taskRef);
 			stmt.setString(7, PROCTRAN.PROC_TY_WEB_DELETE_CUSTOMER);
@@ -728,7 +730,7 @@ public class ProcessedTransaction extends HBankDataAccess
 			stmt.setString(2, sortCode2);
 			stmt.setString(3,
 					String.format("%08d", Integer.parseInt(accountNumber)));
-			stmt.setString(4, dateString);
+			stmt.setDate(4, writeDate);
 			stmt.setString(5, timeString);
 			stmt.setString(6, taskRef);
 			stmt.setString(7, PROCTRAN.PROC_TY_WEB_CREATE_CUSTOMER);
@@ -785,7 +787,7 @@ public class ProcessedTransaction extends HBankDataAccess
 			stmt.setString(2, sortCode2);
 			stmt.setString(3,
 					String.format("%08d", Integer.parseInt(accountNumber)));
-			stmt.setString(4, dateString);
+			stmt.setDate(4, writeDate);
 			stmt.setString(5, timeString);
 			stmt.setString(6, taskRef);
 			stmt.setString(7, PROCTRAN.PROC_TY_WEB_DELETE_ACCOUNT);
@@ -849,7 +851,7 @@ public class ProcessedTransaction extends HBankDataAccess
 			stmt.setString(2, sortCode2);
 			stmt.setString(3,
 					String.format("%08d", Integer.parseInt(accountNumber)));
-			stmt.setString(4, dateString);
+			stmt.setDate(4, writeDate);
 			stmt.setString(5, timeString);
 			stmt.setString(6, taskRef);
 			stmt.setString(7, PROCTRAN.PROC_TY_WEB_CREATE_ACCOUNT);
@@ -920,9 +922,10 @@ public class ProcessedTransaction extends HBankDataAccess
 			myStringBuilder = myStringBuilder.insert(0, "0");
 		}
 		dateString = dateString.concat(myStringBuilder.toString());
+		writeDate = new Date(now.getTimeInMillis());
 
 		myStringBuilder = new StringBuilder(
-				Integer.toString(Task.getTask().getTaskNumber()));
+				Integer.toString(BankRuntime.taskNumber()));
 		for (int z = myStringBuilder.length(); z < 12; z++)
 		{
 			myStringBuilder = myStringBuilder.insert(0, "0");

@@ -16,9 +16,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ibm.cics.cip.bankliberty.api.json.AccountJSON;
+import com.ibm.cics.cip.bankliberty.api.json.BankRuntime;
 import com.ibm.cics.cip.bankliberty.api.json.HBankDataAccess;
 import com.ibm.cics.server.InvalidRequestException;
-import com.ibm.cics.server.Task;
 
 public class Account extends HBankDataAccess
 {
@@ -384,8 +384,8 @@ public class Account extends HBankDataAccess
 			stmt.setString(1, this.type);
 			stmt.setDouble(2, this.interestRate);
 			stmt.setInt(3, this.overdraftLimit);
-			stmt.setString(4, this.lastStatement.toString());
-			stmt.setString(5, this.nextStatement.toString());
+			stmt.setDate(4, this.lastStatement);
+			stmt.setDate(5, this.nextStatement);
 			stmt.setDouble(6, this.availableBalance);
 			stmt.setDouble(7, this.actualBalance);
 			stmt.setString(8, this.accountNumber);
@@ -828,7 +828,7 @@ public class Account extends HBankDataAccess
 			logger.exiting(this.getClass().getName(), CREATE_ACCOUNT, null);
 			try
 			{
-				Task.getTask().rollback();
+				BankRuntime.rollback();
 			}
 			catch (InvalidRequestException e1)
 			{
@@ -1219,7 +1219,7 @@ public class Account extends HBankDataAccess
 		int i = 0;
 
 		String sortCodeString = padSortCode(sortCode2);
-		String sql = "SELECT * from (SELECT p.*,row_number() over() as rn from ACCOUNT as p where ACCOUNT_EYECATCHER LIKE 'ACCT' AND ACCOUNT_SORTCODE like ?";
+		String sql = "SELECT * from ACCOUNT where ACCOUNT_EYECATCHER LIKE 'ACCT' AND ACCOUNT_SORTCODE like ?";
 		if (lessThan)
 		{
 			sql = sql.concat(SQL_LESS_THAN);
@@ -1231,16 +1231,20 @@ public class Account extends HBankDataAccess
 
 		sql = sql.concat(" order by ACCOUNT_NUMBER");
 
-		sql = sql.concat(" , ACCOUNT_ACTUAL_BALANCE DESC)");
+		sql = sql.concat(" , ACCOUNT_ACTUAL_BALANCE DESC");
 
-		sql = sql.concat(" as col where rn between ? and ?");
+		// Same rows as the former DB2 "row_number() over() ... rn between
+		// offset and offset + limit - 1" window
+		sql = sql.concat(" LIMIT ? OFFSET ?");
+		int firstRow = Math.max(offset, 1);
+		int lastRow = offset + limit - 1;
 
 		try (PreparedStatement stmt = conn.prepareStatement(sql);)
 		{
 			stmt.setString(1, sortCodeString);
 			stmt.setBigDecimal(2, balance);
-			stmt.setInt(3, offset);
-			stmt.setInt(4, ((limit + offset) - 1));
+			stmt.setInt(3, Math.max(lastRow - firstRow + 1, 0));
+			stmt.setInt(4, firstRow - 1);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next())
 			{

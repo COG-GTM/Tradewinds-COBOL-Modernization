@@ -26,7 +26,6 @@ import jakarta.ws.rs.core.Response;
 
 import com.ibm.cics.cip.bankliberty.web.db2.Account;
 import com.ibm.cics.server.InvalidRequestException;
-import com.ibm.cics.server.Task;
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 
@@ -322,7 +321,7 @@ public class AccountsResource extends HBankDataAccess
 				{
 					logger.log(Level.SEVERE, () -> "Accounts: createAccount: "
 							+ PROCTRAN_WRITE_FAILURE);
-					Task.getTask().rollback();
+					BankRuntime.rollback();
 				}
 				catch (InvalidRequestException e)
 				{
@@ -1104,7 +1103,7 @@ public class AccountsResource extends HBankDataAccess
 					() -> "Accounts: transferLocal: " + PROCTRAN_WRITE_FAILURE);
 			try
 			{
-				Task.getTask().rollback();
+				BankRuntime.rollback();
 			}
 			catch (InvalidRequestException e)
 			{
@@ -1194,7 +1193,7 @@ public class AccountsResource extends HBankDataAccess
 			logger.log(Level.SEVERE, () -> PROCTRAN_WRITE_FAILURE);
 			try
 			{
-				Task.getTask().rollback();
+				BankRuntime.rollback();
 			}
 			catch (InvalidRequestException e)
 			{
@@ -1294,7 +1293,7 @@ public class AccountsResource extends HBankDataAccess
 				logger.log(Level.SEVERE, () -> PROCTRAN_WRITE_FAILURE);
 				try
 				{
-					Task.getTask().rollback();
+					BankRuntime.rollback();
 				}
 				catch (InvalidRequestException e)
 				{
@@ -1314,7 +1313,7 @@ public class AccountsResource extends HBankDataAccess
 				logger.log(Level.INFO,
 						() -> ("Accounts: deleteAccount: Failed to find account "
 								+ accountNumber));
-				Task.getTask().rollback();
+				BankRuntime.rollback();
 			}
 			catch (InvalidRequestException e)
 			{
