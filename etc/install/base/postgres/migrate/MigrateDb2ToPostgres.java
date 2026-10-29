@@ -47,7 +47,9 @@ public class MigrateDb2ToPostgres
 
 	public static void main(String[] args) throws Exception
 	{
-		boolean verifyOnly = args.length > 0 && "--verify-only".equals(args[0]);
+		java.util.Set<String> opts = java.util.Set.of(args);
+		boolean verifyOnly = opts.contains("--verify-only");
+		boolean replace = opts.contains("--replace");
 		String schema = System.getenv("DB2_SCHEMA");
 		String prefix = schema == null || schema.isBlank() ? "" : schema + ".";
 
@@ -60,13 +62,31 @@ public class MigrateDb2ToPostgres
 			pg.setAutoCommit(false);
 			if (!verifyOnly)
 			{
-				// Replace, not append, so a rerun after a partial or failed
-				// verification is safe. All in one PostgreSQL transaction.
-				try (Statement del = pg.createStatement())
+				// Refuse to touch a populated target unless --replace is given:
+				// after cutover PostgreSQL may hold rows that Db2 never saw.
+				try (Statement st = pg.createStatement())
 				{
 					for (String table : TABLES)
 					{
-						del.executeUpdate("DELETE FROM " + table);
+						try (ResultSet rs = st
+								.executeQuery("SELECT COUNT(*) FROM " + table))
+						{
+							rs.next();
+							if (rs.getLong(1) > 0 && !replace)
+							{
+								System.err.println(table + " is not empty; rerun with"
+										+ " --replace to overwrite it from Db2, or"
+										+ " --verify-only to compare");
+								System.exit(2);
+							}
+						}
+					}
+					if (replace)
+					{
+						for (String table : TABLES)
+						{
+							st.executeUpdate("DELETE FROM " + table);
+						}
 					}
 				}
 				for (String table : TABLES)

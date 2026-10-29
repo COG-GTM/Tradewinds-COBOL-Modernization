@@ -46,7 +46,8 @@ properties or environment variables.
 ```sh
 DB2_JDBC_URL=jdbc:db2://host:446/LOCATION DB2_USER=... DB2_PASSWORD=... [DB2_SCHEMA=IBMUSER] \
 PG_JDBC_URL=jdbc:postgresql://host:5432/cbsa PG_USER=cbsa PG_PASSWORD=... \
-java -cp db2jcc4.jar:postgresql.jar migrate/MigrateDb2ToPostgres.java [--verify-only]
+java -cp db2jcc4.jar:postgresql.jar migrate/MigrateDb2ToPostgres.java [--verify-only | --replace]
+# Refuses a non-empty target unless --replace (overwrites PostgreSQL from DB2 - only before cutover).
 ```
 
 Rows are copied over JDBC with `CHAR` values untrimmed (the fixed-offset
