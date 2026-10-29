@@ -58,7 +58,7 @@ if ! docker ps --format '{{.Names}}' | grep -qx db2a; then
 fi
 docker rm -f pgb >/dev/null 2>&1 || true
 docker run -d --name pgb -p "$PG_PORT":5432 -e POSTGRES_PASSWORD="$PG_PASSWORD" "$PG_IMAGE" >/dev/null
-until docker logs db2a 2>&1 | grep -q "Setup has completed"; do sleep 10; echo "  waiting for DB2..."; done
+until docker logs db2a 2>&1 | grep "Setup has completed" >/dev/null; do sleep 10; echo "  waiting for DB2..."; done
 until docker exec pgb pg_isready -U postgres -q; do sleep 1; done; sleep 2
 
 echo "== Create schemas (DB2: INSTDB2 tables; PostgreSQL: etc/install/base/postgres)"
