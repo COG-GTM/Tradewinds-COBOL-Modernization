@@ -1,5 +1,4 @@
        CBL CICS('SP,EDF,DLI')
-       CBL SQL
       ******************************************************************
       *                                                                *
       *  Copyright IBM Corp. 2023                                      *
@@ -37,25 +36,20 @@
       *
       * Get the ACCOUNT DB2 copybook
       *
-           EXEC SQL
-              INCLUDE ACCDB2
-           END-EXEC.
+       01 WS-DSV.
+          COPY DATASVC.
 
-      * ACCOUNT Host variables for DB2
-       01 HOST-ACCOUNT-ROW.
-          03 HV-ACCOUNT-EYECATCHER        PIC X(4).
-          03 HV-ACCOUNT-CUST-NO           PIC X(10).
-          03 HV-ACCOUNT-SORTCODE          PIC X(6).
-          03 HV-ACCOUNT-ACC-NO            PIC X(8).
-          03 HV-ACCOUNT-ACC-TYPE          PIC X(8).
-          03 HV-ACCOUNT-INT-RATE          PIC S9(4)V99 COMP-3.
-          03 HV-ACCOUNT-OPENED            PIC X(10).
-          03 HV-ACCOUNT-OVERDRAFT-LIM     PIC S9(9) COMP.
-          03 HV-ACCOUNT-LAST-STMT         PIC X(10).
-          03 HV-ACCOUNT-NEXT-STMT         PIC X(10).
-          03 HV-ACCOUNT-AVAIL-BAL         PIC S9(10)V99 COMP-3.
-          03 HV-ACCOUNT-ACTUAL-BAL        PIC S9(10)V99 COMP-3.
+      * Envelope returned by GET /data/account/{sc}?customerNumber=
+      * (at most 20 accounts, ordered by account number).
+       01 WS-DSV-RESP.
+          03 WS-RESP-SUCCESS            PIC X.
+          03 WS-RESP-FAILCODE           PIC X.
+          03 WS-RESP-ABEND              PIC X(4).
+          03 WS-RESP-COUNT              PIC 9(4).
+          03 WS-RESP-ACCOUNTS OCCURS 20.
+             COPY ACCJSON.
 
+       01 WS-ACC-IX                     PIC S9(8) COMP.
        01 EIBRCODE-NICE.
           03 EIBRCODE-FIRST               PIC X.
           03 EIBRCODE-SECOND              PIC X.
@@ -64,33 +58,7 @@
           03 EIBRCODE-FIFTH               PIC X.
           03 EIBRCODE-SIXTH               PIC X.
 
-      * Pull in the SQL COMMAREA
-        EXEC SQL
-          INCLUDE SQLCA
-        END-EXEC.
-
-
-      * Declare the CURSOR for ACCOUNT table
-           EXEC SQL DECLARE ACC-CURSOR CURSOR FOR
-              SELECT ACCOUNT_EYECATCHER,
-                     ACCOUNT_CUSTOMER_NUMBER,
-                     ACCOUNT_SORTCODE,
-                     ACCOUNT_NUMBER,
-                     ACCOUNT_TYPE,
-                     ACCOUNT_INTEREST_RATE,
-                     ACCOUNT_OPENED,
-                     ACCOUNT_OVERDRAFT_LIMIT,
-                     ACCOUNT_LAST_STATEMENT,
-                     ACCOUNT_NEXT_STATEMENT,
-                     ACCOUNT_AVAILABLE_BALANCE,
-                     ACCOUNT_ACTUAL_BALANCE
-                     FROM ACCOUNT
-                     WHERE ACCOUNT_CUSTOMER_NUMBER =
-                        :HV-ACCOUNT-CUST-NO
-                      AND ACCOUNT_SORTCODE =
-                      :HV-ACCOUNT-SORTCODE
-                     FOR FETCH ONLY
-           END-EXEC.
+      * Account data service (DATASVC) areas
 
 
        01 WS-CICS-WORK-AREA.
@@ -142,8 +110,6 @@
           03 REQUIRED-SORT-CODE           PIC 9(6)  VALUE 0.
           03 REQUIRED-ACC-NUM             PIC 9(8)  VALUE 0.
 
-       01 SQLCODE-DISPLAY                 PIC S9(8) DISPLAY
-                                          SIGN LEADING SEPARATE.
 
        01 MY-ABEND-CODE                   PIC XXXX.
 
@@ -219,7 +185,7 @@
            END-IF
 
 
-           PERFORM READ-ACCOUNT-DB2
+           PERFORM READ-ACCOUNT-DATASVC
       *
       * Return the ACCOUNT data to the COMMAREA
       *
@@ -230,220 +196,97 @@
            EXIT.
 
 
-       READ-ACCOUNT-DB2 SECTION.
+       READ-ACCOUNT-DATASVC SECTION.
        RAD010.
       *
-      *    Get accounts from account datastore
+      *    GET /data/account/{sortcode}?customerNumber=nnnnnnnnnn
+      *    replaces the ACC-CURSOR OPEN / FETCH (FETCH-DATA) / CLOSE.
       *
+           MOVE ZERO TO NUMBER-OF-ACCOUNTS.
+           MOVE SPACES TO DSV-PATH.
+           SET DSV-GET TO TRUE.
+           MOVE 0 TO DSV-REQ-LEN.
+           STRING '/data/account/' DELIMITED BY SIZE
+                  SORTCODE DELIMITED BY SIZE
+                  '?customerNumber=' DELIMITED BY SIZE
+                  CUSTOMER-NUMBER OF DFHCOMMAREA DELIMITED BY SIZE
+             INTO DSV-PATH
+           END-STRING.
 
-      *
-      *    Open the DB2 CURSOR
-      *
+           PERFORM CALL-DATASVC.
 
-           MOVE CUSTOMER-NUMBER IN DFHCOMMAREA TO HV-ACCOUNT-CUST-NO.
-           MOVE  SORTCODE TO HV-ACCOUNT-SORTCODE.
-
-           EXEC SQL OPEN
-              ACC-CURSOR
-           END-EXEC.
-
-           MOVE SQLCODE TO SQLCODE-DISPLAY.
-
-           IF SQLCODE NOT = 0
-              MOVE SQLCODE TO SQLCODE-DISPLAY
-
-      *
-      *       Check if SQLCODE indicates that Storm Drain processing
-      *       is applicable in a workload if activated
-      *
-              PERFORM CHECK-FOR-STORM-DRAIN-DB2
-
-              MOVE 'N'  TO COMM-SUCCESS
-              MOVE 'N'  TO CUSTOMER-FOUND
-              MOVE '2'  TO COMM-FAIL-CODE
-              MOVE ZERO TO NUMBER-OF-ACCOUNTS
-
-              EXEC CICS SYNCPOINT ROLLBACK
-                RESP(WS-CICS-RESP)
-                RESP2(WS-CICS-RESP2)
-              END-EXEC
-
-              IF WS-CICS-RESP NOT = DFHRESP(NORMAL)
-      *
-      *          Preserve the RESP and RESP2, then set up the
-      *          standard ABEND info before getting the applid,
-      *          date/time etc. and linking to the Abend Handler
-      *          program.
-      *
-                 INITIALIZE ABNDINFO-REC
-                 MOVE EIBRESP    TO ABND-RESPCODE
-                 MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *          Get supplemental information
-      *
-                 EXEC CICS ASSIGN APPLID(ABND-APPLID)
-                 END-EXEC
-
-                 MOVE EIBTASKN   TO ABND-TASKNO-KEY
-                 MOVE EIBTRNID   TO ABND-TRANID
-
-                 PERFORM POPULATE-TIME-DATE
-
-                 MOVE WS-ORIG-DATE TO ABND-DATE
-                 STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                       ':' DELIMITED BY SIZE,
-                        WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                        ':' DELIMITED BY SIZE,
-                        WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                        INTO ABND-TIME
-                 END-STRING
-
-                 MOVE WS-U-TIME   TO ABND-UTIME-KEY
-                 MOVE 'HROL'      TO ABND-CODE
-
-                 EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-                 END-EXEC
-
-                 MOVE ZEROS      TO ABND-SQLCODE
-
-                 STRING 'RAD010 - Unable to perform Synpoint Rollback'
-                       DELIMITED BY SIZE,
-                       '. Possible Integrity issue following DB2 '
-                       DELIMITED BY SIZE,
-                       'CURSOR OPEN' DELIMITED BY SIZE,
-                       'EIBRESP=' DELIMITED BY SIZE,
-                       ABND-RESPCODE DELIMITED BY SIZE,
-                       ' RESP2=' DELIMITED BY SIZE,
-                       ABND-RESP2CODE DELIMITED BY SIZE
-                       INTO ABND-FREEFORM
-                 END-STRING
-
-                 EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                           COMMAREA(ABNDINFO-REC)
-                 END-EXEC
-
-
-                 DISPLAY 'INQACCCU: Unable to perform Synpoint Rollback'
-                 '. Possible Integrity issue following DB2 CURSOR OPEN'
-                 ' SQLCODE=' SQLCODE-DISPLAY
-                 ',RESP=' WS-CICS-RESP
-                 ',RESP2=' WS-CICS-RESP2
-                 EXEC CICS ABEND
-                    ABCODE ('HROL')
-                    CANCEL
-                 END-EXEC
-
-              END-IF
-              GO TO RAD999
-           END-IF.
-
-      *
-      *    Retrieve each of the accounts associated with this customer
-      *
-           PERFORM FETCH-DATA.
-
-      *
-      *    Close the DB2 CURSOR
-      *
-           EXEC SQL CLOSE
-                          ACC-CURSOR
-           END-EXEC.
-
-           IF SQLCODE NOT = 0
-              MOVE SQLCODE TO SQLCODE-DISPLAY
-              DISPLAY 'Failure when attempting to close the DB2 CURSOR'
-                  ' ACC-CURSOR. With SQL code='
-                  SQLCODE-DISPLAY
-
-      *
-      *       Check if SQLCODE indicates that Storm Drain processing
-      *       is applicable in a workload if activated
-      *
-              PERFORM CHECK-FOR-STORM-DRAIN-DB2
-
+      *    Legacy cursor failures set COMM-SUCCESS 'N' with fail code
+      *    2/3/4 and did not abend; a transport failure maps to '3'.
+           IF DSV-RC NOT = '0'
+              DISPLAY 'INQACCCU: data service call failed RC=' DSV-RC
+                 ' RESP=' DSV-CICS-RESP ' RESP2=' DSV-CICS-RESP2
               MOVE 'N' TO COMM-SUCCESS
-              MOVE 'N' TO CUSTOMER-FOUND
-              MOVE '4' TO COMM-FAIL-CODE
-
-              EXEC CICS SYNCPOINT
-                 ROLLBACK
-                 RESP(WS-CICS-RESP)
-                 RESP2(WS-CICS-RESP2)
-              END-EXEC
-
-              IF WS-CICS-RESP NOT = DFHRESP(NORMAL)
-      *
-      *          Preserve the RESP and RESP2, then set up the
-      *          standard ABEND info before getting the applid,
-      *          date/time etc. and linking to the Abend Handler
-      *          program.
-      *
-                 INITIALIZE ABNDINFO-REC
-                 MOVE EIBRESP    TO ABND-RESPCODE
-                 MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *          Get supplemental information
-      *
-                 EXEC CICS ASSIGN APPLID(ABND-APPLID)
-                 END-EXEC
-
-                 MOVE EIBTASKN   TO ABND-TASKNO-KEY
-                 MOVE EIBTRNID   TO ABND-TRANID
-
-                 PERFORM POPULATE-TIME-DATE
-
-                 MOVE WS-ORIG-DATE TO ABND-DATE
-                 STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                       ':' DELIMITED BY SIZE,
-                        WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                        ':' DELIMITED BY SIZE,
-                        WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                        INTO ABND-TIME
-                 END-STRING
-
-                 MOVE WS-U-TIME   TO ABND-UTIME-KEY
-                 MOVE 'HROL'      TO ABND-CODE
-
-                 EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-                 END-EXEC
-
-                 MOVE ZEROS      TO ABND-SQLCODE
-
-                 STRING 'RAD010(2)- Unable to perform Syncpoint'
-                       DELIMITED BY SIZE,
-                       'Rollback. Possible Integrity issue following'
-                       DELIMITED BY SIZE,
-                       'CURSOR CLOSE' DELIMITED BY SIZE,
-                       'EIBRESP=' DELIMITED BY SIZE,
-                       ABND-RESPCODE DELIMITED BY SIZE,
-                       ' RESP2=' DELIMITED BY SIZE,
-                       ABND-RESP2CODE DELIMITED BY SIZE
-                       INTO ABND-FREEFORM
-                 END-STRING
-
-                 EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                           COMMAREA(ABNDINFO-REC)
-                 END-EXEC
-
-      *          '. Possible Integrity issue following DB2 CURSOR CLOSE'
-      *          ' SQLCODE=' SQLCODE-DISPLAY
-      *          ',RESP=' WS-CICS-RESP
-      *          ',RESP2=' WS-CICS-RESP2
-
-                 DISPLAY 'INQACCCU:Unable to perform Synpoint ROLLBACK'
-                         '. Possible Integrity issue following '
-                         'DB2 CURSOR OPEN SQLCODE=' SQLCODE-DISPLAY
-                         ',RESP=' WS-CICS-RESP
-                         ',RESP2=' WS-CICS-RESP2
-
-                 EXEC CICS ABEND
-                    ABCODE ('HROL')
-                    CANCEL
-                 END-EXEC
-              END-IF
-
+              MOVE '3' TO COMM-FAIL-CODE
               GO TO RAD999
            END-IF.
+
+           INITIALIZE WS-DSV-RESP.
+           JSON PARSE DSV-RESP-BODY(1:DSV-RESP-LEN)
+                INTO WS-DSV-RESP
+                NAME OF WS-RESP-SUCCESS  IS 'success'
+                     WS-RESP-FAILCODE    IS 'failCode'
+                     WS-RESP-ABEND       IS 'abendCode'
+                     WS-RESP-COUNT       IS 'numberOfAccounts'
+                     WS-RESP-ACCOUNTS    IS 'accounts'
+                     COPY ACCJSONN.
+                ON EXCEPTION
+                   DISPLAY 'INQACCCU: bad data service response HTTP='
+                      DSV-HTTP-STATUS ' JSON-CODE=' JSON-CODE
+                   MOVE 'N' TO WS-RESP-SUCCESS
+                   MOVE '3' TO WS-RESP-FAILCODE
+           END-JSON.
+
+           IF WS-RESP-ABEND NOT = SPACES
+              EXEC CICS ABEND ABCODE(WS-RESP-ABEND)
+                   CANCEL
+              END-EXEC
+           END-IF.
+
+           IF WS-RESP-SUCCESS NOT = 'Y'
+              MOVE 'N' TO COMM-SUCCESS
+              MOVE WS-RESP-FAILCODE TO COMM-FAIL-CODE
+              IF COMM-FAIL-CODE = SPACE
+                 MOVE '3' TO COMM-FAIL-CODE
+              END-IF
+              GO TO RAD999
+           END-IF.
+
+           IF WS-RESP-COUNT > 20
+              MOVE 20 TO WS-RESP-COUNT
+           END-IF.
+           PERFORM VARYING WS-ACC-IX FROM 1 BY 1
+                   UNTIL WS-ACC-IX > WS-RESP-COUNT
+              MOVE WS-ACC-IX TO NUMBER-OF-ACCOUNTS
+              MOVE JA-EYE(WS-ACC-IX)
+                 TO COMM-EYE(NUMBER-OF-ACCOUNTS)
+              MOVE JA-CUSTNO(WS-ACC-IX)
+                 TO COMM-CUSTNO(NUMBER-OF-ACCOUNTS)
+              MOVE JA-SCODE(WS-ACC-IX)
+                 TO COMM-SCODE(NUMBER-OF-ACCOUNTS)
+              MOVE JA-ACCNO(WS-ACC-IX)
+                 TO COMM-ACCNO(NUMBER-OF-ACCOUNTS)
+              MOVE JA-ACC-TYPE(WS-ACC-IX)
+                 TO COMM-ACC-TYPE(NUMBER-OF-ACCOUNTS)
+              COMPUTE COMM-INT-RATE(NUMBER-OF-ACCOUNTS) =
+                 FUNCTION NUMVAL(JA-INT-RATE(WS-ACC-IX))
+              MOVE JA-OPENED(WS-ACC-IX)
+                 TO COMM-OPENED(NUMBER-OF-ACCOUNTS)
+              MOVE JA-OVERDRAFT(WS-ACC-IX)
+                 TO COMM-OVERDRAFT(NUMBER-OF-ACCOUNTS)
+              MOVE JA-LAST-STMT(WS-ACC-IX)
+                 TO COMM-LAST-STMT-DT(NUMBER-OF-ACCOUNTS)
+              MOVE JA-NEXT-STMT(WS-ACC-IX)
+                 TO COMM-NEXT-STMT-DT(NUMBER-OF-ACCOUNTS)
+              COMPUTE COMM-ACTUAL-BAL(NUMBER-OF-ACCOUNTS) =
+                 FUNCTION NUMVAL(JA-ACTUAL-BAL(WS-ACC-IX))
+              COMPUTE COMM-AVAIL-BAL(NUMBER-OF-ACCOUNTS) =
+                 FUNCTION NUMVAL(JA-AVAIL-BAL(WS-ACC-IX))
+           END-PERFORM.
 
            MOVE 'Y' TO COMM-SUCCESS.
 
@@ -451,190 +294,20 @@
            EXIT.
 
 
-       FETCH-DATA SECTION.
-       FD010.
-      *
-      *    Fetch each account in turn, & store data until there are no
-      *    more rows to process. (There is a maximum of 20 accounts per
-      *    customer).
-      *
-           MOVE ZERO TO NUMBER-OF-ACCOUNTS.
-
-           PERFORM UNTIL SQLCODE NOT = 0 OR
-           NUMBER-OF-ACCOUNTS = 20
-
-              EXEC SQL FETCH FROM ACC-CURSOR
-              INTO :HV-ACCOUNT-EYECATCHER,
-                   :HV-ACCOUNT-CUST-NO,
-                   :HV-ACCOUNT-SORTCODE,
-                   :HV-ACCOUNT-ACC-NO,
-                   :HV-ACCOUNT-ACC-TYPE,
-                   :HV-ACCOUNT-INT-RATE,
-                   :HV-ACCOUNT-OPENED,
-                   :HV-ACCOUNT-OVERDRAFT-LIM,
-                   :HV-ACCOUNT-LAST-STMT,
-                   :HV-ACCOUNT-NEXT-STMT,
-                   :HV-ACCOUNT-AVAIL-BAL,
-                   :HV-ACCOUNT-ACTUAL-BAL
-              END-EXEC
-
-      *
-      *       If there is no data found at all, then return a
-      *       low value record
-      *
-              IF SQLCODE = +100
-                  MOVE 'Y' TO COMM-SUCCESS
-                  GO TO FD999
-              END-IF
-
-              IF SQLCODE NOT = 0
-                 MOVE SQLCODE TO SQLCODE-DISPLAY
-
-                 DISPLAY 'Failure when attempting to FETCH from the'
-                    ' DB2 CURSOR ACC-CURSOR. With SQL code='
-                    SQLCODE-DISPLAY
-      *
-      *          Check if SQLCODE indicates that Storm Drain processing
-      *          is applicable in a workload if activated
-      *
-                 PERFORM CHECK-FOR-STORM-DRAIN-DB2
-
-                 MOVE 'N'  TO COMM-SUCCESS
-                 MOVE 'N'  TO CUSTOMER-FOUND
-                 MOVE ZERO TO NUMBER-OF-ACCOUNTS
-                 MOVE '3' TO COMM-FAIL-CODE
-
-                 EXEC CICS SYNCPOINT
-                    ROLLBACK
-                    RESP(WS-CICS-RESP)
-                    RESP2(WS-CICS-RESP2)
-                 END-EXEC
-
-                 IF WS-CICS-RESP NOT = DFHRESP(NORMAL)
-      *
-      *             Preserve the RESP and RESP2, then set up the
-      *             standard ABEND info before getting the applid,
-      *             date/time etc. and linking to the Abend Handler
-      *             program.
-      *
-                    INITIALIZE ABNDINFO-REC
-                    MOVE EIBRESP    TO ABND-RESPCODE
-                    MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *             Get supplemental information
-      *
-                    EXEC CICS ASSIGN APPLID(ABND-APPLID)
-                    END-EXEC
-
-                    MOVE EIBTASKN   TO ABND-TASKNO-KEY
-                    MOVE EIBTRNID   TO ABND-TRANID
-
-                    PERFORM POPULATE-TIME-DATE
-
-                    MOVE WS-ORIG-DATE TO ABND-DATE
-                    STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                       ':' DELIMITED BY SIZE,
-                       WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                       ':' DELIMITED BY SIZE,
-                       WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                       INTO ABND-TIME
-                    END-STRING
-
-                    MOVE WS-U-TIME   TO ABND-UTIME-KEY
-                    MOVE 'HROL'      TO ABND-CODE
-
-                    EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-                    END-EXEC
-
-                    MOVE ZEROS      TO ABND-SQLCODE
-
-                    STRING 'FD010 - Unable to perform Syncpoint'
-                       DELIMITED BY SIZE,
-                       'Rollback. Possible Integrity issue following'
-                       DELIMITED BY SIZE,
-                       'DB2 FETCH' DELIMITED BY SIZE,
-                       'EIBRESP=' DELIMITED BY SIZE,
-                       ABND-RESPCODE DELIMITED BY SIZE,
-                       ' RESP2=' DELIMITED BY SIZE,
-                       ABND-RESP2CODE DELIMITED BY SIZE
-                       INTO ABND-FREEFORM
-                    END-STRING
-
-                    EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                           COMMAREA(ABNDINFO-REC)
-                    END-EXEC
-
-                    DISPLAY 'INQACCCU: Unable to perform Syncpoint '
-                       'ROLLBACK. Possible Integrity issue following'
-                       ' DB2 FETCH. SQLCODE=' SQLCODE-DISPLAY
-                       ',RESP=' WS-CICS-RESP
-                       ',RESP2=' WS-CICS-RESP2
-
-                    EXEC CICS ABEND
-                       ABCODE ('HROL')
-                       CANCEL
-                    END-EXEC
-
-                 END-IF
-                 GO TO FD999
-
-              END-IF
-
-              ADD 1 TO NUMBER-OF-ACCOUNTS GIVING NUMBER-OF-ACCOUNTS
-      *
-      *       If we find a matching customer
-      *
-              MOVE HV-ACCOUNT-EYECATCHER
-                 TO COMM-EYE(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-CUST-NO
-                  TO COMM-CUSTNO(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-SORTCODE
-                  TO COMM-SCODE(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-ACC-NO
-                  TO COMM-ACCNO(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-ACC-TYPE
-                  TO COMM-ACC-TYPE(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-INT-RATE
-                  TO COMM-INT-RATE(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-OPENED TO DB2-DATE-REFORMAT
-
-              STRING DB2-DATE-REF-DAY
-                DB2-DATE-REF-MNTH
-                DB2-DATE-REF-YR
-                DELIMITED BY SIZE
-                INTO COMM-OPENED(NUMBER-OF-ACCOUNTS)
-              END-STRING
-
-              MOVE HV-ACCOUNT-OVERDRAFT-LIM
-                 TO COMM-OVERDRAFT(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-LAST-STMT TO DB2-DATE-REFORMAT
-
-              STRING DB2-DATE-REF-DAY
-                 DB2-DATE-REF-MNTH
-                 DB2-DATE-REF-YR
-                 DELIMITED BY SIZE
-                 INTO COMM-LAST-STMT-DT(NUMBER-OF-ACCOUNTS)
-              END-STRING
-
-              MOVE HV-ACCOUNT-NEXT-STMT TO DB2-DATE-REFORMAT
-
-              STRING DB2-DATE-REF-DAY
-                 DB2-DATE-REF-MNTH
-                 DB2-DATE-REF-YR
-                 DELIMITED BY SIZE
-                 INTO COMM-NEXT-STMT-DT(NUMBER-OF-ACCOUNTS)
-              END-STRING
-
-              MOVE HV-ACCOUNT-ACTUAL-BAL
-                 TO COMM-ACTUAL-BAL(NUMBER-OF-ACCOUNTS)
-              MOVE HV-ACCOUNT-AVAIL-BAL
-                 TO COMM-AVAIL-BAL(NUMBER-OF-ACCOUNTS)
-
-           END-PERFORM.
-
-       FD999.
+       CALL-DATASVC SECTION.
+       CDS010.
+           EXEC CICS LINK PROGRAM('DATASVC')
+                COMMAREA(WS-DSV)
+                RESP(WS-CICS-RESP)
+                RESP2(WS-CICS-RESP2)
+           END-EXEC.
+           IF WS-CICS-RESP NOT = DFHRESP(NORMAL)
+              MOVE '9' TO DSV-RC
+              MOVE WS-CICS-RESP TO DSV-CICS-RESP
+              MOVE WS-CICS-RESP2 TO DSV-CICS-RESP2
+           END-IF.
+       CDS999.
            EXIT.
-
        GET-ME-OUT-OF-HERE SECTION.
        GMOFH010.
       *
@@ -651,39 +324,6 @@
 
       *
       * Check for Storm Drain Condition (DB2)
-      *
-       CHECK-FOR-STORM-DRAIN-DB2 SECTION.
-       CFSDD010.
-
-      *
-      *    Check if the Sqlcode is one that will
-      *    trigger Storm Drain is active in Workload
-      *
-           EVALUATE SQLCODE
-
-              WHEN 923
-                 MOVE 'DB2 Connection lost ' TO STORM-DRAIN-CONDITION
-
-              WHEN OTHER
-                 MOVE 'Not Storm Drain     ' TO STORM-DRAIN-CONDITION
-
-           END-EVALUATE.
-
-           IF STORM-DRAIN-CONDITION NOT EQUAL 'Not Storm Drain     '
-              DISPLAY 'INQACCCU: Check-For-Storm-Drain-DB2: Storm '
-                      'Drain condition (' STORM-DRAIN-CONDITION ') '
-                      'has been met (' SQLCODE-DISPLAY ').'
-           ELSE
-              CONTINUE
-           END-IF.
-
-
-       CFSDD999.
-           EXIT.
-
-
-      *
-      * How ABENDs are dealt with
       *
        ABEND-HANDLING SECTION.
        AH010.
@@ -706,19 +346,8 @@
       *       DB2 AD2Z abend
       *
               WHEN 'AD2Z'
-                 MOVE SQLCODE TO SQLCODE-DISPLAY
-                 DISPLAY 'DB2 DEADLOCK DETECTED IN INQACCCU, SQLCODE='
-                    SQLCODE-DISPLAY
-                 DISPLAY 'DB2 DEADLOCK FOR ACCOUNT '
-                    HV-ACCOUNT-ACC-NO
-                 DISPLAY  'SQLSTATE=' SQLSTATE
-                          ',SQLERRMC=' sqlerrmc(1:sqlerrmL)
-                          ',sqlerrd(1)=' sqlerrd(1)
-                          ',sqlerrd(2)=' sqlerrd(2)
-                          ',sqlerrd(3)=' sqlerrd(3)
-                          ',sqlerrd(4)=' sqlerrd(4)
-                          ',sqlerrd(5)=' sqlerrd(5)
-                          ',sqlerrd(6)=' sqlerrd(6)
+                 DISPLAY 'AD2Z ABEND IN INQACCCU FOR CUSTOMER '
+                    CUSTOMER-NUMBER OF DFHCOMMAREA
 
       *
       *          VSAM RLS abends, subject to CPSM WLM Storm Drain check
