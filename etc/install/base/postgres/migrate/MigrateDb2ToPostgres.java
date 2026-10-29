@@ -60,6 +60,15 @@ public class MigrateDb2ToPostgres
 			pg.setAutoCommit(false);
 			if (!verifyOnly)
 			{
+				// Replace, not append, so a rerun after a partial or failed
+				// verification is safe. All in one PostgreSQL transaction.
+				try (Statement del = pg.createStatement())
+				{
+					for (String table : TABLES)
+					{
+						del.executeUpdate("DELETE FROM " + table);
+					}
+				}
 				for (String table : TABLES)
 				{
 					copy(db2, prefix + table, pg, table);

@@ -147,20 +147,38 @@ public class HBankDataAccess
 				{
 					Task.getTask().commit();
 				}
-				// Close the connection
-				this.conn.close();
-				cornedBeef.remove(dbConnString);
 			}
 			catch (SQLException e)
 			{
 				logger.severe(
-						"SQLException closing PostgreSQL connection "
+						"SQLException committing PostgreSQL connection "
 								+ e.getErrorCode() + "," + e.getSQLState() + ","
 								+ e.getMessage());
+				try
+				{
+					BankRuntime.rollback();
+				}
+				catch (InvalidRequestException e2)
+				{
+					logger.severe(e2.getLocalizedMessage());
+				}
 			}
 			catch (InvalidRequestException | RolledBackException e)
 			{
 				logger.severe(e.getLocalizedMessage());
+			}
+			finally
+			{
+				cornedBeef.remove(dbConnString);
+				try
+				{
+					this.conn.close();
+				}
+				catch (SQLException e)
+				{
+					logger.severe("SQLException closing PostgreSQL connection "
+							+ e.getMessage());
+				}
 			}
 		}
 		logger.exiting(this.getClass().getName(), "closeConnection()");
