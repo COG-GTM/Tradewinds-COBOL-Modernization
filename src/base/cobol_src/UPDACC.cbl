@@ -1,6 +1,5 @@
        PROCESS CICS,NODYNAM,NSYMBOL(NATIONAL),TRUNC(STD)
        CBL CICS('SP,EDF,DLI')
-       CBL SQL
       ******************************************************************
       *                                                                *
       *  Copyright IBM Corp. 2023                                      *
@@ -14,7 +13,7 @@
       * The program receives as input all of the fields which make
       * up the Account record.
       *
-      * It then accesses DB2 datastore & updates the associated
+      * It then calls the account data service & updates the associated
       * Account record.
       *
       * Because it is only permissible to change a limited number of
@@ -52,35 +51,21 @@
 
        77 SYSIDERR-RETRY                PIC 999.
 
-      * Get the ACCOUNT DB2 copybook
-           EXEC SQL
-              INCLUDE ACCDB2
-           END-EXEC.
+      * Account data service (DATASVC) areas
+       01 WS-DSV.
+          COPY DATASVC.
 
-      * ACCOUNT Host variables for DB2
-       01 HOST-ACCOUNT-ROW.
-          03 HV-ACCOUNT-EYECATCHER      PIC X(4).
-          03 HV-ACCOUNT-CUST-NO         PIC X(10).
-          03 HV-ACCOUNT-KEY.
-             05 HV-ACCOUNT-SORTCODE     PIC X(6).
-             05 HV-ACCOUNT-ACC-NO       PIC X(8).
-          03 HV-ACCOUNT-ACC-TYPE        PIC X(8).
-          03 HV-ACCOUNT-INT-RATE        PIC S9(4)V99 COMP-3.
-          03 HV-ACCOUNT-OPENED          PIC X(10).
-          03 HV-ACCOUNT-OVERDRAFT-LIM   PIC S9(9) COMP.
-          03 HV-ACCOUNT-LAST-STMT       PIC X(10).
-          03 HV-ACCOUNT-NEXT-STMT       PIC X(10).
-          03 HV-ACCOUNT-AVAIL-BAL       PIC S9(10)V99 COMP-3.
-          03 HV-ACCOUNT-ACTUAL-BAL      PIC S9(10)V99 COMP-3.
+      * Envelope + account returned by PUT /data/account/{sc}/{num}
+       01 WS-DSV-RESP.
+          03 WS-RESP-SUCCESS            PIC X.
+          03 WS-RESP-FAILCODE           PIC X.
+          03 WS-RESP-ABEND              PIC X(4).
+          03 WS-RESP-ACCOUNT.
+             COPY ACCJSON.
 
-
-      * Pull in the SQL COMMAREA
-        EXEC SQL
-          INCLUDE SQLCA
-        END-EXEC.
-
-        01 SQLCODE-DISPLAY             PIC S9(8) DISPLAY
-            SIGN LEADING SEPARATE.
+       01 WS-PTR                        PIC S9(8) COMP.
+       01 WS-EDIT-RATE                  PIC Z(3)9.99.
+       01 WS-EDIT-OVERDRAFT             PIC Z(7)9.
 
        01 WS-CICS-WORK-AREA.
           05 WS-CICS-RESP               PIC S9(8) COMP.
@@ -88,19 +73,12 @@
 
 
        LOCAL-STORAGE SECTION.
-       01 DB2-DATE-REFORMAT.
-          03 DB2-DATE-REF-YR            PIC 9(4).
-          03 FILLER                     PIC X.
-          03 DB2-DATE-REF-MNTH          PIC 99.
-          03 FILLER                     PIC X.
-          03 DB2-DATE-REF-DAY           PIC 99.
 
 
        01 WS-ACC-DATA.
           COPY ACCOUNT.
 
        01 WS-EIBTASKN12                 PIC 9(12)     VALUE 0.
-       01 WS-SQLCODE-DISP               PIC 9(9)      VALUE 0.
 
       *
       * Pull in the input and output data structures
@@ -164,7 +142,7 @@
       *
       *           Update the account information
       *
-           PERFORM UPDATE-ACCOUNT-DB2
+           PERFORM UPDATE-ACCOUNT-DATASVC
 
       *
       *    The COMMAREA values have now been set so all we need to do
@@ -177,152 +155,85 @@
            EXIT.
 
 
-       UPDATE-ACCOUNT-DB2 SECTION.
+       UPDATE-ACCOUNT-DATASVC SECTION.
        UAD010.
-
       *
-      *    Position ourself at the matching account record
+      *    PUT /data/account/{sortcode}/{number}: the data service
+      *    reads the row, rejects a blank account type and updates
+      *    ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and
+      *    ACCOUNT_OVERDRAFT_LIMIT (formerly SELECT + UPDATE here).
       *
-
            MOVE COMM-ACCNO TO DESIRED-ACC-NO.
-           MOVE DESIRED-SORT-CODE TO HV-ACCOUNT-SORTCODE.
-           MOVE DESIRED-ACC-NO TO HV-ACCOUNT-ACC-NO.
+           MOVE COMM-INT-RATE TO WS-EDIT-RATE.
+           MOVE COMM-OVERDRAFT TO WS-EDIT-OVERDRAFT.
 
-           EXEC SQL
-              SELECT ACCOUNT_EYECATCHER,
-                     ACCOUNT_CUSTOMER_NUMBER,
-                     ACCOUNT_SORTCODE,
-                     ACCOUNT_NUMBER,
-                     ACCOUNT_TYPE,
-                     ACCOUNT_INTEREST_RATE,
-                     ACCOUNT_OPENED,
-                     ACCOUNT_OVERDRAFT_LIMIT,
-                     ACCOUNT_LAST_STATEMENT,
-                     ACCOUNT_NEXT_STATEMENT,
-                     ACCOUNT_AVAILABLE_BALANCE,
-                     ACCOUNT_ACTUAL_BALANCE
-              INTO  :HV-ACCOUNT-EYECATCHER,
-                    :HV-ACCOUNT-CUST-NO,
-                    :HV-ACCOUNT-SORTCODE,
-                    :HV-ACCOUNT-ACC-NO,
-                    :HV-ACCOUNT-ACC-TYPE,
-                    :HV-ACCOUNT-INT-RATE,
-                    :HV-ACCOUNT-OPENED,
-                    :HV-ACCOUNT-OVERDRAFT-LIM,
-                    :HV-ACCOUNT-LAST-STMT,
-                    :HV-ACCOUNT-NEXT-STMT,
-                    :HV-ACCOUNT-AVAIL-BAL,
-                    :HV-ACCOUNT-ACTUAL-BAL
-              FROM ACCOUNT
-              WHERE  (ACCOUNT_SORTCODE = :HV-ACCOUNT-SORTCODE AND
-                      ACCOUNT_NUMBER = :HV-ACCOUNT-ACC-NO)
-           END-EXEC.
+           MOVE SPACES TO DSV-PATH DSV-REQ-BODY.
+           SET DSV-PUT TO TRUE.
+           STRING '/data/account/' DELIMITED BY SIZE
+                  DESIRED-SORT-CODE DELIMITED BY SIZE
+                  '/' DELIMITED BY SIZE
+                  DESIRED-ACC-NO DELIMITED BY SIZE
+             INTO DSV-PATH
+           END-STRING.
+           MOVE 1 TO WS-PTR.
+           STRING '{"accountType":"' DELIMITED BY SIZE
+                  COMM-ACC-TYPE DELIMITED BY SIZE
+                  '","interestRate":' DELIMITED BY SIZE
+                  FUNCTION TRIM(WS-EDIT-RATE) DELIMITED BY SIZE
+                  ',"overdraftLimit":' DELIMITED BY SIZE
+                  FUNCTION TRIM(WS-EDIT-OVERDRAFT) DELIMITED BY SIZE
+                  '}' DELIMITED BY SIZE
+             INTO DSV-REQ-BODY WITH POINTER WS-PTR
+           END-STRING.
+           COMPUTE DSV-REQ-LEN = WS-PTR - 1.
+
+           PERFORM CALL-DATASVC.
 
       *
-      *    Check that the READ was successful. If not mark the return
-      *    field as not successful
+      *    UPDACC never abended on a database failure: it only set
+      *    COMM-SUCCESS to 'N'. Keep that for transport failures too.
       *
-           IF SQLCODE NOT = 0
-
+           IF DSV-RC NOT = '0'
               MOVE 'N' TO COMM-SUCCESS
-              MOVE SQLCODE TO SQLCODE-DISPLAY
-              DISPLAY 'ERROR: UPDACC returned ' SQLCODE-DISPLAY
-              ' on SELECT'
-              GO TO UAD999
-
-           END-IF.
-
-      *
-      *    If the RESP CODE was OK then update the record
-      *
-      *
-
-      * During BMS processing the whole account record is
-      * returned in the comm area on the update. However, the same
-      * is NOT true if the update is coming in via the API.
-      *
-      * For example, if the API update supplies an account type
-      * change, and doesn't supply the other fields, the interest
-      * rate and the overdraft limit will come in as zeros. If
-      * the updater was only intending to change the account type
-      * from a LOAN account into an ISA, in this situation it
-      * would also update the overdraft limit and the interest rate
-      * to be zero. This may not have been the intention.
-      *
-      * To avoid this, we will put a rule into the Customer Service
-      * interface that on an account update you must always supply the
-      * account type AND the interest rate AND the overdraft limit.
-      * But that won't stop someone else from using the API directly
-      * and unintentionally setting the overdraft and interest rate
-      * to zeros when they update just the account type.
-      *
-      * The best that we can hope to do is to say if we receive
-      * an account update and the account type contains all
-      * spaces or it starts with a space, then we will reject that
-      * update as not being valid. This let's through updates
-      * where an account type IS supplied and the overdraft limit and
-      * or the interest rate are zero.
-      *
-
-           IF (COMM-ACC-TYPE = SPACES OR COMM-ACC-TYPE(1:1) = ' ')
-              MOVE 'N' TO COMM-SUCCESS
-              DISPLAY 'ERROR: UPDACC has invalid account-type'
-              GO TO UAD999
-
-           END-IF.
-
-           MOVE COMM-ACC-TYPE  TO HV-ACCOUNT-ACC-TYPE.
-           MOVE COMM-OVERDRAFT TO HV-ACCOUNT-OVERDRAFT-LIM.
-           MOVE COMM-INT-RATE  TO HV-ACCOUNT-INT-RATE.
-
-           EXEC SQL
-              UPDATE ACCOUNT
-              SET ACCOUNT_TYPE = :HV-ACCOUNT-ACC-TYPE,
-                  ACCOUNT_INTEREST_RATE = :HV-ACCOUNT-INT-RATE,
-                  ACCOUNT_OVERDRAFT_LIMIT = :HV-ACCOUNT-OVERDRAFT-LIM
-              WHERE (ACCOUNT_SORTCODE = :HV-ACCOUNT-SORTCODE AND
-                     ACCOUNT_NUMBER = :HV-ACCOUNT-ACC-NO)
-           END-EXEC.
-
-      *
-      *    If the SQLCODE was NOT OK then we need to mark it as failed
-      *
-           IF SQLCODE NOT = 0
-              MOVE 'N' TO COMM-SUCCESS
-              MOVE SQLCODE TO SQLCODE-DISPLAY
-              DISPLAY 'ERROR: UPDACC returned ' SQLCODE-DISPLAY
-              ' on UPDATE'
+              DISPLAY 'ERROR: UPDACC data service call failed RC='
+                 DSV-RC ' RESP=' DSV-CICS-RESP
+                 ' RESP2=' DSV-CICS-RESP2
               GO TO UAD999
            END-IF.
 
-      *
-      *    If the SQLCODE was normal then we just need to set the
-      *    SUCCESS CODE
-      *
-           MOVE HV-ACCOUNT-EYECATCHER TO COMM-EYE.
-           MOVE HV-ACCOUNT-CUST-NO    TO COMM-CUSTNO.
-           MOVE HV-ACCOUNT-SORTCODE   TO COMM-SCODE.
-           MOVE HV-ACCOUNT-ACC-NO     TO COMM-ACCNO.
-           MOVE HV-ACCOUNT-ACC-TYPE   TO COMM-ACC-TYPE.
-           MOVE HV-ACCOUNT-INT-RATE   TO COMM-INT-RATE.
-           INITIALIZE DB2-DATE-REFORMAT.
-           MOVE HV-ACCOUNT-OPENED     TO DB2-DATE-REFORMAT.
-           MOVE DB2-DATE-REF-YR       TO COMM-OPENED-YEAR.
-           MOVE DB2-DATE-REF-MNTH     TO COMM-OPENED-MONTH.
-           MOVE DB2-DATE-REF-DAY      TO COMM-OPENED-DAY.
-           MOVE HV-ACCOUNT-OVERDRAFT-LIM TO COMM-OVERDRAFT.
-           INITIALIZE DB2-DATE-REFORMAT.
-           MOVE HV-ACCOUNT-LAST-STMT  TO DB2-DATE-REFORMAT.
-           MOVE DB2-DATE-REF-YR       TO COMM-LASTST-YEAR.
-           MOVE DB2-DATE-REF-MNTH     TO COMM-LASTST-MONTH.
-           MOVE DB2-DATE-REF-DAY      TO COMM-LASTST-DAY.
-           INITIALIZE DB2-DATE-REFORMAT.
-           MOVE HV-ACCOUNT-NEXT-STMT  TO DB2-DATE-REFORMAT.
-           MOVE DB2-DATE-REF-YR       TO COMM-NEXTST-YEAR.
-           MOVE DB2-DATE-REF-MNTH     TO COMM-NEXTST-MONTH.
-           MOVE DB2-DATE-REF-DAY      TO COMM-NEXTST-DAY.
-           MOVE HV-ACCOUNT-AVAIL-BAL  TO COMM-AVAIL-BAL.
-           MOVE HV-ACCOUNT-ACTUAL-BAL TO COMM-ACTUAL-BAL.
+           INITIALIZE WS-DSV-RESP.
+           JSON PARSE DSV-RESP-BODY(1:DSV-RESP-LEN)
+                INTO WS-DSV-RESP
+                NAME OF WS-RESP-SUCCESS  IS 'success'
+                     WS-RESP-FAILCODE    IS 'failCode'
+                     WS-RESP-ABEND       IS 'abendCode'
+                     WS-RESP-ACCOUNT     IS 'account'
+                     COPY ACCJSONN.
+                ON EXCEPTION
+                   MOVE 'N' TO WS-RESP-SUCCESS
+                   DISPLAY 'ERROR: UPDACC bad data service response '
+                      'HTTP=' DSV-HTTP-STATUS ' JSON-CODE=' JSON-CODE
+           END-JSON.
+
+           IF WS-RESP-SUCCESS NOT = 'Y'
+              MOVE 'N' TO COMM-SUCCESS
+              DISPLAY 'ERROR: UPDACC data service returned HTTP '
+                 DSV-HTTP-STATUS ' failCode=' WS-RESP-FAILCODE
+              GO TO UAD999
+           END-IF.
+
+           MOVE JA-EYE                TO COMM-EYE.
+           MOVE JA-CUSTNO             TO COMM-CUSTNO.
+           MOVE JA-SCODE              TO COMM-SCODE.
+           MOVE JA-ACCNO              TO COMM-ACCNO.
+           MOVE JA-ACC-TYPE           TO COMM-ACC-TYPE.
+           COMPUTE COMM-INT-RATE = FUNCTION NUMVAL(JA-INT-RATE).
+           MOVE JA-OPENED             TO COMM-OPENED.
+           MOVE JA-OVERDRAFT          TO COMM-OVERDRAFT.
+           MOVE JA-LAST-STMT          TO COMM-LAST-STMT-DT.
+           MOVE JA-NEXT-STMT          TO COMM-NEXT-STMT-DT.
+           COMPUTE COMM-AVAIL-BAL = FUNCTION NUMVAL(JA-AVAIL-BAL).
+           COMPUTE COMM-ACTUAL-BAL = FUNCTION NUMVAL(JA-ACTUAL-BAL).
 
            MOVE 'Y' TO COMM-SUCCESS.
 
@@ -330,54 +241,20 @@
            EXIT.
 
 
-
-
-
-
-
-      *    MOVE COMM-ACC-TYPE     TO
-      *       HV-ACCOUNT-ACC-TYPE.
-      *    MOVE COMM-INT-RATE     TO
-      *       HV-ACCOUNT-INT-RATE.
-      *    MOVE COMM-OVERDRAFT    TO
-      *       HV-ACCOUNT-OVERDRAFT-LIM.
-      *    MOVE COMM-LAST-STMT-DT TO
-      *       HV-ACCOUNT-LAST-STMT.
-      *    MOVE COMM-NEXT-STMT-DT TO
-      *       HV-ACCOUNT-NEXT-STMT.
-      *
-      *    MOVE HV-ACCOUNT-AVAIL-BAL TO COMM-AVAIL-BAL.
-      *    MOVE HV-ACCOUNT-ACTUAL-BAL TO COMM-ACTUAL-BAL.
-      *
-      *    EXEC SQL
-      *       UPDATE ACCOUNT
-      *       SET ACCOUNT_TYPE = :HV-ACCOUNT-ACC-TYPE,
-      *           ACCOUNT_INTEREST_RATE = :HV-ACCOUNT-INT-RATE,
-      *           ACCOUNT_OVERDRAFT_LIMIT = :HV-ACCOUNT-OVERDRAFT-LIM
-      *       WHERE (ACCOUNT_SORTCODE = :HV-ACCOUNT-SORTCODE AND
-      *              ACCOUNT_NUMBER = :HV-ACCOUNT-ACC-NO)
-      *    END-EXEC.
-      *
-      *
-      *    If the SQLCODE was NOT OK then we need to mark it as failed
-      *
-      *    IF SQLCODE NOT = 0
-      *       MOVE 'N' TO COMM-SUCCESS
-      *
-      *       GO TO UAD999
-      *
-      *    END-IF.
-      *
-      *
-      *    If the SQLCODE was normal then we just need to set the
-      *    SUCCESS CODE
-      *
-      *    MOVE 'Y' TO COMM-SUCCESS.
-      *
-      *UAD999.
-      *    EXIT.
-
-
+       CALL-DATASVC SECTION.
+       CDS010.
+           EXEC CICS LINK PROGRAM('DATASVC')
+                COMMAREA(WS-DSV)
+                RESP(WS-CICS-RESP)
+                RESP2(WS-CICS-RESP2)
+           END-EXEC.
+           IF WS-CICS-RESP NOT = DFHRESP(NORMAL)
+              MOVE '9' TO DSV-RC
+              MOVE WS-CICS-RESP TO DSV-CICS-RESP
+              MOVE WS-CICS-RESP2 TO DSV-CICS-RESP2
+           END-IF.
+       CDS999.
+           EXIT.
        GET-ME-OUT-OF-HERE SECTION.
        GMOOH010.
 
