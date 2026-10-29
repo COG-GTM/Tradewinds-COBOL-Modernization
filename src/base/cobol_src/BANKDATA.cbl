@@ -1,4 +1,3 @@
-       CBL SQL
       ******************************************************************
       *                                                                *
       *  Copyright IBM Corp. 2023                                      *
@@ -15,7 +14,7 @@
       * Description: Batch program to initialise the data used in the  *
       *              bank application. Datastores populated by         *
       *              this program include CUSTOMER (VSAM) and ACCOUNT  *
-      *              (DB2).                                            *
+      *              (account data service via ACCJSON file).          *
       *                                                                *
       *                                                                *
       * Input: parm='fffffff,ttttttt,ssssss,rrrrrr'                    *
@@ -24,8 +23,8 @@
       *              sssssss is the step for generation                *
       *              rrrrrrr is the random event seed                  *
       *                                                                *
-      * Output: The populated VSAM file CUSTOMER, the DB2 table        *
-      *         ACCOUNT.                                               *
+      * Output: The populated VSAM file CUSTOMER and the ACCJSON file  *
+      *         (JSON array of ACCOUNT rows for the reset endpoint).   *
       *                                                                *
       *                                                                *
       *                                                                *
@@ -49,6 +48,14 @@
                   ACCESS MODE  IS RANDOM
                   RECORD KEY   IS CUSTOMER-KEY
                   FILE STATUS  IS CUSTOMER-VSAM-STATUS.
+      *
+      *    Generated ACCOUNT rows, as the JSON array body for
+      *    POST /banking/data/admin/account/reset (see BANKDATA.jcl)
+      *
+           SELECT ACCOUNT-JSON-FILE
+                  ASSIGN TO ACCJSON
+                  ORGANIZATION IS SEQUENTIAL
+                  FILE STATUS  IS ACCJSON-STATUS.
 
        DATA DIVISION.
       *****************************************************************
@@ -59,6 +66,9 @@
        FD  CUSTOMER-FILE.
        01  CUSTOMER-RECORD-STRUCTURE.
        COPY CUSTOMER.
+       FD  ACCOUNT-JSON-FILE
+           RECORDING MODE IS F.
+       01  ACCOUNT-JSON-RECORD         PIC X(400).
 
 
 
@@ -69,61 +79,49 @@
 
 
 
-      * Get the ACCOUNT DB2 copybook
-           EXEC SQL
-              INCLUDE ACCDB2
-           END-EXEC.
 
        77  WS-ACCOUNT-OPENED-DAY PIC 99.
        77  WS-ACCOUNT-OPENED-MONTH PIC 99.
        77  WS-ACCOUNT-OPENED-YEAR PIC 9999.
 
-      * ACCOUNT Host variables for DB2
-       01 HOST-ACCOUNT-ROW.
-           03 HV-ACCOUNT-DATA.
-              05 HV-ACCOUNT-EYECATCHER         PIC X(4).
-              05 HV-ACCOUNT-CUST-NO            PIC X(10).
-              05 HV-ACCOUNT-KEY.
-                 07 HV-ACCOUNT-SORT-CODE       PIC X(6).
-                 07 HV-ACCOUNT-NUMBER          PIC X(8).
-              05 HV-ACCOUNT-TYPE               PIC X(8).
-              05 HV-ACCOUNT-INTEREST-RATE      PIC S9(4)V99 COMP-3.
-              05 HV-ACCOUNT-OPENED             PIC X(10).
-              05 HV-ACCOUNT-OPENED-GROUP REDEFINES HV-ACCOUNT-OPENED.
-                 07 HV-ACCOUNT-OPENED-DAY      PIC XX.
-                 07 HV-ACCOUNT-OPENED-DELIM1   PIC X.
-                 07 HV-ACCOUNT-OPENED-MONTH    PIC XX.
-                 07 HV-ACCOUNT-OPENED-DELIM2   PIC X.
-                 07 HV-ACCOUNT-OPENED-YEAR     PIC X(4).
-              05 HV-ACCOUNT-OVERDRAFT-LIMIT    PIC S9(9) COMP.
-              05 HV-ACCOUNT-LAST-STMT-DATE     PIC X(10).
-              05 HV-ACCOUNT-LAST-STMT-GROUP
-                 REDEFINES HV-ACCOUNT-LAST-STMT-DATE.
-                  07 HV-ACCOUNT-LAST-STMT-DAY   PIC XX.
-                  07 HV-ACCOUNT-LAST-STMT-DELIM1 PIC X.
-                  07 HV-ACCOUNT-LAST-STMT-MONTH  PIC XX.
-                  07 HV-ACCOUNT-LAST-STMT-DELIM2 PIC X.
-                  07 HV-ACCOUNT-LAST-STMT-YEAR   PIC X(4).
-              05 HV-ACCOUNT-NEXT-STMT-DATE     PIC X(10).
-              05 HV-ACCOUNT-NEXT-STMT-GROUP
-                 REDEFINES HV-ACCOUNT-NEXT-STMT-DATE.
-                 07 HV-ACCOUNT-NEXT-STMT-DAY    PIC XX.
-                 07 HV-ACCOUNT-NEXT-STMT-DELIM1 PIC X.
-                 07 HV-ACCOUNT-NEXT-STMT-MONTH  PIC XX.
-                 07 HV-ACCOUNT-NEXT-STMT-DELIM2 PIC X.
-                 07 HV-ACCOUNT-NEXT-STMT-YEAR   PIC X(4).
-              05 HV-ACCOUNT-AVAILABLE-BALANCE  PIC S9(10)V99 COMP-3.
-              05 HV-ACCOUNT-ACTUAL-BALANCE     PIC S9(10)V99 COMP-3.
-
-      * Pull in the SQL COMMAREA
-       EXEC SQL
-          INCLUDE SQLCA
-       END-EXEC.
+       01 GEN-ACCOUNT-ROW.
+           03 GEN-ACCOUNT-DATA.
+              05 GEN-ACCOUNT-EYECATCHER         PIC X(4).
+              05 GEN-ACCOUNT-CUST-NO            PIC X(10).
+              05 GEN-ACCOUNT-KEY.
+                 07 GEN-ACCOUNT-SORT-CODE       PIC X(6).
+                 07 GEN-ACCOUNT-NUMBER          PIC X(8).
+              05 GEN-ACCOUNT-TYPE               PIC X(8).
+              05 GEN-ACCOUNT-INTEREST-RATE      PIC S9(4)V99 COMP-3.
+              05 GEN-ACCOUNT-OPENED             PIC X(10).
+              05 GEN-ACCOUNT-OPENED-GROUP REDEFINES GEN-ACCOUNT-OPENED.
+                 07 GEN-ACCOUNT-OPENED-DAY      PIC XX.
+                 07 GEN-ACCOUNT-OPENED-DELIM1   PIC X.
+                 07 GEN-ACCOUNT-OPENED-MONTH    PIC XX.
+                 07 GEN-ACCOUNT-OPENED-DELIM2   PIC X.
+                 07 GEN-ACCOUNT-OPENED-YEAR     PIC X(4).
+              05 GEN-ACCOUNT-OVERDRAFT-LIMIT    PIC S9(9) COMP.
+              05 GEN-ACCOUNT-LAST-STMT-DATE     PIC X(10).
+              05 GEN-ACCOUNT-LAST-STMT-GROUP
+                 REDEFINES GEN-ACCOUNT-LAST-STMT-DATE.
+                  07 GEN-ACCOUNT-LAST-STMT-DAY   PIC XX.
+                  07 GEN-ACCOUNT-LAST-STMT-DELIM1 PIC X.
+                  07 GEN-ACCOUNT-LAST-STMT-MONTH  PIC XX.
+                  07 GEN-ACCOUNT-LAST-STMT-DELIM2 PIC X.
+                  07 GEN-ACCOUNT-LAST-STMT-YEAR   PIC X(4).
+              05 GEN-ACCOUNT-NEXT-STMT-DATE     PIC X(10).
+              05 GEN-ACCOUNT-NEXT-STMT-GROUP
+                 REDEFINES GEN-ACCOUNT-NEXT-STMT-DATE.
+                 07 GEN-ACCOUNT-NEXT-STMT-DAY    PIC XX.
+                 07 GEN-ACCOUNT-NEXT-STMT-DELIM1 PIC X.
+                 07 GEN-ACCOUNT-NEXT-STMT-MONTH  PIC XX.
+                 07 GEN-ACCOUNT-NEXT-STMT-DELIM2 PIC X.
+                 07 GEN-ACCOUNT-NEXT-STMT-YEAR   PIC X(4).
+              05 GEN-ACCOUNT-AVAILABLE-BALANCE  PIC S9(10)V99 COMP-3.
+              05 GEN-ACCOUNT-ACTUAL-BALANCE     PIC S9(10)V99 COMP-3.
 
 
-       01 DISP-LOT.
-          03 DISP-SIGN      PIC X.
-          03 DISP-SQLCD     PIC 9999.
+
 
        01 DISP-REASON-CODE             PIC X(18).
 
@@ -275,8 +273,6 @@
        01 WS-PGM-NAME                             PIC X(8) VALUE ' '.
 
 
-       01 WS-SQLCODE-DISPLAY             PIC S9(8) DISPLAY
-           SIGN LEADING SEPARATE.
 
        01 OPENED-DATE-ATTEMPTS           PIC S9(8) DISPLAY
            SIGN LEADING SEPARATE.
@@ -286,6 +282,14 @@
 
 
        01 COMMIT-COUNT PIC S9(8) BINARY.
+
+       01 ACCJSON-STATUS                 PIC XX VALUE '00'.
+       01 ACCJSON-FIRST                  PIC X  VALUE 'Y'.
+       01 ACCJSON-EDIT-RATE              PIC Z(3)9.99.
+       01 ACCJSON-EDIT-OVERDRAFT         PIC Z(8)9.
+       01 ACCJSON-EDIT-AVAIL-BAL         PIC -(10)9.99.
+       01 ACCJSON-EDIT-ACTUAL-BAL        PIC -(10)9.99.
+       01 ACCJSON-PTR                    PIC S9(8) COMP.
 
        01 time-data.
            05 tod-clock                PIC X(20).
@@ -329,15 +333,6 @@
        COPY ACCTCTRL.
 
       * Get the CONTROL table
-           EXEC SQL
-              INCLUDE CONTDB2
-           END-EXEC.
-
-      * CONTROL Host variables for DB2
-       01 HOST-CONTROL-ROW.
-           03 HV-CONTROL-NAME                  PIC X(32).
-           03 HV-CONTROL-VALUE-NUM             PIC S9(9) COMP.
-           03 HV-CONTROL-VALUE-STR             PIC X(40).
 
 
        01 WS-WEEKDAYS                    PIC X(63) VALUE ' '.
@@ -349,8 +344,6 @@
        01 WS-DAY-OF-WEEK-VAL             PIC 9    VALUE 0.
        01 WS-DAY-TODAY                   PIC X(9) VALUE ' '.
 
-       01 SQLCODE-DISPLAY                PIC S9(8) DISPLAY
-           SIGN LEADING SEPARATE.
 
       *****************************************************************
       *** Linkage Storage                                           ***
@@ -412,12 +405,12 @@
            PERFORM GET-TODAYS-DATE.
 
       *
-      * Delete the DB2 TABLE contents that match the SortCode
+      * Start the ACCJSON reset file for this SortCode
       *
-      D    DISPLAY 'About to delete DB2 rows'.
+      D    DISPLAY 'About to open ACCJSON'.
 
-           PERFORM DELETE-DB2-ROWS.
-      D    DISPLAY 'Back from delete DB2 rows'.
+           PERFORM OPEN-ACCOUNT-JSON.
+      D    DISPLAY 'Back from open ACCJSON'.
       *
       * Initialise the random seed
       *
@@ -578,9 +571,6 @@
                ADD 1 TO COMMIT-COUNT GIVING COMMIT-COUNT
                IF COMMIT-COUNT > 1000
       D          DISPLAY 'Commit every 1,000 records or so'
-                 EXEC SQL
-                  COMMIT WORK
-                 END-EXEC
                  MOVE ZERO TO COMMIT-COUNT
                END-IF
            END-PERFORM
@@ -598,74 +588,18 @@
                    MOVE 12 TO RETURN-CODE
                    PERFORM PROGRAM-DONE
            END-IF.
-      * We need to store 2 values in DB2
+      * CONTROL values come from the reset
       * <<sortcode>>-ACCOUNT-LAST
       * <<sortcode>>-ACCOUNT-COUNT
 
 
-           MOVE SPACES TO HV-CONTROL-NAME
-           MOVE LAST-ACCOUNT-NUMBER TO HV-CONTROL-VALUE-NUM
-           MOVE SPACES TO HV-CONTROL-VALUE-STR
-           STRING SORTCODE DELIMITED BY SIZE
-           '-' DELIMITED BY SIZE
-           'ACCOUNT-LAST' DELIMITED BY SIZE
-           INTO HV-CONTROL-NAME
-           EXEC SQL
-              INSERT INTO CONTROL
-                      (CONTROL_NAME,
-                       CONTROL_VALUE_NUM,
-                       CONTROL_VALUE_STR
-                      )
-              VALUES (:HV-CONTROL-NAME,
-                      :HV-CONTROL-VALUE-NUM,
-                      :HV-CONTROL-VALUE-STR
-                     )
-           END-EXEC.
-
-           IF SQLCODE IS NOT EQUAL TO ZERO
-             MOVE SQLCODE TO WS-SQLCODE-DISPLAY
-             DISPLAY 'Error inserting last account control record '
-             ws-sqlcode-display
-             '.'
-             HV-CONTROL-NAME,
-             ','
-             HV-CONTROL-VALUE-NUM
-           END-IF
-
-           MOVE SPACES TO HV-CONTROL-NAME
-           MOVE NUMBER-OF-ACCOUNTS TO HV-CONTROL-VALUE-NUM
-           MOVE SPACES TO HV-CONTROL-VALUE-STR
-           STRING SORTCODE DELIMITED BY SIZE
-           '-' DELIMITED BY SIZE
-           'ACCOUNT-COUNT' DELIMITED BY SIZE
-           INTO HV-CONTROL-NAME
-           EXEC SQL
-              INSERT INTO CONTROL
-                      (CONTROL_NAME,
-                       CONTROL_VALUE_NUM,
-                       CONTROL_VALUE_STR
-                      )
-              VALUES (:HV-CONTROL-NAME,
-                      :HV-CONTROL-VALUE-NUM,
-                      :HV-CONTROL-VALUE-STR
-                     )
-           END-EXEC.
-
-           IF SQLCODE IS NOT EQUAL TO ZERO
-             MOVE SQLCODE TO WS-SQLCODE-DISPLAY
-             DISPLAY 'Error inserting account count control record '
-             ws-sqlcode-display
-             '.'
-             HV-CONTROL-NAME,
-             ','
-             HV-CONTROL-VALUE-NUM
-           END-IF
-
-
-
       *
-      *** Close the files
+      *    Close the JSON array. The reset endpoint writes CONTROL
+      *    <sortcode>-ACCOUNT-LAST (highest account number in the
+      *    array) and <sortcode>-ACCOUNT-COUNT (array size), which
+      *    equal LAST-ACCOUNT-NUMBER and NUMBER-OF-ACCOUNTS here.
       *
+           PERFORM CLOSE-ACCOUNT-JSON.
            CLOSE CUSTOMER-FILE.
 
            MOVE 'Finishing BANKDATA'
@@ -703,9 +637,6 @@
       D    DISPLAY 'Creating accounts ' NO-OF-ACCOUNTS
            PERFORM POPULATE-ACC VARYING WS-CNT FROM 1 BY 1
                UNTIL WS-CNT > NO-OF-ACCOUNTS.
-           EXEC SQL
-             COMMIT WORK
-           END-EXEC.
 
        DA999.
            EXIT.
@@ -720,9 +651,9 @@
       * Generate the account open date but it MUST be after
       * the DOB (otherwise that would just be silly)
       *
-           MOVE 0 TO HV-ACCOUNT-OPENED-DAY
-                     HV-ACCOUNT-OPENED-MONTH
-                     HV-ACCOUNT-OPENED-YEAR
+           MOVE 0 TO GEN-ACCOUNT-OPENED-DAY
+                     GEN-ACCOUNT-OPENED-MONTH
+                     GEN-ACCOUNT-OPENED-YEAR
            MOVE 0 TO OPENED-DATE-ATTEMPTS
       D    DISPLAY 'About to generate opened date'
            MOVE 'N' TO OPENED-DATE-VALID
@@ -738,13 +669,13 @@
       *
 
            MOVE 'ACCT' TO
-              HV-ACCOUNT-EYECATCHER OF HOST-ACCOUNT-ROW.
+              GEN-ACCOUNT-EYECATCHER OF GEN-ACCOUNT-ROW.
            MOVE CUSTOMER-NUMBER TO
-              HV-ACCOUNT-CUST-NO OF HOST-ACCOUNT-ROW.
+              GEN-ACCOUNT-CUST-NO OF GEN-ACCOUNT-ROW.
            MOVE SORTCODE TO
-              HV-ACCOUNT-SORT-CODE OF HOST-ACCOUNT-ROW.
+              GEN-ACCOUNT-SORT-CODE OF GEN-ACCOUNT-ROW.
            MOVE WS-ACCOUNT-NUMBER TO
-              HV-ACCOUNT-NUMBER OF HOST-ACCOUNT-ROW.
+              GEN-ACCOUNT-NUMBER OF GEN-ACCOUNT-ROW.
 
            MOVE WS-ACCOUNT-NUMBER TO LAST-ACCOUNT-NUMBER
 
@@ -753,11 +684,11 @@
       *    ADD 1 TO WS-ACCOUNT-NUMBER GIVING WS-ACCOUNT-NUMBER
 
            MOVE WS-ACCOUNT-TYPE(WS-CNT) TO
-              HV-ACCOUNT-TYPE OF HOST-ACCOUNT-ROW.
+              GEN-ACCOUNT-TYPE OF GEN-ACCOUNT-ROW.
            MOVE WS-ACCOUNT-INT-RATE(WS-CNT) TO
-              HV-ACCOUNT-INTEREST-RATE OF HOST-ACCOUNT-ROW.
-           MOVE '.' TO HV-ACCOUNT-OPENED-DELIM1.
-           MOVE '.' TO HV-ACCOUNT-OPENED-DELIM2.
+              GEN-ACCOUNT-INTEREST-RATE OF GEN-ACCOUNT-ROW.
+           MOVE '.' TO GEN-ACCOUNT-OPENED-DELIM1.
+           MOVE '.' TO GEN-ACCOUNT-OPENED-DELIM2.
       *
       * Convert the overdraft into a field compatible with INTEGER on
       * the table
@@ -765,28 +696,28 @@
            MOVE WS-ACCOUNT-OVERDRAFT-LIM(WS-CNT) TO
               WS-OVERDRAFT-CONVERSION.
            MOVE WS-OVERDRAFT-CONVERSION TO
-              HV-ACCOUNT-OVERDRAFT-LIMIT OF HOST-ACCOUNT-ROW.
+              GEN-ACCOUNT-OVERDRAFT-LIMIT OF GEN-ACCOUNT-ROW.
            MOVE '2021' TO
-              HV-ACCOUNT-LAST-STMT-YEAR OF HOST-ACCOUNT-ROW.
-           MOVE '.' TO HV-ACCOUNT-LAST-STMT-DELIM1.
+              GEN-ACCOUNT-LAST-STMT-YEAR OF GEN-ACCOUNT-ROW.
+           MOVE '.' TO GEN-ACCOUNT-LAST-STMT-DELIM1.
            MOVE '07' TO
-              HV-ACCOUNT-LAST-STMT-MONTH OF HOST-ACCOUNT-ROW.
-           MOVE '.' TO HV-ACCOUNT-LAST-STMT-DELIM2.
+              GEN-ACCOUNT-LAST-STMT-MONTH OF GEN-ACCOUNT-ROW.
+           MOVE '.' TO GEN-ACCOUNT-LAST-STMT-DELIM2.
            MOVE '01' TO
-              HV-ACCOUNT-LAST-STMT-DAY OF HOST-ACCOUNT-ROW.
+              GEN-ACCOUNT-LAST-STMT-DAY OF GEN-ACCOUNT-ROW.
            MOVE '2021' TO
-              HV-ACCOUNT-NEXT-STMT-YEAR OF HOST-ACCOUNT-ROW.
-           MOVE '.' TO HV-ACCOUNT-NEXT-STMT-DELIM1.
+              GEN-ACCOUNT-NEXT-STMT-YEAR OF GEN-ACCOUNT-ROW.
+           MOVE '.' TO GEN-ACCOUNT-NEXT-STMT-DELIM1.
            MOVE '08' TO
-              HV-ACCOUNT-NEXT-STMT-MONTH OF HOST-ACCOUNT-ROW.
-           MOVE '.' TO HV-ACCOUNT-NEXT-STMT-DELIM2.
+              GEN-ACCOUNT-NEXT-STMT-MONTH OF GEN-ACCOUNT-ROW.
+           MOVE '.' TO GEN-ACCOUNT-NEXT-STMT-DELIM2.
            MOVE '01' TO
-              HV-ACCOUNT-NEXT-STMT-DAY OF HOST-ACCOUNT-ROW.
-           COMPUTE HV-ACCOUNT-AVAILABLE-BALANCE
+              GEN-ACCOUNT-NEXT-STMT-DAY OF GEN-ACCOUNT-ROW.
+           COMPUTE GEN-ACCOUNT-AVAILABLE-BALANCE
                   = ((999999 - 1)
                                    * FUNCTION RANDOM) + 1.
-           MOVE HV-ACCOUNT-AVAILABLE-BALANCE  TO
-              HV-ACCOUNT-ACTUAL-BALANCE.
+           MOVE GEN-ACCOUNT-AVAILABLE-BALANCE  TO
+              GEN-ACCOUNT-ACTUAL-BALANCE.
 
 
       *
@@ -794,79 +725,18 @@
       *    a negative balance (it doesn't make any sense for these
       *    accounts to have a positive balance).
       *
-           IF HV-ACCOUNT-TYPE OF HOST-ACCOUNT-ROW = 'LOAN    ' OR
-           HV-ACCOUNT-TYPE OF HOST-ACCOUNT-ROW = 'MORTGAGE'
-                COMPUTE HV-ACCOUNT-ACTUAL-BALANCE =
-                   0 - HV-ACCOUNT-ACTUAL-BALANCE OF HOST-ACCOUNT-ROW
+           IF GEN-ACCOUNT-TYPE OF GEN-ACCOUNT-ROW = 'LOAN    ' OR
+           GEN-ACCOUNT-TYPE OF GEN-ACCOUNT-ROW = 'MORTGAGE'
+                COMPUTE GEN-ACCOUNT-ACTUAL-BALANCE =
+                   0 - GEN-ACCOUNT-ACTUAL-BALANCE OF GEN-ACCOUNT-ROW
 
-                COMPUTE HV-ACCOUNT-AVAILABLE-BALANCE
-                   OF HOST-ACCOUNT-ROW =
-                   0 - HV-ACCOUNT-AVAILABLE-BALANCE OF HOST-ACCOUNT-ROW
-
-           END-IF.
-
-           EXEC SQL
-              INSERT INTO ACCOUNT
-                     (ACCOUNT_EYECATCHER,
-                      ACCOUNT_CUSTOMER_NUMBER,
-                      ACCOUNT_SORTCODE,
-                      ACCOUNT_NUMBER,
-                      ACCOUNT_TYPE,
-                      ACCOUNT_INTEREST_RATE,
-                      ACCOUNT_OPENED,
-                      ACCOUNT_OVERDRAFT_LIMIT,
-                      ACCOUNT_LAST_STATEMENT,
-                      ACCOUNT_NEXT_STATEMENT,
-                      ACCOUNT_AVAILABLE_BALANCE,
-                      ACCOUNT_ACTUAL_BALANCE
-                      )
-              VALUES (:HV-ACCOUNT-EYECATCHER,
-                      :HV-ACCOUNT-CUST-NO,
-                      :HV-ACCOUNT-SORT-CODE,
-                      :HV-ACCOUNT-NUMBER,
-                      :HV-ACCOUNT-TYPE,
-                      :HV-ACCOUNT-INTEREST-RATE,
-                      :HV-ACCOUNT-OPENED,
-                      :HV-ACCOUNT-OVERDRAFT-LIMIT,
-                      :HV-ACCOUNT-LAST-STMT-DATE,
-                      :HV-ACCOUNT-NEXT-STMT-DATE,
-                      :HV-ACCOUNT-AVAILABLE-BALANCE,
-                      :HV-ACCOUNT-ACTUAL-BALANCE
-                     )
-           END-EXEC.
-
-      *
-      * Check the SQLCODE
-      *
-           IF SQLCODE NOT = 0
-              MOVE SQLCODE TO WS-SQLCODE-DISPLAY
-              EVALUATE TRUE
-              WHEN SQLERRD(3) EQUAL 13172878
-                 MOVE 'TIMEOUT  (00C900E)' TO DISP-REASON-CODE
-              WHEN SQLERRD(3) EQUAL 13172872
-                 MOVE 'DEADLOCK (00C9088)' TO DISP-REASON-CODE
-              WHEN OTHER
-                  MOVE 'Unknown ReasonCode' TO DISP-REASON-CODE
-              END-EVALUATE
-              DISPLAY DISP-REASON-CODE
-
-
-              DISPLAY 'Error inserting rows on ACCOUNT table.'
-                  'For ACC no=' HV-ACCOUNT-NUMBER ' for SORTCODE='
-                  HV-ACCOUNT-SORT-CODE
-                  'SQLCODE=' WS-SQLCODE-DISPLAY
-                     ',SQLSTATE=' SQLSTATE
-                      ',SQLERRMC=' sqlerrmc(1:sqlerrmL)
-                      ',sqlerrd(1)=' sqlerrd(1)
-                      ',sqlerrd(2)=' sqlerrd(2)
-                      ',sqlerrd(3)=' sqlerrd(3)
-                      ',sqlerrd(4)=' sqlerrd(4)
-                      ',sqlerrd(5)=' sqlerrd(5)
-                      ',sqlerrd(6)=' sqlerrd(6)
-              MOVE 12 TO RETURN-CODE
-              PERFORM PROGRAM-DONE
+                COMPUTE GEN-ACCOUNT-AVAILABLE-BALANCE
+                   OF GEN-ACCOUNT-ROW =
+                   0 - GEN-ACCOUNT-AVAILABLE-BALANCE OF GEN-ACCOUNT-ROW
 
            END-IF.
+
+           PERFORM WRITE-ACCOUNT-JSON.
            MOVE WS-ACCOUNT-NUMBER TO LAST-ACCOUNT-NUMBER
            ADD 1 TO NUMBER-OF-ACCOUNTS GIVING NUMBER-OF-ACCOUNTS
            ADD 1 TO WS-ACCOUNT-NUMBER.
@@ -883,17 +753,17 @@
            COMPUTE WS-ACCOUNT-OPENED-DAY
                   =  ((28 - 1)
                                     * FUNCTION RANDOM) + 1.
-           MOVE WS-ACCOUNT-OPENED-DAY TO HV-ACCOUNT-OPENED-DAY.
+           MOVE WS-ACCOUNT-OPENED-DAY TO GEN-ACCOUNT-OPENED-DAY.
            COMPUTE WS-ACCOUNT-OPENED-MONTH
                   =  ((12 - 1)
                                     * FUNCTION RANDOM) + 1.
-           MOVE WS-ACCOUNT-OPENED-MONTH TO HV-ACCOUNT-OPENED-MONTH.
+           MOVE WS-ACCOUNT-OPENED-MONTH TO GEN-ACCOUNT-OPENED-MONTH.
            COMPUTE WS-ACCOUNT-OPENED-YEAR
                   =  ((2014 -
                                     CUSTOMER-BIRTH-YEAR)
                                     * FUNCTION RANDOM) +
                                     CUSTOMER-BIRTH-YEAR.
-           MOVE WS-ACCOUNT-OPENED-YEAR TO HV-ACCOUNT-OPENED-YEAR.
+           MOVE WS-ACCOUNT-OPENED-YEAR TO GEN-ACCOUNT-OPENED-YEAR.
       D    DISPLAY 'DATE OF BIRTH IS '
       D             CUSTOMER-BIRTH-DAY
       D             '/'
@@ -902,23 +772,23 @@
       D             CUSTOMER-BIRTH-YEAR
 
       D    DISPLAY 'ACCOUNT OPENED  '
-      D             HV-ACCOUNT-OPENED-DAY
+      D             GEN-ACCOUNT-OPENED-DAY
       D             '/'
-      D             HV-ACCOUNT-OPENED-MONTH
+      D             GEN-ACCOUNT-OPENED-MONTH
       D             '/'
-      D             HV-ACCOUNT-OPENED-YEAR
+      D             GEN-ACCOUNT-OPENED-YEAR
 
            ADD 1 TO OPENED-DATE-ATTEMPTS GIVING OPENED-DATE-ATTEMPTS.
-           IF HV-ACCOUNT-OPENED-YEAR
+           IF GEN-ACCOUNT-OPENED-YEAR
               > CUSTOMER-BIRTH-YEAR
              MOVE 'Y' TO OPENED-DATE-VALID
              GO TO GOD999
            END-IF.
            IF OPENED-DATE-ATTEMPTS > 100
              MOVE 'Y' TO OPENED-DATE-VALID
-             MOVE CUSTOMER-BIRTH-DAY   TO HV-ACCOUNT-OPENED-DAY
-             MOVE CUSTOMER-BIRTH-MONTH TO HV-ACCOUNT-OPENED-MONTH
-             MOVE CUSTOMER-BIRTH-YEAR  TO HV-ACCOUNT-OPENED-YEAR
+             MOVE CUSTOMER-BIRTH-DAY   TO GEN-ACCOUNT-OPENED-DAY
+             MOVE CUSTOMER-BIRTH-MONTH TO GEN-ACCOUNT-OPENED-MONTH
+             MOVE CUSTOMER-BIRTH-YEAR  TO GEN-ACCOUNT-OPENED-YEAR
            END-IF.
        GOD999.
            EXIT.
@@ -1178,213 +1048,111 @@
            EXIT.
 
       *
-      * Delete the rows on the DB2 table
+      * Delete the rows on ACCJSON file 
       *
-       DELETE-DB2-ROWS SECTION.
-       DBR010.
+       OPEN-ACCOUNT-JSON SECTION.
+       OAJ010.
       *
-      * Delete the ACCOUNT table data
+      * Replaces DELETE-DB2-ROWS: the reset endpoint deletes the
+      * ACCOUNT and account CONTROL rows for the sortcode itself.
       *
-           MOVE SORTCODE TO HV-ACCOUNT-SORT-CODE.
-           MOVE 'Deleting from ACCOUNT table'
-             to TIMESTAMP-FUNCTION
-           perform TIMESTAMP
-           EXEC SQL
-              DELETE FROM ACCOUNT
-              WHERE ACCOUNT_SORTCODE = :HV-ACCOUNT-SORT-CODE
-           END-EXEC.
-
-
-      *
-      * Check the SQL code if it was NOT OK (0) or NOTFND (+100)
-      * then abend
-      *
-           MOVE 'Deleting from ACCOUNT table COMPLETE'
-             to TIMESTAMP-FUNCTION
-           perform TIMESTAMP
-           IF SQLCODE NOT = +100 AND
-           SQLCODE NOT = 0
-
-              MOVE SQLCODE TO DISP-SQLCD
-              IF SQLCODE < 0
-                 MOVE '-' TO DISP-SIGN
-              ELSE
-                 MOVE '+' TO DISP-SIGN
-              END-IF
-              EVALUATE TRUE
-              WHEN SQLERRD(3) EQUAL 13172878
-                 MOVE 'TIMEOUT  (00C900E)' TO DISP-REASON-CODE
-              WHEN SQLERRD(3) EQUAL 13172872
-                 MOVE 'DEADLOCK (00C9088)' TO DISP-REASON-CODE
-              WHEN OTHER
-                  MOVE 'Unknown ReasonCode' TO DISP-REASON-CODE
-              END-EVALUATE
-
-              DISPLAY 'Error deleting rows from ACCOUNT table. For'
-                      ' SORTCODE=' HV-ACCOUNT-SORT-CODE
-                      ' SQLCODE=' DISP-LOT
-                      ' SQLREASON=' DISP-REASON-CODE ' ( '
-                      SQLERRD (3) ')'
-                      ',SQLSTATE=' SQLSTATE
-                      ',SQLERRMC=' sqlerrmc(1:sqlerrmL)
-                      ',sqlerrd(1)=' sqlerrd(1)
-                      ',sqlerrd(2)=' sqlerrd(2)
-                      ',sqlerrd(3)=' sqlerrd(3)
-                      ',sqlerrd(4)=' sqlerrd(4)
-                      ',sqlerrd(5)=' sqlerrd(5)
-                      ',sqlerrd(6)=' sqlerrd(6)
-
+           OPEN OUTPUT ACCOUNT-JSON-FILE.
+           IF ACCJSON-STATUS NOT = '00'
+              DISPLAY 'Error opening ACCJSON file, status='
+                 ACCJSON-STATUS
               MOVE 12 TO RETURN-CODE
               PERFORM PROGRAM-DONE
-
            END-IF.
-
-      *
-      * Delete the CONTROL table data
-      *
-           MOVE SPACES TO HV-CONTROL-NAME
-           STRING SORTCODE DELIMITED BY SIZE
-           '-' DELIMITED BY SIZE
-           'ACCOUNT-LAST' DELIMITED BY SIZE
-           INTO HV-CONTROL-NAME
-
-           MOVE 'Deleting from CONTROL table'
-             to TIMESTAMP-FUNCTION.
-
-           PERFORM TIMESTAMP.
-
-           EXEC SQL
-              DELETE FROM CONTROL
-              WHERE CONTROL_NAME = :HV-CONTROL-NAME
-           END-EXEC.
-
-
-      *
-      *    Check the SQL code if it was NOT OK (0) or NOTFND (+100)
-      *    then abend
-      *
-           MOVE 'Deleting from CONTROL table COMPLETE'
-             to TIMESTAMP-FUNCTION.
-
-           PERFORM TIMESTAMP.
-
-           IF SQLCODE NOT = +100 AND
-           SQLCODE NOT = 0
-
-              MOVE SQLCODE TO DISP-SQLCD
-              IF SQLCODE < 0
-                 MOVE '-' TO DISP-SIGN
-              ELSE
-                 MOVE '+' TO DISP-SIGN
-              END-IF
-              EVALUATE TRUE
-              WHEN SQLERRD(3) EQUAL 13172878
-                 MOVE 'TIMEOUT  (00C900E)' TO DISP-REASON-CODE
-              WHEN SQLERRD(3) EQUAL 13172872
-                 MOVE 'DEADLOCK (00C9088)' TO DISP-REASON-CODE
-              WHEN OTHER
-                  MOVE 'Unknown ReasonCode' TO DISP-REASON-CODE
-              END-EVALUATE
-
-              DISPLAY 'Error deleting rows from CONTROL table. For'
-                      ' CONTROL_NAME=' HV-CONTROL-NAME
-                      ' SQLCODE=' DISP-LOT
-                      ' SQLREASON=' DISP-REASON-CODE ' ( '
-                      SQLERRD (3) ')'
-                      ',SQLSTATE=' SQLSTATE
-                      ',SQLERRMC=' sqlerrmc(1:sqlerrmL)
-                      ',sqlerrd(1)=' sqlerrd(1)
-                      ',sqlerrd(2)=' sqlerrd(2)
-                      ',sqlerrd(3)=' sqlerrd(3)
-                      ',sqlerrd(4)=' sqlerrd(4)
-                      ',sqlerrd(5)=' sqlerrd(5)
-                      ',sqlerrd(6)=' sqlerrd(6)
-
-              MOVE 12 TO RETURN-CODE
-              PERFORM PROGRAM-DONE
-
-           END-IF.
-
-      *
-      * Delete the CONTROL table data
-      *
-           MOVE SPACES TO HV-CONTROL-NAME
-           STRING SORTCODE DELIMITED BY SIZE
-           '-' DELIMITED BY SIZE
-           'ACCOUNT-COUNT' DELIMITED BY SIZE
-           INTO HV-CONTROL-NAME
-
-           MOVE 'Deleting from CONTROL table'
-             to TIMESTAMP-FUNCTION.
-
-           PERFORM TIMESTAMP.
-
-           EXEC SQL
-              DELETE FROM CONTROL
-              WHERE CONTROL_NAME = :HV-CONTROL-NAME
-           END-EXEC.
-
-
-      *
-      *    Check the SQL code if it was NOT OK (0) or NOTFND (+100)
-      *    then abend
-      *
-           MOVE 'Deleting from CONTROL table COMPLETE'
-             to TIMESTAMP-FUNCTION.
-
-           PERFORM TIMESTAMP.
-
-           IF SQLCODE NOT = +100 AND
-           SQLCODE NOT = 0
-
-              MOVE SQLCODE TO DISP-SQLCD
-              IF SQLCODE < 0
-                 MOVE '-' TO DISP-SIGN
-              ELSE
-                 MOVE '+' TO DISP-SIGN
-              END-IF
-              EVALUATE TRUE
-              WHEN SQLERRD(3) EQUAL 13172878
-                 MOVE 'TIMEOUT  (00C900E)' TO DISP-REASON-CODE
-              WHEN SQLERRD(3) EQUAL 13172872
-                 MOVE 'DEADLOCK (00C9088)' TO DISP-REASON-CODE
-              WHEN OTHER
-                  MOVE 'Unknown ReasonCode' TO DISP-REASON-CODE
-              END-EVALUATE
-
-              DISPLAY 'Error deleting rows from CONTROL table. For'
-                      ' CONTROL_NAME=' HV-CONTROL-NAME
-                      ' SQLCODE=' DISP-LOT
-                      ' SQLREASON=' DISP-REASON-CODE ' ( '
-                      SQLERRD (3) ')'
-                      ',SQLSTATE=' SQLSTATE
-                      ',SQLERRMC=' sqlerrmc(1:sqlerrmL)
-                      ',sqlerrd(1)=' sqlerrd(1)
-                      ',sqlerrd(2)=' sqlerrd(2)
-                      ',sqlerrd(3)=' sqlerrd(3)
-                      ',sqlerrd(4)=' sqlerrd(4)
-                      ',sqlerrd(5)=' sqlerrd(5)
-                      ',sqlerrd(6)=' sqlerrd(6)
-
-              MOVE 12 TO RETURN-CODE
-              PERFORM PROGRAM-DONE
-
-           END-IF.
-
-
-           EXEC SQL
-              COMMIT WORK
-           END-EXEC.
-
-
-       DBR999.
+           MOVE 'Y' TO ACCJSON-FIRST.
+           MOVE '[' TO ACCOUNT-JSON-RECORD.
+           PERFORM WRITE-ACCJSON-RECORD.
+       OAJ999.
            EXIT.
 
 
+       WRITE-ACCOUNT-JSON SECTION.
+       WAJ010.
+      *
+      * Replaces the INSERT INTO ACCOUNT: one array element per
+      * record, field names as the data service account object.
+      *
+           MOVE GEN-ACCOUNT-INTEREST-RATE TO ACCJSON-EDIT-RATE.
+           MOVE GEN-ACCOUNT-OVERDRAFT-LIMIT TO ACCJSON-EDIT-OVERDRAFT.
+           MOVE GEN-ACCOUNT-AVAILABLE-BALANCE
+              TO ACCJSON-EDIT-AVAIL-BAL.
+           MOVE GEN-ACCOUNT-ACTUAL-BALANCE TO ACCJSON-EDIT-ACTUAL-BAL.
+           MOVE SPACES TO ACCOUNT-JSON-RECORD.
+           MOVE 1 TO ACCJSON-PTR.
+           IF ACCJSON-FIRST = 'N'
+              STRING ',' DELIMITED BY SIZE
+                INTO ACCOUNT-JSON-RECORD WITH POINTER ACCJSON-PTR
+              END-STRING
+           END-IF.
+           MOVE 'N' TO ACCJSON-FIRST.
+           STRING '{"eyeCatcher":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-EYECATCHER DELIMITED BY SIZE
+                  '","customerNumber":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-CUST-NO DELIMITED BY SIZE
+                  '","sortcode":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-SORT-CODE DELIMITED BY SIZE
+                  '","accountNumber":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-NUMBER DELIMITED BY SIZE
+                  '","accountType":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-TYPE DELIMITED BY SIZE
+                  '","interestRate":"' DELIMITED BY SIZE
+                  FUNCTION TRIM(ACCJSON-EDIT-RATE) DELIMITED BY SIZE
+                  '","opened":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-OPENED-DAY DELIMITED BY SIZE
+                  GEN-ACCOUNT-OPENED-MONTH DELIMITED BY SIZE
+                  GEN-ACCOUNT-OPENED-YEAR DELIMITED BY SIZE
+                  '","overdraftLimit":' DELIMITED BY SIZE
+                  FUNCTION TRIM(ACCJSON-EDIT-OVERDRAFT)
+                     DELIMITED BY SIZE
+                  ',"lastStatementDate":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-LAST-STMT-DAY DELIMITED BY SIZE
+                  GEN-ACCOUNT-LAST-STMT-MONTH DELIMITED BY SIZE
+                  GEN-ACCOUNT-LAST-STMT-YEAR DELIMITED BY SIZE
+                  '","nextStatementDate":"' DELIMITED BY SIZE
+                  GEN-ACCOUNT-NEXT-STMT-DAY DELIMITED BY SIZE
+                  GEN-ACCOUNT-NEXT-STMT-MONTH DELIMITED BY SIZE
+                  GEN-ACCOUNT-NEXT-STMT-YEAR DELIMITED BY SIZE
+                  '","availableBalance":"' DELIMITED BY SIZE
+                  FUNCTION TRIM(ACCJSON-EDIT-AVAIL-BAL)
+                     DELIMITED BY SIZE
+                  '","actualBalance":"' DELIMITED BY SIZE
+                  FUNCTION TRIM(ACCJSON-EDIT-ACTUAL-BAL)
+                     DELIMITED BY SIZE
+                  '"}' DELIMITED BY SIZE
+             INTO ACCOUNT-JSON-RECORD WITH POINTER ACCJSON-PTR
+           END-STRING.
+           PERFORM WRITE-ACCJSON-RECORD.
+       WAJ999.
+           EXIT.
 
 
+       CLOSE-ACCOUNT-JSON SECTION.
+       CAJ010.
+           MOVE ']' TO ACCOUNT-JSON-RECORD.
+           PERFORM WRITE-ACCJSON-RECORD.
+           CLOSE ACCOUNT-JSON-FILE.
+           DISPLAY 'ACCJSON written for SORTCODE=' SORTCODE
+              ' accounts=' NUMBER-OF-ACCOUNTS
+              ' last account=' LAST-ACCOUNT-NUMBER.
+       CAJ999.
+           EXIT.
 
 
+       WRITE-ACCJSON-RECORD SECTION.
+       WAR010.
+           WRITE ACCOUNT-JSON-RECORD.
+           IF ACCJSON-STATUS NOT = '00'
+              DISPLAY 'Error writing ACCJSON file, status='
+                 ACCJSON-STATUS ' for ACC no=' GEN-ACCOUNT-NUMBER
+              MOVE 12 TO RETURN-CODE
+              PERFORM PROGRAM-DONE
+           END-IF.
+       WAR999.
+           EXIT.
 
       *
       * Get todays date and store it as an INTEGER
