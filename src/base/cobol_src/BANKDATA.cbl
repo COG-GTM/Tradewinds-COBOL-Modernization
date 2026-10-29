@@ -1135,6 +1135,12 @@
            MOVE ']' TO ACCOUNT-JSON-RECORD.
            PERFORM WRITE-ACCJSON-RECORD.
            CLOSE ACCOUNT-JSON-FILE.
+           IF ACCJSON-STATUS NOT = '00'
+              DISPLAY 'Error closing ACCJSON file, status='
+                 ACCJSON-STATUS
+              MOVE 12 TO RETURN-CODE
+              PERFORM PROGRAM-DONE
+           END-IF.
            DISPLAY 'ACCJSON written for SORTCODE=' SORTCODE
               ' accounts=' NUMBER-OF-ACCOUNTS
               ' last account=' LAST-ACCOUNT-NUMBER.

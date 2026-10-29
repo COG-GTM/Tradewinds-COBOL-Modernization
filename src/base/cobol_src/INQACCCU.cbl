@@ -221,6 +221,7 @@
               DISPLAY 'INQACCCU: data service call failed RC=' DSV-RC
                  ' RESP=' DSV-CICS-RESP ' RESP2=' DSV-CICS-RESP2
               MOVE 'N' TO COMM-SUCCESS
+              MOVE 'N' TO CUSTOMER-FOUND
               MOVE '3' TO COMM-FAIL-CODE
               GO TO RAD999
            END-IF.
@@ -249,6 +250,7 @@
 
            IF WS-RESP-SUCCESS NOT = 'Y'
               MOVE 'N' TO COMM-SUCCESS
+              MOVE 'N' TO CUSTOMER-FOUND
               MOVE WS-RESP-FAILCODE TO COMM-FAIL-CODE
               IF COMM-FAIL-CODE = SPACE
                  MOVE '3' TO COMM-FAIL-CODE
