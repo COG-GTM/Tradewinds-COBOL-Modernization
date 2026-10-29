@@ -1,5 +1,4 @@
        CBL CICS('SP,EDF')
-       CBL SQL
       ******************************************************************
       *                                                                *
       *  Copyright IBM Corp. 2023                                      *
@@ -50,27 +49,18 @@
        01 WS-EXIT-RETRY-LOOP           PIC X VALUE ' '.
 
 
-      * PROCTRAN DB2 copybook
-           EXEC SQL
-              INCLUDE PROCDB2
-           END-EXEC.
-
-      * PROCTRAN host variables for DB2
-       01 HOST-PROCTRAN-ROW.
-           03 HV-PROCTRAN-EYECATCHER   PIC X(4).
-           03 HV-PROCTRAN-SORT-CODE    PIC X(6).
-           03 HV-PROCTRAN-ACC-NUMBER   PIC X(8).
-           03 HV-PROCTRAN-DATE         PIC X(10).
-           03 HV-PROCTRAN-TIME         PIC X(6).
-           03 HV-PROCTRAN-REF          PIC X(12).
-           03 HV-PROCTRAN-TYPE         PIC X(3).
-           03 HV-PROCTRAN-DESC         PIC X(40).
-           03 HV-PROCTRAN-AMOUNT       PIC S9(10)V99 COMP-3.
-
-      * Pull in the SQL COMMAREA
-        EXEC SQL
-          INCLUDE SQLCA
-        END-EXEC.
+      * DATASVC commarea: one HTTP call to the Java data service
+      * that writes the PROCTRAN audit row (replaces EXEC SQL).
+       01 WS-DATASVC.
+          COPY DATASVC.
+       01 WS-DSV-PTR                    PIC S9(8) COMP.
+       01 WS-DSV-TASKN                  PIC Z(11)9.
+       01 WS-DSV-NAME                   PIC X(14).
+       01 WS-DSV-DOB                    PIC X(8).
+       01 WS-DSV-RESPONSE.
+          03 WS-DSV-SUCCESS             PIC X.
+          03 WS-DSV-FAIL-CODE           PIC X.
+          03 WS-DSV-ABEND-CODE          PIC X(4).
 
        01 WS-CICS-WORK-AREA.
            05 WS-CICS-RESP             PIC S9(8) COMP.
@@ -188,8 +178,6 @@
 
        01 WS-EXIT-FETCH                PIC X VALUE 'N'.
 
-       01 SQLCODE-DISPLAY              PIC S9(8) DISPLAY
-                                         SIGN LEADING SEPARATE.
 
        01 DELACC-COMMAREA.
           03 DELACC-COMM-EYE           PIC X(4).
@@ -589,151 +577,75 @@
       *
       *    Record the CUSTOMER deletion on PROCTRAN
       *
-              PERFORM WRITE-PROCTRAN-CUST-DB2.
+              PERFORM WRITE-PROCTRAN-CUST-DATASVC.
        WPC999.
            EXIT.
 
 
-       WRITE-PROCTRAN-CUST-DB2 SECTION.
+       WRITE-PROCTRAN-CUST-DATASVC SECTION.
        WPCD010.
-
-           INITIALIZE HOST-PROCTRAN-ROW.
-           INITIALIZE WS-EIBTASKN12.
-
-           MOVE 'PRTR' TO HV-PROCTRAN-EYECATCHER.
-           MOVE WS-STOREDC-SORTCODE
-              TO HV-PROCTRAN-SORT-CODE.
-           MOVE ZEROS TO HV-PROCTRAN-ACC-NUMBER.
-           MOVE EIBTASKN TO WS-EIBTASKN12.
-           MOVE WS-EIBTASKN12 TO HV-PROCTRAN-REF.
-
       *
-      * Populate the time and date
+      *    Former WRITE-PROCTRAN-CUST-DB2:
+      *    POST /data/proctran/deleteCustomer
+      *    writes the PROCTRAN row (desc: sortcode, customer, name,
+      *    DD/MM/YYYY). Any failure abends HWPT as before.
       *
-           EXEC CICS ASKTIME
-              ABSTIME(WS-U-TIME)
+           MOVE EIBTASKN TO WS-DSV-TASKN.
+           MOVE WS-STOREDC-NAME(1:14) TO WS-DSV-NAME.
+           INSPECT WS-DSV-NAME REPLACING ALL '"' BY "'"
+                                         ALL '\' BY '/'.
+           STRING WS-STOREDC-DATE-OF-BIRTH(1:2)
+                  WS-STOREDC-DATE-OF-BIRTH(4:2)
+                  WS-STOREDC-DATE-OF-BIRTH(7:4)
+              DELIMITED BY SIZE INTO WS-DSV-DOB
+           END-STRING.
+           INITIALIZE DSV-REQ-BODY.
+           MOVE 1 TO WS-DSV-PTR.
+           STRING '{"sortCode":"' DELIMITED BY SIZE
+                  WS-STOREDC-SORTCODE DELIMITED BY SIZE
+                  '","customerNumber":"' DELIMITED BY SIZE
+                  WS-STOREDC-NUMBER DELIMITED BY SIZE
+                  '","customerName":"' DELIMITED BY SIZE
+                  WS-DSV-NAME DELIMITED BY SIZE
+                  '","dateOfBirth":"' DELIMITED BY SIZE
+                  WS-DSV-DOB DELIMITED BY SIZE
+                  '","taskNumber":' DELIMITED BY SIZE
+                  FUNCTION TRIM(WS-DSV-TASKN) DELIMITED BY SIZE
+                  '}' DELIMITED BY SIZE
+              INTO DSV-REQ-BODY
+              WITH POINTER WS-DSV-PTR
+           END-STRING.
+           COMPUTE DSV-REQ-LEN = WS-DSV-PTR - 1.
+           MOVE 'POST' TO DSV-METHOD.
+           MOVE '/data/proctran/deleteCustomer' TO DSV-PATH.
+
+           EXEC CICS LINK PROGRAM('DATASVC')
+                COMMAREA(WS-DATASVC)
            END-EXEC.
 
-           EXEC CICS FORMATTIME
-                     ABSTIME(WS-U-TIME)
-                     DDMMYYYY(WS-ORIG-DATE)
-                     TIME(HV-PROCTRAN-TIME)
-                     DATESEP('.')
-           END-EXEC.
+           INITIALIZE WS-DSV-RESPONSE.
+           IF DSV-OK
+              JSON PARSE DSV-RESP-BODY(1:DSV-RESP-LEN)
+                 INTO WS-DSV-RESPONSE
+                 NAME OF WS-DSV-SUCCESS IS 'success'
+                         WS-DSV-FAIL-CODE IS 'failCode'
+                         WS-DSV-ABEND-CODE IS 'abendCode'
+                 ON EXCEPTION
+                    MOVE 'N' TO WS-DSV-SUCCESS
+              END-JSON
+           END-IF.
 
-           MOVE WS-ORIG-DATE TO WS-ORIG-DATE-GRP-X.
-           MOVE WS-ORIG-DATE-GRP-X TO HV-PROCTRAN-DATE.
-
-           MOVE WS-STOREDC-SORTCODE      TO HV-PROCTRAN-DESC(1:6).
-           MOVE WS-STOREDC-NUMBER        TO HV-PROCTRAN-DESC(7:10).
-           MOVE WS-STOREDC-NAME          TO HV-PROCTRAN-DESC(17:14).
-           MOVE WS-STOREDC-DATE-OF-BIRTH TO HV-PROCTRAN-DESC(31:10).
-
-           MOVE 'ODC'         TO HV-PROCTRAN-TYPE.
-           MOVE ZEROS         TO HV-PROCTRAN-AMOUNT.
-
-
-           EXEC SQL
-              INSERT INTO PROCTRAN
-                     (
-                      PROCTRAN_EYECATCHER,
-                      PROCTRAN_SORTCODE,
-                      PROCTRAN_NUMBER,
-                      PROCTRAN_DATE,
-                      PROCTRAN_TIME,
-                      PROCTRAN_REF,
-                      PROCTRAN_TYPE,
-                      PROCTRAN_DESC,
-                      PROCTRAN_AMOUNT
-                     )
-              VALUES
-                     (
-                      :HV-PROCTRAN-EYECATCHER,
-                      :HV-PROCTRAN-SORT-CODE,
-                      :HV-PROCTRAN-ACC-NUMBER,
-                      :HV-PROCTRAN-DATE,
-                      :HV-PROCTRAN-TIME,
-                      :HV-PROCTRAN-REF,
-                      :HV-PROCTRAN-TYPE,
-                      :HV-PROCTRAN-DESC,
-                      :HV-PROCTRAN-AMOUNT
-                     )
-           END-EXEC.
-
-      *
-      * Check the SQLCODE
-      *
-           IF SQLCODE NOT = 0
-              MOVE SQLCODE TO SQLCODE-DISPLAY
-      *
-      *       Preserve the RESP and RESP2, then set up the
-      *       standard ABEND info before getting the applid,
-      *       date/time etc. and linking to the Abend Handler
-      *       program.
-      *
-              INITIALIZE ABNDINFO-REC
-              MOVE EIBRESP    TO ABND-RESPCODE
-              MOVE EIBRESP2   TO ABND-RESP2CODE
-      *
-      *       Get supplemental information
-      *
-              EXEC CICS ASSIGN APPLID(ABND-APPLID)
-              END-EXEC
-
-              MOVE EIBTASKN   TO ABND-TASKNO-KEY
-              MOVE EIBTRNID   TO ABND-TRANID
-
-              PERFORM POPULATE-TIME-DATE
-
-              MOVE WS-ORIG-DATE TO ABND-DATE
-              STRING WS-TIME-NOW-GRP-HH DELIMITED BY SIZE,
-                    ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE,
-                     ':' DELIMITED BY SIZE,
-                     WS-TIME-NOW-GRP-MM DELIMITED BY SIZE
-                     INTO ABND-TIME
-              END-STRING
-
-              MOVE WS-U-TIME   TO ABND-UTIME-KEY
-              MOVE 'HWPT'      TO ABND-CODE
-
-              EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM)
-              END-EXEC
-
-              MOVE SQLCODE-DISPLAY   TO ABND-SQLCODE
-
-              STRING 'WPCD010 - Unable to WRITE to PROCTRAN DB2 '
-                    DELIMITED BY SIZE,
-                    'datastore with the following data:'
-                    DELIMITED BY SIZE,
-                    HOST-PROCTRAN-ROW DELIMITED BY SIZE,
-                    ' EIBRESP=' DELIMITED BY SIZE,
-                    ABND-RESPCODE DELIMITED BY SIZE,
-                    ' RESP2=' DELIMITED BY SIZE,
-                    ABND-RESP2CODE DELIMITED BY SIZE
-                    INTO ABND-FREEFORM
-              END-STRING
-
-              EXEC CICS LINK PROGRAM(WS-ABEND-PGM)
-                        COMMAREA(ABNDINFO-REC)
-              END-EXEC
-
-              DISPLAY 'In DELCUS(WPCD010) '
-              'UNABLE TO WRITE TO PROCTRAN DB2 DATASTORE'
-              ' SQLCODE=' SQLCODE-DISPLAY
-              'WITH THE FOLLOWING DATA:' HOST-PROCTRAN-ROW
-
+           IF NOT DSV-OK OR WS-DSV-SUCCESS NOT = 'Y'
+              DISPLAY 'DELCUS: UNABLE TO WRITE TO PROCTRAN VIA DATASVC'
+                 ' DSV-RC=' DSV-RC ' HTTP=' DSV-HTTP-STATUS
+                 ' ABEND=' WS-DSV-ABEND-CODE
               EXEC CICS ABEND
                  ABCODE('HWPT')
-                 NODUMP
               END-EXEC
-
            END-IF.
 
        WPCD999.
            EXIT.
-
-
        GET-ME-OUT-OF-HERE SECTION.
        GMOFH010.
 
