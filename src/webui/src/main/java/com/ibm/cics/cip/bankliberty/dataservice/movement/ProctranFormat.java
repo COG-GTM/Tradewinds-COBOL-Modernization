@@ -7,11 +7,14 @@
 package com.ibm.cics.cip.bankliberty.dataservice.movement;
 
 import java.math.BigDecimal;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Fixed-width field formatting for PROCTRAN rows, mirroring the COBOL host
@@ -82,6 +85,24 @@ public final class ProctranFormat
 				"PCR", "PDR", "TFR");
 		ALLOWED_TYPES = Collections.unmodifiableSet(types);
 	}
+
+	private static final Set<String> CUSTOMER_TYPES = Set.of("ICC", "IDC",
+			"OCC", "ODC");
+
+	private static final Set<String> ACCOUNT_TYPES = Set.of("ICA", "IDA",
+			"OCA", "ODA");
+
+	/** PROC-TRAN-DESC-CRECUS/-DELCUS as written by CRECUST/DELCUS. */
+	private static final Pattern CUSTOMER_DESC = Pattern
+			.compile("\\d{16}.{14}\\d{2}/\\d{2}/\\d{4}");
+
+	/** PROC-TRAN-DESC-CREACC/-DELACC: customer, type, DDMMYYYY x2, footer. */
+	private static final Pattern ACCOUNT_DESC = Pattern
+			.compile("\\d{10}.{8}\\d{16}.{6}");
+
+	/** PROC-TRAN-DESC-XFR: header(26), sort code(6), account(8). */
+	private static final Pattern TRANSFER_DESC = Pattern
+			.compile("TRANSFER {18}\\d{14}");
 
 	private ProctranFormat()
 	{
@@ -190,6 +211,8 @@ public final class ProctranFormat
 			throw new IllegalArgumentException(
 					"dateOfBirth must be 8 digits DDMMYYYY");
 		}
+		requireDate("dateOfBirth", dob.substring(0, 2), dob.substring(2, 4),
+				dob.substring(4, 8));
 		String storedDob = dob.substring(0, 2) + "/" + dob.substring(2, 4) + "/"
 				+ dob.substring(4, 8);
 		return sortCode(sortCode) + customerNumber(customerNumber)
@@ -234,6 +257,66 @@ public final class ProctranFormat
 					"description must be at most " + DESC_LEN + " characters");
 		}
 		return fixed(value, DESC_LEN);
+	}
+
+	/**
+	 * Structured PROCTRAN types are decoded by fixed offsets in
+	 * web/db2/ProcessedTransaction (customer, account and transfer records);
+	 * reject descriptions that would make that decoder fail.
+	 *
+	 * @param description already blank padded to 40
+	 */
+	public static void checkStructuredDescription(String type,
+			String description)
+	{
+		if (CUSTOMER_TYPES.contains(type))
+		{
+			if (!CUSTOMER_DESC.matcher(description).matches())
+			{
+				throw new IllegalArgumentException("description for " + type
+						+ " must be sortcode(6) customer(10) name(14) DD/MM/YYYY");
+			}
+			requireDate("description date of birth",
+					description.substring(30, 32),
+					description.substring(33, 35),
+					description.substring(36, 40));
+		}
+		else if (ACCOUNT_TYPES.contains(type))
+		{
+			if (!ACCOUNT_DESC.matcher(description).matches())
+			{
+				throw new IllegalArgumentException("description for " + type
+						+ " must be customer(10) type(8) DDMMYYYY DDMMYYYY footer(6)");
+			}
+			requireDate("description last statement",
+					description.substring(18, 20),
+					description.substring(20, 22),
+					description.substring(22, 26));
+			requireDate("description next statement",
+					description.substring(26, 28),
+					description.substring(28, 30),
+					description.substring(30, 34));
+		}
+		else if (TYPE_TRANSFER.equals(type)
+				&& !TRANSFER_DESC.matcher(description).matches())
+		{
+			throw new IllegalArgumentException(
+					"description for TFR must be 'TRANSFER' padded to 26, sortcode(6), account(8)");
+		}
+	}
+
+	private static void requireDate(String name, String dd, String mm,
+			String yyyy)
+	{
+		try
+		{
+			LocalDate.of(Integer.parseInt(yyyy), Integer.parseInt(mm),
+					Integer.parseInt(dd));
+		}
+		catch (DateTimeException | NumberFormatException e)
+		{
+			throw new IllegalArgumentException(name + " is not a valid date");
+		}
 	}
 
 	private static String zeroPadDigits(String name, String value, int length)

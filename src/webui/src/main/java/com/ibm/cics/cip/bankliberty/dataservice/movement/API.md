@@ -42,6 +42,11 @@ Classes: `MovementResource`, `ProctranResource` (JAX-RS, thin) ->
   `failCode:"V"`. `V` has no COBOL equivalent; a correct COBOL caller never sees it.
   Unparseable JSON is rejected by the JAX-RS provider before reaching the
   handler (400, provider-defined body).
+* **Access control**: like the existing `/banking/*` resources, these endpoints
+  do no authentication or authorisation themselves. They are an internal data
+  service for the CICS COBOL programs and must be restricted at deployment
+  (Liberty `security-constraint` / role on `/banking/data/*`, or network
+  policy) before being exposed beyond the region.
 * **Atomicity**: each endpoint is one JDBC unit of work (`setAutoCommit(false)`,
   commit on success, rollback on any failure, original autocommit restored).
   On any status >= 400 the resource also calls `BankRuntime.rollback()` before
@@ -229,7 +234,7 @@ DD=30-32, MM=33-35, YYYY=36-40, so this round-trips.
 |---|---|---|---|---|---|
 | success | 200 | Y | 0 | | |
 | INSERT failed (rolled back) | 500 | N | 0 | `HWPT` | WPD010 / WPCD010 `ABEND ABCODE('HWPT')` |
-| invalid request (incl. DOB not 8 digits) | 400 | N | V | | — |
+| invalid request (incl. DOB not 8 digits or not a real date) | 400 | N | V | | — |
 
 ---
 
@@ -245,6 +250,11 @@ Request:
 * `type` must be one of the `PROC-TY-*` 88-levels in `PROCTRAN.cpy`:
   `CHA CHF CHI CHO CRE DEB ICA ICC IDA IDC OCA OCC ODA ODC OCS PCR PDR TFR`.
 * `description` optional, max 40 chars, stored blank padded.
+* Structured types must carry the layout `web/db2/ProcessedTransaction` decodes
+  by fixed offsets (otherwise the history read for that sort code would fail):
+  * `ICC IDC OCC ODC`: `sortcode(6 digits) customer(10 digits) name(14) DD/MM/YYYY` (real date);
+  * `ICA IDA OCA ODA`: `customer(10 digits) type(8) DDMMYYYY DDMMYYYY footer(6)` (real dates);
+  * `TFR`: `TRANSFER` + 18 blanks + target sort code (6 digits) + target account (8 digits).
 
 | outcome | HTTP | success | failCode |
 |---|---|---|---|
@@ -266,5 +276,5 @@ Response 200:
 | outcome | HTTP | success | failCode |
 |---|---|---|---|
 | success (possibly empty) | 200 | Y | 0 |
-| limit < 1, offset < 0, bad sort code | 400 | N | V |
+| limit < 1, offset < 0, bad sort code (same list response shape, with `errorMessage`) | 400 | N | V |
 | SELECT failed | 500 | N | 2 |

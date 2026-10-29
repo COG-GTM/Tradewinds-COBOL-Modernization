@@ -53,13 +53,15 @@ public class ProctranDao
 	public ProctranRecord newRecord(String sortCode, String accountNumber,
 			long taskNumber, String type, String description, BigDecimal amount)
 	{
+		String validType = ProctranFormat.type(type);
+		String desc = ProctranFormat.description(description);
+		ProctranFormat.checkStructuredDescription(validType, desc);
 		LocalDateTime now = LocalDateTime.now(clock);
 		return new ProctranRecord(ProctranFormat.EYECATCHER,
 				ProctranFormat.sortCode(sortCode),
 				ProctranFormat.accountNumber(accountNumber), now.toLocalDate(),
 				ProctranFormat.time(now.toLocalTime()),
-				ProctranFormat.reference(taskNumber), ProctranFormat.type(type),
-				ProctranFormat.description(description),
+				ProctranFormat.reference(taskNumber), validType, desc,
 				ProctranFormat.amount(amount));
 	}
 

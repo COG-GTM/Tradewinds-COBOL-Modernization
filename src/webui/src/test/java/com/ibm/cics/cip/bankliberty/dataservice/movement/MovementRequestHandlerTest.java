@@ -201,11 +201,49 @@ class MovementRequestHandlerTest extends PostgresTestSupport
 		assertEquals(200, empty.getStatus());
 		assertEquals(0,
 				((ProctranListResponse) empty.getEntity()).records.size());
-		assertInvalid(
+		assertInvalidList(
 				MovementRequestHandler.listProctran(conn, SORT_CODE, 0, 0));
-		assertInvalid(
+		assertInvalidList(
 				MovementRequestHandler.listProctran(conn, SORT_CODE, 1, -1));
-		assertInvalid(MovementRequestHandler.listProctran(conn, "ABC", 1, 0));
+		assertInvalidList(
+				MovementRequestHandler.listProctran(conn, "ABC", 1, 0));
+	}
+
+	@Test
+	void genericWriterRejectsStructuredTypesWhoseDescriptionTheHistoryDecoderCannotParse()
+			throws SQLException
+	{
+		assertInvalid(MovementRequestHandler.writeProctran(conn, FIXED_CLOCK,
+				proctran("OCC", "hello")));
+		assertInvalid(MovementRequestHandler.writeProctran(conn, FIXED_CLOCK,
+				proctran("IDA", "hello")));
+		assertInvalid(MovementRequestHandler.writeProctran(conn, FIXED_CLOCK,
+				proctran("TFR", "TRANSFER")));
+		assertInvalid(MovementRequestHandler.writeProctran(conn, FIXED_CLOCK,
+				proctran("ICC", "9876540000000001Ann           31/02/2003")));
+		assertEquals(0, proctranCount());
+
+		assertEquals(200, MovementRequestHandler.writeProctran(conn,
+				FIXED_CLOCK,
+				proctran("ICC", "9876540000000001Ann           28/02/2003"))
+				.getStatus());
+		assertEquals(200, MovementRequestHandler.writeProctran(conn,
+				FIXED_CLOCK,
+				proctran("OCA", "0000000042ISA     3101202429022024CREATE"))
+				.getStatus());
+		assertEquals(200, MovementRequestHandler.writeProctran(conn,
+				FIXED_CLOCK,
+				proctran("TFR", ProctranFormat.transferDescription("1", "2")))
+				.getStatus());
+		assertEquals(3, proctranCount());
+	}
+
+	private static void assertInvalidList(DataServiceResult r)
+	{
+		assertEquals(400, r.getStatus());
+		ProctranListResponse b = (ProctranListResponse) r.getEntity();
+		assertEquals("N", b.success);
+		assertEquals("V", b.failCode);
 	}
 
 	@Test
