@@ -12,7 +12,11 @@ All the scripts (Job Control Language jobs) to compile and bind the COBOL progra
 
 # db2jcl
 
-The scripts (Job Control Language and SQL) to build the Db2 infrastructure.
+The original scripts (Job Control Language and SQL) that built the Db2 infrastructure. Superseded by `postgres`; kept for reference and for migrating existing data.
+
+# postgres
+
+SQL to provision the PostgreSQL database and tables, and the Db2 to PostgreSQL data migration tool.
 
 # doc
 

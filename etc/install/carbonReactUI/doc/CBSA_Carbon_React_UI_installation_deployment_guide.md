@@ -10,7 +10,7 @@ assumes that the installer already has:
 
 -   a CICS region (running CICS TS 6.1 with APAR PH60795 applied, or later)
 
--   a Db2 subsystem (v12 or greater)
+-   a PostgreSQL 15+ database provisioned with `etc/install/base/postgres` (see its README)
 
 -   the CBSA base/COBOL installed in the CICS region already
 
@@ -110,14 +110,6 @@ And then change the owner:
 `chown CICSUSER .`
 
 
-## SDSNLOD2
-
-Please ensure that the CICS region has both SDSNLOAD and SDSNLOD2 Db2 libraries in the STEPLIB concatenation. If you don't then you'll get an error like
-
-`Failed to load library ("/usr/lpp/db2c10/jdbc/lib/libdb2jcct2zos4_64.so")`
-
-When you try to use Db2 from the Carbon React application.
-
 ## JVM profile
 If you have already installed the Spring Boot UI, you can skip this step. Carry on from ![Edit server.xml](#Edit server.xml)
 
@@ -157,16 +149,7 @@ c.  The timeout value should be set to a large value.:
 
  **Please note:** that if the execution host machine is not very powerful, that Java may take a significant time to start.
 
-d.  Add the following to the JVM profile to add support for Db2:
-
-
-`-Dcom.ibm.cics.jvmserver.wlp.jdbc.driver.location=/usr/lpp/db2c12/jdbc/`
-
-`-Ddb2.jcc.currentSchema=IBMUSER`
-
- **Please note**: You should verify the location of the JDBC driver and
- amend the location (above) according to your own site installation
- location. Ensure that the currentSchema is the "DB2OWNER" from the Db2 setup.
+d.  Copy the PostgreSQL JDBC driver (`org.postgresql:postgresql`) into the `lib` directory next to `server.xml`.
 
 
 e. Add the following to choose the correct HTTP port.
@@ -226,16 +209,9 @@ For a CICS region called CICS01 running under IBMUSER, this will create a server
 `<webApplication location="webui-1.0.war"/>`
 
 
-2.  Add the following attribute to the **properties.db2.jcc** element. Replace IBMUSER with the Db2 owner chosen using the base install.
-
-`currentSchema="IBMUSER"`
-
- So it now looks like this:
-
-`<properties.db2.jcc driverType="2" currentSchema="IBMUSER"/>`
-
- **Note** -- "IBMUSER" is utilised in this example and relates to the
- user id assigned to the Db2 environment setup.
+2.  Define the `jdbc/defaultCICSDataSource` data source against PostgreSQL as shown in
+ `etc/install/base/postgres/README.md` ("Connect the web UI"), replacing any
+ `properties.db2.jcc` element.
 
 3.  Within the `<featureManager>` tag, add the following lines:
 
@@ -268,10 +244,6 @@ This directory will be where our applications will be stored.
 
 Copy the war file from the target directory into the apps directory of the JVM server. You may need to create this directory, in the same place as the server.xml file. You may need to alter permissions on the war file to let the CICS region userid read it.
 
-
-## Db2 Plan Access
-
-Java applications will run under transaction CJSA by default. This is *not* covered by Db2 transactions and entries installed in the CSD group bank. Either create a Db2 Transaction for CJSA or change the default plan on the Db2 Connection to match your chosen plan.
 
 ## Checking
 
