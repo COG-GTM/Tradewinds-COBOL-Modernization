@@ -47,11 +47,35 @@ class JsonCodecTest
 
 
 	@Test
+	@DisplayName("Numbers must follow JSON grammar: leading zeros are rejected, exponents accepted")
+	void numberGrammarIsEnforced()
+	{
+		assertThrows(IllegalArgumentException.class, () -> JsonCodec.parse("01"));
+		assertThrows(IllegalArgumentException.class, () -> JsonCodec.parse("-01"));
+		assertThrows(IllegalArgumentException.class, () -> JsonCodec.parse("1."));
+		assertThrows(IllegalArgumentException.class, () -> JsonCodec.parse("+1"));
+		assertEquals(new BigDecimal("1e3"), JsonCodec.parse("1e3"));
+		assertEquals(new BigDecimal("-0.5"), JsonCodec.parse("-0.5"));
+		assertEquals(Long.valueOf(0), JsonCodec.parse("0"));
+	}
+
+
+	@Test
+	@DisplayName("A client error keeps its message; a server error hides backend details")
+	void clientErrorKeepsMessage()
+	{
+		assertEquals("bad", AccountDataService.error(DataServiceException.validation("V", "bad"))
+				.getBody().get("message"));
+	}
+
+
+	@Test
 	@DisplayName("An error response serializes the COBOL success flag, fail code and abend code")
 	void errorResponseShape()
 	{
 		ServiceResult r = AccountDataService.error(new DataServiceException(500, " ", "HWPT", "boom", null));
-		assertEquals("{\"success\":\"N\",\"failCode\":\" \",\"abendCode\":\"HWPT\",\"message\":\"boom\"}",
+		assertEquals("{\"success\":\"N\",\"failCode\":\" \",\"abendCode\":\"HWPT\",\"message\":\""
+				+ AccountDataService.SERVER_ERROR_MESSAGE + "\"}",
 				r.bodyAsJson());
 	}
 }

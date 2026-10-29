@@ -20,6 +20,8 @@ mapping), `AccountDao` (JDBC; one atomic transaction per COBOL unit of work).
   are truncated (not rounded) to 2 places, matching a MOVE into `V99`.
   Responses always return them as strings with exactly 2 places, e.g.
   `"-1234.56"`, `"0.00"`.
+* **Dates in requests** (reset only) must be real calendar dates: `31022021`
+  or `2021-02-30` are rejected with `400 V`, never adjusted.
 * **Dates** in responses are `DDMMYYYY` strings — the layout of the COMMAREA
   date groups (`*-OPENED`, `*-LAST-STMT-DT`, `*-NEXT-STMT-DT`). Null dates
   come back as `"00000000"`.
@@ -74,7 +76,8 @@ Failure:
   `EXEC CICS ABEND ABCODE(abendCode)` when it is present. The data service has
   already rolled back its database work and backed out the CICS UOW
   (`BankRuntime.rollback()`) before responding.
-* `message` is diagnostic text only; do not parse it.
+* `message` is diagnostic text only; do not parse it. For 5xx it is a fixed
+  generic string (details go to the server log only).
 
 ### Transactions
 
@@ -84,6 +87,21 @@ insert/delete and the CONTROL updates are rolled back too (legacy:
 abend `HWPT` → CICS backout). On any write failure the resource also calls
 `BankRuntime.rollback()` so other recoverable resources in the CICS UOW are
 backed out, matching `SYNCPOINT ROLLBACK`.
+
+Create and reset first take a transaction-scoped advisory lock
+`pg_advisory_xact_lock(0x41434354, <sortcode>)`, so account-number
+allocation and a bulk reset for the same sortcode never interleave (the
+CONTROL rows cannot be the lock target because reset deletes them).
+
+### Security
+
+These endpoints sit behind the same Liberty application as the existing
+`/banking` resources and, like them, perform no authorization of their own;
+CREACC/INQACCCU customer checks still run in COBOL. They are intended for
+the in-region COBOL callers and BANKDATA only. Deployment must restrict
+`/banking/data/*` (and especially `/banking/data/admin/*`) with a Liberty
+`<security-constraint>` / role mapping to the CICS service identity, and must
+not expose them through the public UI route.
 
 ---
 
