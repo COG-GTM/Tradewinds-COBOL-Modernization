@@ -62,6 +62,11 @@
        01 WS-DATASVC.
           COPY DATASVC.
        01 WS-DSV-PTR                    PIC S9(8) COMP.
+       01 WS-DSV-LINK-RESP              PIC S9(8) COMP.
+       01 WS-DSV-LINK-RESP2             PIC S9(8) COMP.
+       01 WS-DSV-NAME-ESC               PIC X(28).
+       01 WS-DSV-ESC-LEN                PIC S9(4) COMP.
+       01 WS-DSV-IX                     PIC S9(4) COMP.
        01 WS-DSV-TASKN                  PIC Z(11)9.
        01 WS-DSV-NAME                   PIC X(14).
        01 WS-DSV-DOB                    PIC X(8).
@@ -1182,8 +1187,18 @@
       *
            MOVE EIBTASKN TO WS-DSV-TASKN.
            MOVE STORED-NAME(1:14) TO WS-DSV-NAME.
-           INSPECT WS-DSV-NAME REPLACING ALL '"' BY "'"
-                                         ALL '\' BY '/'.
+      *    JSON-escape '"' and '\' so the stored name is unchanged
+           MOVE SPACES TO WS-DSV-NAME-ESC.
+           MOVE 0 TO WS-DSV-ESC-LEN.
+           PERFORM VARYING WS-DSV-IX FROM 1 BY 1 UNTIL WS-DSV-IX > 14
+              IF WS-DSV-NAME(WS-DSV-IX:1) = '"' OR '\'
+                 ADD 1 TO WS-DSV-ESC-LEN
+                 MOVE '\' TO WS-DSV-NAME-ESC(WS-DSV-ESC-LEN:1)
+              END-IF
+              ADD 1 TO WS-DSV-ESC-LEN
+              MOVE WS-DSV-NAME(WS-DSV-IX:1)
+                TO WS-DSV-NAME-ESC(WS-DSV-ESC-LEN:1)
+           END-PERFORM.
            STRING STORED-DOB(1:2)
                   STORED-DOB(4:2)
                   STORED-DOB(7:4)
@@ -1196,7 +1211,8 @@
                   '","customerNumber":"' DELIMITED BY SIZE
                   STORED-CUSTNO DELIMITED BY SIZE
                   '","customerName":"' DELIMITED BY SIZE
-                  WS-DSV-NAME DELIMITED BY SIZE
+                  WS-DSV-NAME-ESC(1:WS-DSV-ESC-LEN)
+                     DELIMITED BY SIZE
                   '","dateOfBirth":"' DELIMITED BY SIZE
                   WS-DSV-DOB DELIMITED BY SIZE
                   '","taskNumber":' DELIMITED BY SIZE
@@ -1209,9 +1225,18 @@
            MOVE 'POST' TO DSV-METHOD.
            MOVE '/data/proctran/createCustomer' TO DSV-PATH.
 
+      *    RC '9': LINK itself failed (e.g. PGMIDERR), not DATASVC
+           MOVE SPACE TO DSV-RC.
            EXEC CICS LINK PROGRAM('DATASVC')
                 COMMAREA(WS-DATASVC)
+                RESP(WS-DSV-LINK-RESP)
+                RESP2(WS-DSV-LINK-RESP2)
            END-EXEC.
+           IF WS-DSV-LINK-RESP NOT = DFHRESP(NORMAL)
+              MOVE '9' TO DSV-RC
+              MOVE WS-DSV-LINK-RESP TO DSV-CICS-RESP
+              MOVE WS-DSV-LINK-RESP2 TO DSV-CICS-RESP2
+           END-IF.
 
            INITIALIZE WS-DSV-RESPONSE.
            IF DSV-OK

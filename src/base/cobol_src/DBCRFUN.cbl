@@ -55,6 +55,8 @@
        01 WS-DATASVC.
           COPY DATASVC.
        01 WS-DSV-PTR                    PIC S9(8) COMP.
+       01 WS-DSV-LINK-RESP              PIC S9(8) COMP.
+       01 WS-DSV-LINK-RESP2             PIC S9(8) COMP.
        01 WS-DSV-TASKN                  PIC Z(11)9.
        01 WS-DSV-FACILTYPE              PIC -(8)9.
        01 WS-DSV-RESPONSE.
@@ -237,9 +239,18 @@
            MOVE 'POST' TO DSV-METHOD.
            MOVE '/data/movement/debitCredit' TO DSV-PATH.
 
+      *    RC '9': LINK itself failed (e.g. PGMIDERR), not DATASVC
+           MOVE SPACE TO DSV-RC.
            EXEC CICS LINK PROGRAM('DATASVC')
                 COMMAREA(WS-DATASVC)
+                RESP(WS-DSV-LINK-RESP)
+                RESP2(WS-DSV-LINK-RESP2)
            END-EXEC.
+           IF WS-DSV-LINK-RESP NOT = DFHRESP(NORMAL)
+              MOVE '9' TO DSV-RC
+              MOVE WS-DSV-LINK-RESP TO DSV-CICS-RESP
+              MOVE WS-DSV-LINK-RESP2 TO DSV-CICS-RESP2
+           END-IF.
 
       *
       *    Transport failure: same outcome as a failed Db2 call
