@@ -50,6 +50,17 @@ class ProctranFormatTest
 	}
 
 	@Test
+	void customerDobMustBeARealCalendarDate()
+	{
+		assertThrows(IllegalArgumentException.class, () -> ProctranFormat
+				.customerDescription("1", "1", "Bob", "31022003"));
+		assertThrows(IllegalArgumentException.class, () -> ProctranFormat
+				.customerDescription("1", "1", "Bob", "01132003"));
+		assertEquals("29/02/1996", ProctranFormat
+				.customerDescription("1", "1", "Bob", "29021996").substring(30));
+	}
+
+	@Test
 	void referenceIsTheCicsTaskNumberZeroPaddedTo12Digits()
 	{
 		assertEquals("000000012345", ProctranFormat.reference(12345));
