@@ -167,7 +167,7 @@ const AccountCreationPage = () => {
               <div style={{ width: 500 }}>
                 <TextInput
                   id="carbon-number"
-                  label="Credit Limit:"
+                  labelText="Credit Limit:"
                   helperText="Please set the credit limit"
                   invalidText="Number is not valid"
                   value={enteredOverdraftLimit}
@@ -178,7 +178,7 @@ const AccountCreationPage = () => {
               <div style={{ width: 500 }}>
               <TextInput
                 id="interestRate"
-                label="Trade discount %:"
+                labelText="Trade discount %:"
                 invalidText="Number is not valid"
                 helperText="Please enter the trade discount"
                 value={enteredInterestRate}
