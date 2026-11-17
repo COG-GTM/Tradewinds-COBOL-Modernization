@@ -89,11 +89,14 @@ def parse_map(path):
             pos = re.match(r"\((\d+),(\d+)\)", o.get("POS", ""))
             if not pos:
                 continue
-            attrb = o.get("ATTRB", "")
+            attrb = set(o.get("ATTRB", "").strip("()").upper().split(","))
+            protected = bool(attrb & {"PROT", "ASKIP"})
+            # BMS assumes UNPROT for NUM or IC fields that are not PROT/ASKIP.
+            is_input = "UNPROT" in attrb or (not protected and bool(attrb & {"NUM", "IC"}))
             current["fields"].append({
                 "label": label, "row": int(pos.group(1)), "col": int(pos.group(2)),
                 "length": int(o.get("LENGTH", "0") or 0), "initial": o.get("INITIAL"),
-                "color": o.get("COLOR", "DEFAULT"), "input": "UNPROT" in attrb,
+                "color": o.get("COLOR", "DEFAULT"), "input": is_input,
                 "dark": "DRK" in attrb})
     return maps
 
