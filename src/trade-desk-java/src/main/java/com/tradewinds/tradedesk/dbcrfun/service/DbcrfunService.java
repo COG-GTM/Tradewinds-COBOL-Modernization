@@ -8,6 +8,7 @@ import com.tradewinds.tradedesk.dbcrfun.entity.ProcTran;
 import com.tradewinds.tradedesk.dbcrfun.repository.AccountRepository;
 import com.tradewinds.tradedesk.dbcrfun.repository.ProcTranRepository;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +45,7 @@ public class DbcrfunService {
     private static final int ACCOUNT_NUMBER_LENGTH = 8;
     private static final int ORIGIN_FIELD_LENGTH = 8;
     private static final int ORIGIN_DESC_LENGTH = 14;
+    private static final int AMOUNT_SCALE = 2;
 
     private static final DateTimeFormatter PROCTRAN_DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final DateTimeFormatter PROCTRAN_TIME = DateTimeFormatter.ofPattern("HHmmss");
@@ -78,7 +80,7 @@ public class DbcrfunService {
      */
     @Transactional
     public DbcrfunResponse process(DbcrfunRequest request) {
-        BigDecimal amt = request.amt();
+        BigDecimal amt = request.amt().setScale(AMOUNT_SCALE, RoundingMode.DOWN);
         Origin origin = request.origin();
         int faciltype = origin == null ? 0 : origin.faciltype();
         boolean payment = faciltype == PAYMENT_FACILTYPE;

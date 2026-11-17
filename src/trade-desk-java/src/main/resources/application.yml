@@ -2,9 +2,9 @@ spring:
   application:
     name: trade-desk-java
   datasource:
-    url: ${DB2_URL:jdbc:db2://localhost:50000/CBSA}
-    username: ${DB2_USER:}
-    password: ${DB2_PASSWORD:}
+    url: ${BANK_DB_URL:jdbc:db2://localhost:50000/CBSA}
+    username: ${BANK_DB_USER:}
+    password: ${BANK_DB_PASSWORD:}
     driver-class-name: com.ibm.db2.jcc.DB2Driver
   jpa:
     open-in-view: false
@@ -12,8 +12,8 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        default_schema: ${DB2_SCHEMA:IBMUSER}
+        default_schema: ${BANK_DB_SCHEMA:IBMUSER}
 
 # Replaces SORTCODE.cpy (77 SORTCODE PIC 9(6) VALUE 987654).
 dbcrfun:
-  sortcode: ${DBCRFUN_SORTCODE:987654}
+  sortcode: ${BANK_SORTCODE:987654}

@@ -13,11 +13,13 @@ Spring Boot 3 / Java 17 port of `src/base/cobol_src/DBCRFUN.cbl` (debit/credit f
 | `4` | Payment (faciltype 496) on a `HOSPITAL` or `TENDER` account |
 | `02` | PROCTRAN insert failed; the account update is rolled back |
 
+HTTP 400 when `accno`, `amt` or `origin` is missing, or `amt` does not fit `S9(10)V99` (for example fractional cents). Responses carry `Cache-Control: no-store`.
+
 ## Run
 
 ```
 mvn -B test
-# Db2: DB2_URL, DB2_USER, DB2_PASSWORD, DB2_SCHEMA (default IBMUSER), DBCRFUN_SORTCODE (default 987654)
+# Db2: BANK_DB_URL, BANK_DB_USER, BANK_DB_PASSWORD, BANK_DB_SCHEMA (default IBMUSER), BANK_SORTCODE (default 987654)
 mvn spring-boot:run
 # Local H2 with seed accounts 00000001 (CURRENT), 00000002 (HOSPITAL), 00000003 (TENDER)
 mvn spring-boot:test-run -Dspring-boot.run.profiles=local
