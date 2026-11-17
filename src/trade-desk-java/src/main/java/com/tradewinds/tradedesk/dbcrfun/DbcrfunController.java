@@ -2,8 +2,6 @@ package com.tradewinds.tradedesk.dbcrfun;
 
 import jakarta.validation.Valid;
 
-import org.springframework.http.CacheControl;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +22,7 @@ public class DbcrfunController {
     }
 
     @PostMapping
-    public ResponseEntity<DbcrfunResponse> applyTransaction(@Valid @RequestBody DbcrfunRequest request) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(service.applyTransaction(request));
+    public DbcrfunResponse applyTransaction(@Valid @RequestBody DbcrfunRequest request) {
+        return service.applyTransaction(request);
     }
 }

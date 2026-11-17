@@ -67,10 +67,15 @@ class DbcrfunControllerTest {
     void requestThatCannotFitTheCommareaIsRejected() {
         Map<String, Object> tooManyDecimals = Map.of("accNo", "00000001", "amt", 1.001);
         Map<String, Object> nonNumericAccount = Map.of("accNo", "ABC", "amt", 1);
+        Map<String, Object> fractionalFacilType = Map.of("accNo", "00000001", "amt", -600,
+                "origin", Map.of("facilType", 495.99));
 
         assertThat(http.postForEntity("/api/dbcrfun", tooManyDecimals, String.class).getStatusCode())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(http.postForEntity("/api/dbcrfun", nonNumericAccount, String.class).getStatusCode())
+        ResponseEntity<String> rejected = http.postForEntity("/api/dbcrfun", nonNumericAccount, String.class);
+        assertThat(rejected.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(rejected.getHeaders().getCacheControl()).isEqualTo("no-store");
+        assertThat(http.postForEntity("/api/dbcrfun", fractionalFacilType, String.class).getStatusCode())
                 .isEqualTo(HttpStatus.BAD_REQUEST);
     }
 }

@@ -56,7 +56,8 @@ COMMAREA and the caller can read it.
 | `amt = 0` is a credit | L307 / L491 `IF COMM-AMT < 0` else-branch | `amt.signum() < 0` | `DbcrfunServiceTest.zeroAmountIsTreatedAsCredit` (496 → `PCR`), `DbcrfunServiceTest.zeroAmountTellerRequestWritesCreProctran` (teller → `CRE`) |
 | Account type compared padded to 8 chars | `HV-ACCOUNT-ACC-TYPE PIC X(8)` vs `'HOSPITAL'`, `'TENDER  '` | `CobolText.moveToPicX(type, 8)` before compare | `DbcrfunServiceMockTest.accountTypeComparisonIsSpacePaddedToEightChars` (`TENDER`, `TENDER  `, `TENDERX` ...) |
 | `failCode` single character | `MOVE '02' TO COMM-FAIL-CODE` (PIC X) → `'0'` | constant `FAIL_PROCTRAN = "0"`, commented at the L637 mapping | `CobolTextTest.moveOfTwoCharLiteralToPicXKeepsOnlyLeftmostChar`, branch 14 tests |
-| Amount scale | `COMM-AMT PIC S9(10)V99` | `@Digits(integer=10, fraction=2)`; extra decimals truncated, not rounded | `DbcrfunServiceMockTest.amountWithMoreThanTwoDecimalsIsTruncatedNotRounded`, `DbcrfunControllerTest.requestThatCannotFitTheCommareaIsRejected` |
+| Amount scale | `COMM-AMT PIC S9(10)V99` | Over the REST API, `@Digits(integer=10, fraction=2)` rejects extra decimals with HTTP 400. A direct service call truncates them (not rounds), as a COBOL MOVE would | `DbcrfunServiceMockTest.amountWithMoreThanTwoDecimalsIsTruncatedNotRounded`, `DbcrfunControllerTest.requestThatCannotFitTheCommareaIsRejected` |
+| `facilType` must be an integer | `COMM-FACILTYPE PIC S9(8) COMP` | Jackson `ACCEPT_FLOAT_AS_INT` disabled (`TradeDeskApplication`), so `495.99` returns HTTP 400 | `DbcrfunControllerTest.requestThatCannotFitTheCommareaIsRejected` |
 | HTTP shape | Business failures are COMMAREA values, not abends | `200 OK` with `success="N"` | `DbcrfunControllerTest.businessFailureIsHttp200WithSuccessN` |
 
 ## Not ported / deliberate differences
@@ -66,7 +67,8 @@ COMMAREA and the caller can read it.
 - **`PROCTRAN_DATE` column type**: the DB2 DDL (`etc/install/base/db2jcl/INSTDB2.jcl`) declares `DATE`, but DBCRFUN binds a `PIC X(10)` host variable holding `DD.MM.YYYY`. `ProcTran.date` is a `String` with that format, and the H2 test schema uses `CHAR(10)`.
 - **Row lock**: `AccountRepository.findById` uses `PESSIMISTIC_WRITE` (`SELECT ... FOR UPDATE`). DBCRFUN does a plain SELECT followed by an absolute UPDATE, so two concurrent postings to one account can overwrite each other's balance change. The outputs stay the same.
 - **Logs**: error logs do not include the account number. The COBOL DISPLAYs do not include it either.
-- **HTTP**: responses carry `Cache-Control: no-store` because they contain balances.
+- **HTTP**: every response, including 4xx errors, carries `Cache-Control: no-store` (`NoStoreFilter`).
+- **Missing `origin`**: treated as `facilType` 0 (teller), like a COMMAREA whose origin fields are not set. Extra JSON fields are ignored.
 - **PROCTRAN key**: the legacy table has no primary key. `ProcTranId` (sortcode, number, date, time, ref) is only a JPA identity.
 
 ## `mvn test` results
@@ -74,13 +76,13 @@ COMMAREA and the caller can read it.
 Run in `src/trade-desk-java` with `mvn -B test` (Maven 3.9.9):
 
 ```
-[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.784 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.275 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceMockTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.050 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunControllerTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.tradewinds.tradedesk.config.CobolTextTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.541 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.248 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceMockTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.970 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunControllerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.tradewinds.tradedesk.config.CobolTextTest
 [INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
-[INFO] Total time:  5.580 s
+[INFO] Total time:  6.141 s
 ```
 
 The ERROR log lines in the full output are expected: some tests rename `ACCOUNT` or `PROCTRAN` on
