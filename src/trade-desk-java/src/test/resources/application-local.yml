@@ -1,0 +1,6 @@
+# Used by `mvn spring-boot:test-run -Dspring-boot.run.profiles=local` to run the
+# service locally against an in-memory H2 database seeded with demo accounts.
+spring:
+  sql:
+    init:
+      data-locations: classpath:db/seed-h2.sql

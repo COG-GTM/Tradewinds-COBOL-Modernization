@@ -31,6 +31,7 @@
         <module>src/Z-OS-Connect-Customer-Services-Interface</module>
         <module>src/Z-OS-Connect-Payment-Interface</module>
         <module>src/webui</module>
+        <module>src/trade-desk-java</module>
     </modules>
 
 
