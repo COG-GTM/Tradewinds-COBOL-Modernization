@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" role="img" aria-label="Trade account: medicine boxes and an invoice">
+  <rect width="800" height="340" fill="#edf5ff"/>
+  <circle cx="660" cy="70" r="120" fill="#d0e2ff"/>
+  <rect x="80" y="170" width="160" height="110" rx="6" fill="#0f62fe"/>
+  <rect x="80" y="170" width="160" height="26" rx="6" fill="#0043ce"/>
+  <rect x="140" y="215" width="40" height="40" fill="#fff"/><rect x="150" y="205" width="20" height="60" fill="#fff"/>
+  <rect x="250" y="200" width="130" height="80" rx="6" fill="#da1e28"/>
+  <rect x="250" y="200" width="130" height="22" rx="6" fill="#a2191f"/>
+  <rect x="300" y="236" width="30" height="30" fill="#fff"/><rect x="308" y="228" width="14" height="46" fill="#fff"/>
+  <g transform="translate(150 120) rotate(-30)"><rect width="110" height="40" rx="20" fill="#fff" stroke="#161616" stroke-width="3"/><path d="M55 0h35a20 20 0 0 1 0 40H55z" fill="#24a148"/></g>
+  <rect x="450" y="60" width="240" height="230" rx="10" fill="#fff" stroke="#8d8d8d" stroke-width="2"/>
+  <text x="475" y="100" font-family="IBM Plex Sans, Arial, sans-serif" font-size="22" font-weight="600" fill="#161616">INVOICE</text>
+  <rect x="475" y="120" width="180" height="10" rx="5" fill="#c6c6c6"/>
+  <rect x="475" y="145" width="140" height="10" rx="5" fill="#c6c6c6"/>
+  <rect x="475" y="170" width="160" height="10" rx="5" fill="#c6c6c6"/>
+  <line x1="475" y1="205" x2="665" y2="205" stroke="#8d8d8d" stroke-width="2"/>
+  <text x="475" y="235" font-family="IBM Plex Sans, Arial, sans-serif" font-size="16" fill="#525252">Credit limit</text>
+  <text x="665" y="270" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="20" font-weight="600" fill="#0f62fe">EUR 25,000</text>
+</svg>

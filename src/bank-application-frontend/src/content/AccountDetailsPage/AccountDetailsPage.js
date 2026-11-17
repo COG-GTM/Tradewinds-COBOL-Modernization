@@ -147,9 +147,8 @@ const AccountDetailsPage = () => {
                   <div className="right-part">
                     <img
                       className="bee"
-                      src={`${process.env.PUBLIC_URL}/Financial-Services-Cloud-leadspace.jpg
-`}
-                      alt="bee"
+                      src={`${process.env.PUBLIC_URL}/pharma-trade-account.svg`}
+                      alt="trade account illustration"
                     />
                   </div>
                 </div>

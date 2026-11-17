@@ -190,23 +190,23 @@ public class AccountJSON
 	// Account type must be one of the below
 	public boolean validateType(String accountType2)
 	{
-		if (accountType2.equalsIgnoreCase("ISA"))
+		if (accountType2.equalsIgnoreCase("OTC"))
 		{
 			return true;
 		}
-		if (accountType2.equalsIgnoreCase("MORTGAGE"))
+		if (accountType2.equalsIgnoreCase("HOSPITAL"))
 		{
 			return true;
 		}
-		if (accountType2.equalsIgnoreCase("LOAN"))
+		if (accountType2.equalsIgnoreCase("TENDER"))
 		{
 			return true;
 		}
-		if (accountType2.equalsIgnoreCase("SAVING"))
+		if (accountType2.equalsIgnoreCase("EXPORT"))
 		{
 			return true;
 		}
-		return accountType2.equalsIgnoreCase("CURRENT");
+		return accountType2.equalsIgnoreCase("RX");
 	}
 
 	public String toString()

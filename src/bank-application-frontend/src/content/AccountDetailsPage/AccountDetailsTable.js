@@ -37,7 +37,7 @@ const headers = [
   },
   {
     key: 'sortCode',
-    header: 'Sort Code',
+    header: 'Depot Code',
   },
   {
     key: 'accountType',
@@ -45,19 +45,19 @@ const headers = [
   },
   {
     key: 'interestRate',
-    header: 'Interest Rate',
+    header: 'Trade Discount %',
   },
   {
     key: 'overdraft',
-    header: 'Overdraft',
+    header: 'Credit Limit',
   },
   {
     key: 'availableBalance',
-    header: 'Available Balance',
+    header: 'Available Credit',
   },
   {
     key: 'actualBalance',
-    header: 'Actual Balance',
+    header: 'Ledger Balance',
   },
   {
     key: 'formattedDateOpened',
@@ -78,12 +78,12 @@ const headers = [
  */
 const account_headers = [
   'Account Number',
-  'Sort Code',
+  'Depot Code',
   'Account Type',
-  'Interest Rate',
-  'Overdraft Limit',
-  'Available Balance',
-  'Actual Balance',
+  'Trade Discount %',
+  'Credit Limit',
+  'Available Credit',
+  'Ledger Balance',
   'Account Opened',
   'Last Statement Due',
   'Next Statement Due',
@@ -278,7 +278,7 @@ let newDateOpened        = dateOpened.substring(6,10) + "-" + dateOpened.substri
                         <TextInput
                           id="interestRate"
                           placeHolder={currentInterestRate}
-                          labelText="Interest rate:"
+                          labelText="Trade discount %:"
                           onChange={enteredInterestRateChangeHandler}
                           style={{ marginBottom: "1rem" }}
                         />
@@ -286,11 +286,11 @@ let newDateOpened        = dateOpened.substring(6,10) + "-" + dateOpened.substri
 
                       <div style={{ width: 200 }}>
                         <Dropdown
-                          items2={["MORTGAGE", "ISA", "LOAN", "SAVING", "CURRENT"]}
+                          items2={["RX", "OTC", "EXPORT", "TENDER", "HOSPITAL"]}
                           id="default"
                           titleText="Account Type"
                           label="Account Type"
-                          items={["MORTGAGE", "ISA", "LOAN", "SAVING", "CURRENT"]}
+                          items={["RX", "OTC", "EXPORT", "TENDER", "HOSPITAL"]}
                           onChange={({ selectedItem }) =>
                             setAccountType(selectedItem)
                           }
@@ -302,7 +302,7 @@ let newDateOpened        = dateOpened.substring(6,10) + "-" + dateOpened.substri
                       <div style={{ width: 200 }}>
                         <TextInput
                           id="carbon-number"
-                          labelText="Overdraft Limit:"
+                          labelText="Credit Limit:"
                           placeHolder={currentOverdraft}
                           onChange={enteredOverdraftLimitChangeHandler}
                         />

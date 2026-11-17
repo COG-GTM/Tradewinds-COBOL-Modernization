@@ -794,8 +794,8 @@
       *    a negative balance (it doesn't make any sense for these
       *    accounts to have a positive balance).
       *
-           IF HV-ACCOUNT-TYPE OF HOST-ACCOUNT-ROW = 'LOAN    ' OR
-           HV-ACCOUNT-TYPE OF HOST-ACCOUNT-ROW = 'MORTGAGE'
+           IF HV-ACCOUNT-TYPE OF HOST-ACCOUNT-ROW = 'TENDER  ' OR
+           HV-ACCOUNT-TYPE OF HOST-ACCOUNT-ROW = 'HOSPITAL'
                 COMPUTE HV-ACCOUNT-ACTUAL-BALANCE =
                    0 - HV-ACCOUNT-ACTUAL-BALANCE OF HOST-ACCOUNT-ROW
 
@@ -934,56 +934,56 @@
 
            MOVE 50 TO FORENAMES-CNT.
 
-           MOVE 'Michael' TO FORENAME(01).
-           MOVE 'Will'    TO FORENAME(02).
-           MOVE 'Geoff'   TO FORENAME(03).
-           MOVE 'Chris'   TO FORENAME(04).
-           MOVE 'Dave'    TO FORENAME(05).
-           MOVE 'Luke'    TO FORENAME(06).
-           MOVE 'Adam'    TO FORENAME(07).
-           MOVE 'Giuseppe' TO FORENAME(08).
-           MOVE 'James'   TO FORENAME(09).
-           MOVE 'Jon'     TO FORENAME(10).
-           MOVE 'Andy'    TO FORENAME(11).
-           MOVE 'Lou'     TO FORENAME(12).
-           MOVE 'Robert'  TO FORENAME(13).
-           MOVE 'Sam'     TO FORENAME(14).
-           MOVE 'Frederick' TO FORENAME(15).
-           MOVE 'Buford'  TO FORENAME(16).
-           MOVE 'William' TO FORENAME(17).
-           MOVE 'Howard'  TO FORENAME(18).
-           MOVE 'Anthony' TO FORENAME(19).
-           MOVE 'Bruce'   TO FORENAME(20).
-           MOVE 'Peter'   TO FORENAME(21).
-           MOVE 'Stephen' TO FORENAME(22).
-           MOVE 'Donald'  TO FORENAME(23).
-           MOVE 'Dennis'  TO FORENAME(24).
-           MOVE 'Harold'  TO FORENAME(25).
-           MOVE 'Amy'     TO FORENAME(26).
-           MOVE 'Belinda' TO FORENAME(27).
-           MOVE 'Charlotte' TO FORENAME(28).
-           MOVE 'Donna' TO FORENAME(29).
-           MOVE 'Felicia' TO FORENAME(30).
-           MOVE 'Gretchen' TO FORENAME(31).
-           MOVE 'Henrietta' TO FORENAME(32).
-           MOVE 'Imogen' TO FORENAME(33).
-           MOVE 'Josephine' TO FORENAME(34).
-           MOVE 'Kimberley' TO FORENAME(35).
-           MOVE 'Lucy' TO FORENAME(36).
-           MOVE 'Monica' TO FORENAME(37).
-           MOVE 'Natalie' TO FORENAME(38).
-           MOVE 'Ophelia' TO FORENAME(39).
-           MOVE 'Patricia' TO FORENAME(40).
-           MOVE 'Querida' TO FORENAME(41).
-           MOVE 'Rachel' TO FORENAME(42).
-           MOVE 'Samantha' TO FORENAME(43).
-           MOVE 'Tanya'   TO FORENAME(44).
-           MOVE 'Ulrika'  TO FORENAME(45).
-           MOVE 'Virginia' TO FORENAME(46).
-           MOVE 'Wendy'   TO FORENAME(47).
-           MOVE 'Xaviera' TO FORENAME(48).
-           MOVE 'Yvonne'  TO FORENAME(49).
-           MOVE 'Zsa Zsa' TO FORENAME(50).
+           MOVE 'Marco'   TO FORENAME(01).
+           MOVE 'Giulia'  TO FORENAME(02).
+           MOVE 'Luca'    TO FORENAME(03).
+           MOVE 'Francesca' TO FORENAME(04).
+           MOVE 'Alessandro' TO FORENAME(05).
+           MOVE 'Chiara'  TO FORENAME(06).
+           MOVE 'Matteo'  TO FORENAME(07).
+           MOVE 'Sara'     TO FORENAME(08).
+           MOVE 'Lorenzo' TO FORENAME(09).
+           MOVE 'Valentina' TO FORENAME(10).
+           MOVE 'Andrea'  TO FORENAME(11).
+           MOVE 'Elena'   TO FORENAME(12).
+           MOVE 'Davide'  TO FORENAME(13).
+           MOVE 'Martina' TO FORENAME(14).
+           MOVE 'Simone'    TO FORENAME(15).
+           MOVE 'Federica' TO FORENAME(16).
+           MOVE 'Stefano' TO FORENAME(17).
+           MOVE 'Silvia'  TO FORENAME(18).
+           MOVE 'Paolo'   TO FORENAME(19).
+           MOVE 'Laura'   TO FORENAME(20).
+           MOVE 'Giovanni' TO FORENAME(21).
+           MOVE 'Anna'    TO FORENAME(22).
+           MOVE 'Roberto' TO FORENAME(23).
+           MOVE 'Paola'   TO FORENAME(24).
+           MOVE 'Riccardo' TO FORENAME(25).
+           MOVE 'Elisa'   TO FORENAME(26).
+           MOVE 'Fabio'   TO FORENAME(27).
+           MOVE 'Alessia'   TO FORENAME(28).
+           MOVE 'Emanuele' TO FORENAME(29).
+           MOVE 'Beatrice' TO FORENAME(30).
+           MOVE 'Nicola'   TO FORENAME(31).
+           MOVE 'Ilaria'    TO FORENAME(32).
+           MOVE 'Antonio' TO FORENAME(33).
+           MOVE 'Monica'    TO FORENAME(34).
+           MOVE 'Daniele'   TO FORENAME(35).
+           MOVE 'Cristina' TO FORENAME(36).
+           MOVE 'Michele' TO FORENAME(37).
+           MOVE 'Serena'  TO FORENAME(38).
+           MOVE 'Filippo' TO FORENAME(39).
+           MOVE 'Roberta'  TO FORENAME(40).
+           MOVE 'Tommaso' TO FORENAME(41).
+           MOVE 'Claudia' TO FORENAME(42).
+           MOVE 'Gabriele' TO FORENAME(43).
+           MOVE 'Barbara' TO FORENAME(44).
+           MOVE 'Pietro'  TO FORENAME(45).
+           MOVE 'Giorgia'  TO FORENAME(46).
+           MOVE 'Salvatore' TO FORENAME(47).
+           MOVE 'Teresa'  TO FORENAME(48).
+           MOVE 'Vincenzo' TO FORENAME(49).
+           MOVE 'Lucia'   TO FORENAME(50).
 
            MOVE 30 TO INITIALS-CNT.
 
@@ -991,170 +991,170 @@
 
            MOVE 50 TO SURNAMES-CNT.
 
-           MOVE 'Jones'        TO SURNAME(01).
-           MOVE 'Davidson'     TO SURNAME(02).
-           MOVE 'Baker'        TO SURNAME(03).
-           MOVE 'Smith'        TO SURNAME(04).
-           MOVE 'Taylor'       TO SURNAME(05).
-           MOVE 'Evans'        TO SURNAME(06).
-           MOVE 'Roberts'      TO SURNAME(07).
-           MOVE 'Wright'       TO SURNAME(08).
-           MOVE 'Walker'       TO SURNAME(09).
-           MOVE 'Green'        TO SURNAME(10).
-           MOVE 'Price'        TO SURNAME(11).
-           MOVE 'Downton'      TO SURNAME(12).
-           MOVE 'Gatting'      TO SURNAME(13).
-           MOVE 'Robinson'     TO SURNAME(14).
-           MOVE 'Justice'      TO SURNAME(15).
-           MOVE 'Tell'         TO SURNAME(16).
-           MOVE 'Stark'        TO SURNAME(17).
-           MOVE 'Strange'      TO SURNAME(18).
-           MOVE 'Parker'       TO SURNAME(19).
-           MOVE 'Blake'        TO SURNAME(20).
-           MOVE 'Jackson'      TO SURNAME(21).
-           MOVE 'Groves'       TO SURNAME(22).
-           MOVE 'Palmer'       TO SURNAME(23).
-           MOVE 'Ramsbottom'   TO SURNAME(24).
-           MOVE 'Lloyd'        TO SURNAME(24).
-           MOVE 'Hughes'       TO SURNAME(25).
-           MOVE 'Briggs'       TO SURNAME(26).
-           MOVE 'Higins'       TO SURNAME(27).
-           MOVE 'Goodwin'      TO SURNAME(28).
-           MOVE 'Valmont'      TO SURNAME(29).
-           MOVE 'Brown'        TO SURNAME(30).
-           MOVE 'Hopkins'      TO SURNAME(31).
-           MOVE 'Bonney'       TO SURNAME(32).
-           MOVE 'Jenkins'      TO SURNAME(33).
-           MOVE 'Lloyd'        TO SURNAME(34).
-           MOVE 'Wilmore'      TO SURNAME(35).
-           MOVE 'Franklin'     TO SURNAME(36).
-           MOVE 'Renton'       TO SURNAME(37).
-           MOVE 'Seward'       TO SURNAME(38).
-           MOVE 'Morris'       TO SURNAME(39).
-           MOVE 'Johnson'      TO SURNAME(40).
-           MOVE 'Brennan'      TO SURNAME(41).
-           MOVE 'Thomson'      TO SURNAME(42).
-           MOVE 'Barker'       TO SURNAME(43).
-           MOVE 'Corbett'      TO SURNAME(44).
-           MOVE 'Weber'        TO SURNAME(45).
-           MOVE 'Leigh'        TO SURNAME(46).
-           MOVE 'Croft'        TO SURNAME(47).
-           MOVE 'Walken'       TO SURNAME(48).
-           MOVE 'Dubois'       TO SURNAME(49).
-           MOVE 'Stephens'     TO SURNAME(50).
+           MOVE 'Rossi'        TO SURNAME(01).
+           MOVE 'Russo'        TO SURNAME(02).
+           MOVE 'Ferrari'      TO SURNAME(03).
+           MOVE 'Esposito'     TO SURNAME(04).
+           MOVE 'Bianchi'      TO SURNAME(05).
+           MOVE 'Romano'       TO SURNAME(06).
+           MOVE 'Colombo'      TO SURNAME(07).
+           MOVE 'Ricci'        TO SURNAME(08).
+           MOVE 'Marino'       TO SURNAME(09).
+           MOVE 'Greco'        TO SURNAME(10).
+           MOVE 'Bruno'        TO SURNAME(11).
+           MOVE 'Gallo'        TO SURNAME(12).
+           MOVE 'Conti'        TO SURNAME(13).
+           MOVE 'DeLuca'       TO SURNAME(14).
+           MOVE 'Mancini'      TO SURNAME(15).
+           MOVE 'Costa'        TO SURNAME(16).
+           MOVE 'Giordano'     TO SURNAME(17).
+           MOVE 'Rizzo'        TO SURNAME(18).
+           MOVE 'Lombardi'     TO SURNAME(19).
+           MOVE 'Moretti'      TO SURNAME(20).
+           MOVE 'Barbieri'     TO SURNAME(21).
+           MOVE 'Fontana'      TO SURNAME(22).
+           MOVE 'Santoro'      TO SURNAME(23).
+           MOVE 'Mariani'      TO SURNAME(24).
+           MOVE 'Mariani'      TO SURNAME(24).
+           MOVE 'Rinaldi'      TO SURNAME(25).
+           MOVE 'Caruso'       TO SURNAME(26).
+           MOVE 'Ferrara'      TO SURNAME(27).
+           MOVE 'Galli'        TO SURNAME(28).
+           MOVE 'Martini'      TO SURNAME(29).
+           MOVE 'Leone'        TO SURNAME(30).
+           MOVE 'Longo'        TO SURNAME(31).
+           MOVE 'Gentile'      TO SURNAME(32).
+           MOVE 'Martinelli'   TO SURNAME(33).
+           MOVE 'Vitale'       TO SURNAME(34).
+           MOVE 'Lombardo'     TO SURNAME(35).
+           MOVE 'Serra'        TO SURNAME(36).
+           MOVE 'Coppola'      TO SURNAME(37).
+           MOVE 'DeSantis'     TO SURNAME(38).
+           MOVE 'DAngelo'      TO SURNAME(39).
+           MOVE 'Marchetti'    TO SURNAME(40).
+           MOVE 'Parisi'       TO SURNAME(41).
+           MOVE 'Villa'        TO SURNAME(42).
+           MOVE 'Conte'        TO SURNAME(43).
+           MOVE 'Ferraro'      TO SURNAME(44).
+           MOVE 'Ferri'        TO SURNAME(45).
+           MOVE 'Fabbri'       TO SURNAME(46).
+           MOVE 'Bianco'       TO SURNAME(47).
+           MOVE 'Marini'       TO SURNAME(48).
+           MOVE 'Grasso'       TO SURNAME(49).
+           MOVE 'Valentini'    TO SURNAME(50).
 
            MOVE 26 TO STREET-NAME-T-CNT.
            MOVE 19 TO STREET-NAME-R-CNT.
 
-           MOVE 'Acacia' to    STREET-NAME-TREE(1).
-           MOVE 'Birch' to     STREET-NAME-TREE(2).
-           MOVE 'Cypress' to   STREET-NAME-TREE(3).
-           MOVE 'Douglas' to   STREET-NAME-TREE(4).
-           MOVE 'Elm' to       STREET-NAME-TREE(5).
-           MOVE 'Fir' to       STREET-NAME-TREE(6).
-           MOVE 'Gorse' to     STREET-NAME-TREE(7).
-           MOVE 'Holly' to     STREET-NAME-TREE(8).
-           MOVE 'Ironwood' to  STREET-NAME-TREE(9).
-           MOVE 'Joshua' to    STREET-NAME-TREE(10).
-           MOVE 'Kapok' to     STREET-NAME-TREE(11).
-           MOVE 'Laburnam' to  STREET-NAME-TREE(12).
-           MOVE 'Maple' to     STREET-NAME-TREE(13).
-           MOVE 'Nutmeg' to    STREET-NAME-TREE(14).
-           MOVE 'Oak' to       STREET-NAME-TREE(15).
-           MOVE 'Pine' to      STREET-NAME-TREE(16).
-           MOVE 'Quercine' to  STREET-NAME-TREE(17).
-           MOVE 'Rowan' to     STREET-NAME-TREE(18).
-           MOVE 'Sycamore' to  STREET-NAME-TREE(19).
-           MOVE 'Thorn' to     STREET-NAME-TREE(20).
-           MOVE 'Ulmus' to     STREET-NAME-TREE(21).
-           MOVE 'Viburnum' to  STREET-NAME-TREE(22).
-           MOVE 'Willow' to    STREET-NAME-TREE(23).
-           MOVE 'Xylophone' to STREET-NAME-TREE(24).
-           MOVE 'Yew' to       STREET-NAME-TREE(25).
-           MOVE 'Zebratree' to STREET-NAME-TREE(26).
+           MOVE 'Via'    to    STREET-NAME-TREE(1).
+           MOVE 'Viale' to     STREET-NAME-TREE(2).
+           MOVE 'Corso'   to   STREET-NAME-TREE(3).
+           MOVE 'Piazza'  to   STREET-NAME-TREE(4).
+           MOVE 'Via' to       STREET-NAME-TREE(5).
+           MOVE 'Largo' to       STREET-NAME-TREE(6).
+           MOVE 'Via'   to     STREET-NAME-TREE(7).
+           MOVE 'Viale' to     STREET-NAME-TREE(8).
+           MOVE 'Via'      to  STREET-NAME-TREE(9).
+           MOVE 'Corso'  to    STREET-NAME-TREE(10).
+           MOVE 'Via'   to     STREET-NAME-TREE(11).
+           MOVE 'Piazza'   to  STREET-NAME-TREE(12).
+           MOVE 'Via'   to     STREET-NAME-TREE(13).
+           MOVE 'Viale'  to    STREET-NAME-TREE(14).
+           MOVE 'Via' to       STREET-NAME-TREE(15).
+           MOVE 'Vicolo' to      STREET-NAME-TREE(16).
+           MOVE 'Via'      to  STREET-NAME-TREE(17).
+           MOVE 'Corso' to     STREET-NAME-TREE(18).
+           MOVE 'Via'      to  STREET-NAME-TREE(19).
+           MOVE 'Viale' to     STREET-NAME-TREE(20).
+           MOVE 'Via'   to     STREET-NAME-TREE(21).
+           MOVE 'Piazza'   to  STREET-NAME-TREE(22).
+           MOVE 'Via'    to    STREET-NAME-TREE(23).
+           MOVE 'Viale'     to STREET-NAME-TREE(24).
+           MOVE 'Via' to       STREET-NAME-TREE(25).
+           MOVE 'Corso'     to STREET-NAME-TREE(26).
 
 
-           MOVE 'Avenue' to    STREET-NAME-ROAD(1).
-           MOVE 'Boulevard' to STREET-NAME-ROAD(2).
-           MOVE 'Close' to     STREET-NAME-ROAD(3).
-           MOVE 'Crescent' to  STREET-NAME-ROAD(4).
-           MOVE 'Drive' to     STREET-NAME-ROAD(5).
-           MOVE 'Escalade' to  STREET-NAME-ROAD(6).
-           MOVE 'Frontage' to  STREET-NAME-ROAD(7).
-           MOVE 'Lane' to      STREET-NAME-ROAD(8).
-           MOVE 'Mews' to      STREET-NAME-ROAD(9).
-           MOVE 'Rise' to      STREET-NAME-ROAD(10).
-           MOVE 'Court' to     STREET-NAME-ROAD(11).
-           MOVE 'Opening' to   STREET-NAME-ROAD(12).
-           MOVE 'Loke' to      STREET-NAME-ROAD(13).
-           MOVE 'Square' to    STREET-NAME-ROAD(14).
-           MOVE 'Houses' to    STREET-NAME-ROAD(15).
-           MOVE 'Gate' to      STREET-NAME-ROAD(16).
-           MOVE 'Street' to    STREET-NAME-ROAD(17).
-           MOVE 'Grove' to     STREET-NAME-ROAD(18).
-           MOVE 'March' to     STREET-NAME-ROAD(19).
+           MOVE 'Garibaldi' to    STREET-NAME-ROAD(1).
+           MOVE 'Mazzini'   to STREET-NAME-ROAD(2).
+           MOVE 'Cavour' to     STREET-NAME-ROAD(3).
+           MOVE 'Dante'    to  STREET-NAME-ROAD(4).
+           MOVE 'Verdi' to     STREET-NAME-ROAD(5).
+           MOVE 'Roma'     to  STREET-NAME-ROAD(6).
+           MOVE 'Marconi'  to  STREET-NAME-ROAD(7).
+           MOVE 'Matteotti' to      STREET-NAME-ROAD(8).
+           MOVE 'Gramsci' to      STREET-NAME-ROAD(9).
+           MOVE 'Leopardi' to      STREET-NAME-ROAD(10).
+           MOVE 'Manzoni' to     STREET-NAME-ROAD(11).
+           MOVE 'Puccini' to   STREET-NAME-ROAD(12).
+           MOVE 'Petrarca' to      STREET-NAME-ROAD(13).
+           MOVE 'Volta'  to    STREET-NAME-ROAD(14).
+           MOVE 'Galilei' to    STREET-NAME-ROAD(15).
+           MOVE 'Fermi' to      STREET-NAME-ROAD(16).
+           MOVE 'Carducci' to    STREET-NAME-ROAD(17).
+           MOVE 'Pascoli' to     STREET-NAME-ROAD(18).
+           MOVE 'Medici' to     STREET-NAME-ROAD(19).
 
            MOVE 50 TO TOWN-COUNT.
 
-           MOVE 'Norwich'      TO TOWN(01).
-           MOVE 'Acle   '      TO TOWN(02).
-           MOVE 'Aylsham'      TO TOWN(03).
-           MOVE 'Wymondham'    TO TOWN(04).
-           MOVE 'Attleborough' TO TOWN(05).
-           MOVE 'Cromer '      TO TOWN(06).
-           MOVE 'Cambridge'    TO TOWN(07).
-           MOVE 'Peterborough' TO TOWN(08).
-           MOVE 'Weobley'      TO TOWN(09).
-           MOVE 'Wembley'      TO TOWN(10).
-           MOVE 'Hereford'     TO TOWN(11).
-           MOVE 'Ross-on-Wye'  TO TOWN(12).
-           MOVE 'Hay-on-Wye'   TO TOWN(13).
-           MOVE 'Nottingham'   TO TOWN(14).
-           MOVE 'Northampton'  TO TOWN(15).
-           MOVE 'Nuneaton'     TO TOWN(16).
-           MOVE 'Oxford'       TO TOWN(17).
-           MOVE 'Oswestry'     TO TOWN(18).
-           MOVE 'Ormskirk'     TO TOWN(19).
-           MOVE 'Royston'      TO TOWN(20).
-           MOVE 'Chilcomb'     TO TOWN(21).
-           MOVE 'Winchester'   TO TOWN(22).
-           MOVE 'Wrexham'      TO TOWN(23).
-           MOVE 'Crewe  '      TO TOWN(24).
-           MOVE 'Plymouth'     TO TOWN(25).
-           MOVE 'Portsmouth'   TO TOWN(26).
-           MOVE 'Forfar '      TO TOWN(27).
-           MOVE 'Fife   '      TO TOWN(28).
-           MOVE 'Aberdeen'     TO TOWN(29).
-           MOVE 'Glasgow'      TO TOWN(30).
-           MOVE 'Birmingham'   TO TOWN(31).
-           MOVE 'Bolton'       TO TOWN(32).
-           MOVE 'Whitby '      TO TOWN(33).
-           MOVE 'Manchester'   TO TOWN(34).
-           MOVE 'Chester '     TO TOWN(35).
-           MOVE 'Leicester'    TO TOWN(36).
-           MOVE 'Lowestoft'    TO TOWN(37).
-           MOVE 'Ipswich'      TO TOWN(38).
-           MOVE 'Colchester'   TO TOWN(39).
-           MOVE 'Dover  '      TO TOWN(40).
-           MOVE 'Brighton'     TO TOWN(41).
-           MOVE 'Salisbury'    TO TOWN(42).
-           MOVE 'Bristol'      TO TOWN(43).
-           MOVE 'Bath   '      TO TOWN(44).
-           MOVE 'Gloucester'   TO TOWN(45).
-           MOVE 'Cheltenham'   TO TOWN(46).
-           MOVE 'Durham '      TO TOWN(47).
-           MOVE 'Carlisle'     TO TOWN(48).
-           MOVE 'York   '      TO TOWN(49).
-           MOVE 'Exeter '      TO TOWN(50).
+           MOVE 'Firenze'      TO TOWN(01).
+           MOVE 'Roma'         TO TOWN(02).
+           MOVE 'Milano'       TO TOWN(03).
+           MOVE 'Napoli'       TO TOWN(04).
+           MOVE 'Torino'       TO TOWN(05).
+           MOVE 'Bologna'      TO TOWN(06).
+           MOVE 'Genova'       TO TOWN(07).
+           MOVE 'Venezia'      TO TOWN(08).
+           MOVE 'Verona'       TO TOWN(09).
+           MOVE 'Pisa'         TO TOWN(10).
+           MOVE 'Siena'        TO TOWN(11).
+           MOVE 'Lucca'        TO TOWN(12).
+           MOVE 'Prato'        TO TOWN(13).
+           MOVE 'Livorno'      TO TOWN(14).
+           MOVE 'Arezzo'       TO TOWN(15).
+           MOVE 'Perugia'      TO TOWN(16).
+           MOVE 'Ancona'       TO TOWN(17).
+           MOVE 'Pescara'      TO TOWN(18).
+           MOVE 'Bari'         TO TOWN(19).
+           MOVE 'Lecce'        TO TOWN(20).
+           MOVE 'Palermo'      TO TOWN(21).
+           MOVE 'Catania'      TO TOWN(22).
+           MOVE 'Cagliari'     TO TOWN(23).
+           MOVE 'Sassari'      TO TOWN(24).
+           MOVE 'Trieste'      TO TOWN(25).
+           MOVE 'Udine'        TO TOWN(26).
+           MOVE 'Padova'       TO TOWN(27).
+           MOVE 'Vicenza'      TO TOWN(28).
+           MOVE 'Treviso'      TO TOWN(29).
+           MOVE 'Trento'       TO TOWN(30).
+           MOVE 'Bolzano'      TO TOWN(31).
+           MOVE 'Brescia'      TO TOWN(32).
+           MOVE 'Bergamo'      TO TOWN(33).
+           MOVE 'Como'         TO TOWN(34).
+           MOVE 'Monza'        TO TOWN(35).
+           MOVE 'Pavia'        TO TOWN(36).
+           MOVE 'Parma'        TO TOWN(37).
+           MOVE 'Modena'       TO TOWN(38).
+           MOVE 'Reggio'       TO TOWN(39).
+           MOVE 'Ravenna'      TO TOWN(40).
+           MOVE 'Rimini'       TO TOWN(41).
+           MOVE 'Ferrara'      TO TOWN(42).
+           MOVE 'Piacenza'     TO TOWN(43).
+           MOVE 'Mantova'      TO TOWN(44).
+           MOVE 'Cremona'      TO TOWN(45).
+           MOVE 'Novara'       TO TOWN(46).
+           MOVE 'Asti'         TO TOWN(47).
+           MOVE 'Cuneo'        TO TOWN(48).
+           MOVE 'Salerno'      TO TOWN(49).
+           MOVE 'Messina'      TO TOWN(50).
 
 
            MOVE 5 TO ACCOUNT-TYPES-COUNT.
 
-           MOVE 'ISA     ' TO WS-ACCOUNT-TYPE(1).
-           MOVE 'SAVING  ' TO WS-ACCOUNT-TYPE(2).
-           MOVE 'CURRENT ' TO WS-ACCOUNT-TYPE(3).
-           MOVE 'LOAN    ' TO WS-ACCOUNT-TYPE(4).
-           MOVE 'MORTGAGE' TO WS-ACCOUNT-TYPE(5).
+           MOVE 'OTC     ' TO WS-ACCOUNT-TYPE(1).
+           MOVE 'EXPORT  ' TO WS-ACCOUNT-TYPE(2).
+           MOVE 'RX      ' TO WS-ACCOUNT-TYPE(3).
+           MOVE 'TENDER  ' TO WS-ACCOUNT-TYPE(4).
+           MOVE 'HOSPITAL' TO WS-ACCOUNT-TYPE(5).
 
 
            MOVE 5 TO ACCOUNT-INT-RATES-COUNT.

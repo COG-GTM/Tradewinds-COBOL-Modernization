@@ -54,7 +54,7 @@ const AdminPage = () => {
           <BreadcrumbItem>Control Panel</BreadcrumbItem>
         </Breadcrumb>
         <h1 className="landing-page__heading">
-          Welcome to CICS Banking Sample Application
+          Welcome to Menarini Pharma Trade Desk
         </h1>
       </Column>
       <Column lg={16} md={8} sm={4} className="landing-page__r2">

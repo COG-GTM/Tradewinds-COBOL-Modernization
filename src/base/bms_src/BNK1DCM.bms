@@ -26,9 +26,8 @@ BNK1DC   DFHMDI SIZE=(24,80),                                          *
                COLUMN=1,LINE=1
          DFHMDF POS=(1,1),LENGTH=7,INITIAL='BNK1DC ',                  *
                ATTRB=(NORM,PROT),COLOR=BLUE
-COMPANY  DFHMDF POS=(1,16),LENGTH=55,ATTRB=(NORM,PROT),COLOR=RED,      *
-               INITIAL='CICS Banking Sample Application - Display Custo*
-               mer.'
+COMPANY  DFHMDF POS=(1,19),LENGTH=43,ATTRB=(NORM,PROT),COLOR=RED,      *
+               INITIAL='Pharma Trade Desk - Display Trade Customer.'
 ***********************************************************************
          DFHMDF POS=(3,1),LENGTH=44,ATTRB=(ASKIP,PROT),COLOR=TURQUOISE,*
                INITIAL='Provide a CUSTOMER number. Then press Enter.'
@@ -38,7 +37,7 @@ CUSTNO   DFHMDF POS=(5,17),LENGTH=10,ATTRB=(NORM,IC),COLOR=GREEN,      *
                HILIGHT=UNDERLINE
          DFHMDF POS=(5,28),LENGTH=1,ATTRB=(ASKIP,PROT)
          DFHMDF POS=(7,1),LENGTH=16,ATTRB=(ASKIP,PROT),                *
-               COLOR=NEUTRAL,INITIAL='Sort Code       '
+               COLOR=NEUTRAL,INITIAL='Depot Code      '
 SORTC    DFHMDF POS=(7,18),LENGTH=6,ATTRB=(NORM,PROT,FSET,ASKIP),      *
                COLOR=NEUTRAL
          DFHMDF POS=(8,1),LENGTH=16,ATTRB=(NORM,PROT,ASKIP),           *
@@ -70,7 +69,7 @@ CUSTAD3  DFHMDF POS=(12,18),LENGTH=40,ATTRB=(NORM,PROT,FSET,ASKIP),    *
          DFHMDF POS=(12,59),LENGTH=0,ATTRB=(NORM,PROT,ASKIP),          *
                COLOR=NEUTRAL
          DFHMDF POS=(13,1),LENGTH=16,ATTRB=(NORM,PROT,ASKIP),          *
-               COLOR=NEUTRAL,INITIAL='Customer D.O.B.'
+               COLOR=NEUTRAL,INITIAL='Licence Date   '
 DOBDD    DFHMDF POS=(13,18),LENGTH=2,ATTRB=(NORM,PROT,FSET,ASKIP),     *
                COLOR=NEUTRAL
          DFHMDF POS=(13,21),LENGTH=1,ATTRB=(NORM,PROT,ASKIP),          *
@@ -82,11 +81,11 @@ DOBMM    DFHMDF POS=(13,23),LENGTH=2,ATTRB=(NORM,PROT,FSET,ASKIP),     *
 DOBYY    DFHMDF POS=(13,28),LENGTH=4,ATTRB=(NORM,PROT,FSET,ASKIP),     *
                COLOR=NEUTRAL
          DFHMDF POS=(14,1),LENGTH=17,ATTRB=(NORM,PROT),                *
-               COLOR=NEUTRAL,INITIAL='Credit Score    '
+               COLOR=NEUTRAL,INITIAL='Credit Rating   '
 CREDSC   DFHMDF POS=(14,18),LENGTH=3,ATTRB=(NORM,PROT,FSET,ASKIP),     *
                COLOR=NEUTRAL
          DFHMDF POS=(15,1),LENGTH=17,ATTRB=(NORM,PROT),                *
-               COLOR=NEUTRAL,INITIAL='CS Review Date  '
+               COLOR=NEUTRAL,INITIAL='CR Review Date  '
 SCRDTDD  DFHMDF POS=(15,18),LENGTH=2,ATTRB=(NORM,PROT,FSET,ASKIP),     *
                COLOR=NEUTRAL
          DFHMDF POS=(15,21),LENGTH=1,ATTRB=(NORM,PROT,ASKIP),          *

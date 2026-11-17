@@ -16,3 +16,4 @@ src/*.irx
 **/target
 src/webui/WebContent/static
 src/bank-application-frontend/.whitesource
+bms_preview.html

@@ -802,7 +802,7 @@
            IF INQCUST-SCODE = '000000'
               MOVE 'N' TO VALID-DATA-SW
               MOVE SPACES TO MESSAGEO
-              STRING 'The Sort code / Customer number combination is'
+              STRING 'The Depot code / Customer number combination is'
                   DELIMITED BY SIZE,
                   ' not VALID.' DELIMITED BY SIZE
                   INTO MESSAGEO

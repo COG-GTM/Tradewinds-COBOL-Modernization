@@ -71,7 +71,7 @@ const CustomerCreationPage = () => {
 
   function checkDOB() {
     /**
-     * The date of birth has been reformatted at this point!
+     * The licence date has been reformatted at this point!
       We want two numerics
       then a dash
       then two numerics
@@ -133,7 +133,7 @@ const CustomerCreationPage = () => {
       createCustomer();
     }
     else {
-      alert("Date of Birth is not 10 characters. dd-mm-yyyy please");
+      alert("Licence Date is not 10 characters. dd-mm-yyyy please");
     }
   }
 
@@ -195,7 +195,7 @@ const CustomerCreationPage = () => {
                     <DatePicker datePickerType="simple" dateFormat="d-m-Y" onChange={handleDOBChange} maxCount="10" enableCounter="true" invalidText="Fix this" invalid={!checkDOB()} onClose={handleDOBChange}>
                       <DatePickerInput
                         placeholder="dd-mm-yyyy"
-                        labelText="Date of Birth"
+                        labelText="Licence Date"
                         id="date_of_birth"
                         maxCount="10"
                         invalidText="This is incorrect"

@@ -508,15 +508,15 @@
       *
       *    Perform more validation
       *
-           IF ACTYPEI NOT = 'CURRENT ' AND
-           ACTYPEI NOT = 'SAVING  ' AND
-           ACTYPEI NOT = 'LOAN    ' AND
-           ACTYPEI NOT = 'MORTGAGE' AND
-           ACTYPEI NOT = 'ISA     '
+           IF ACTYPEI NOT = 'RX      ' AND
+           ACTYPEI NOT = 'EXPORT  ' AND
+           ACTYPEI NOT = 'TENDER  ' AND
+           ACTYPEI NOT = 'HOSPITAL' AND
+           ACTYPEI NOT = 'OTC     '
 
               MOVE SPACES TO MESSAGEO
-              STRING 'Account Type must be CURRENT, SAVING, LOAN, '
-                 'MORTGAGE or ISA' DELIMITED BY SIZE,
+              STRING 'Account Type must be RX, OTC, EXPORT, '
+                 'TENDER or HOSPITAL' DELIMITED BY SIZE,
                  '. Then press PF5.' DELIMITED BY SIZE
               INTO MESSAGEO
               MOVE -1 to ACTYPEL
@@ -525,7 +525,7 @@
 
            IF INTRTL = ZERO
               MOVE SPACES TO MESSAGEO
-              STRING 'Please supply a numeric interest rate '
+              STRING 'Please supply a numeric discount % '
                  'then press PF5.' DELIMITED BY SIZE
                  INTO MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
@@ -562,7 +562,7 @@
       *
               IF WS-NUM-COUNT-TOTAL < INTRTL
                  MOVE SPACES TO MESSAGEO
-                 STRING 'Please supply a numeric interest rate'
+                 STRING 'Please supply a numeric discount %'
                       DELIMITED BY SIZE,
                  INTO MESSAGEO
                  MOVE 'N' TO VALID-DATA-SW
@@ -578,7 +578,7 @@
                  WS-NUM-COUNT-POINT FOR ALL '.'
 
               IF WS-NUM-COUNT-POINT > 1
-                 STRING 'Use one decimal point for interest rate '
+                 STRING 'Use one decimal point for discount % '
                     DELIMITED BY SIZE,
                     'only' DELIMITED BY SIZE,
                  INTO MESSAGEO
@@ -645,7 +645,7 @@
 
            IF INTRTI-COMP-1 < 0
               MOVE SPACES TO MESSAGEO
-              STRING 'Please supply a zero or positive interest rate'
+              STRING 'Please supply a zero or positive discount %'
                  DELIMITED BY SIZE,
                  INTO MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
@@ -655,7 +655,7 @@
 
            IF INTRTI-COMP-1 > 9999.99
               MOVE SPACES TO MESSAGEO
-              STRING 'Please supply an interest rate less than '
+              STRING 'Please supply an discount % less than '
                      DELIMITED BY SIZE,
                      '9999.99%' DELIMITED BY SIZE
               INTO MESSAGEO
@@ -664,11 +664,11 @@
               GO TO VD999
            END-IF.
 
-           IF (ACTYPEI = 'LOAN    ' AND INTRTI = '0000.00') OR
-           (ACTYPEI = 'MORTGAGE' AND INTRTI = '0000.00')
+           IF (ACTYPEI = 'TENDER  ' AND INTRTI = '0000.00') OR
+           (ACTYPEI = 'HOSPITAL' AND INTRTI = '0000.00')
               MOVE SPACES TO MESSAGEO
               STRING
-              'Interest rate cannot be 0 with this account type.'
+              'Discount % cannot be 0 with this account type.'
               ' Correct and press PF5.' delimited by size into
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
@@ -677,7 +677,7 @@
            END-IF.
 
            IF(OVERDRL = ZERO OR OVERDRI(1:OVERDRL) IS NOT NUMERIC)
-               MOVE 'Overdraft must be numeric. Correct and press PF5.'
+               MOVE 'Credit limit not numeric. Correct and press PF5.'
                   TO MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1  TO OVERDRL
