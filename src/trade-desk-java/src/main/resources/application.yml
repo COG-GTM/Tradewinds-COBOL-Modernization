@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: trade-desk-java
+  datasource:
+    url: ${BANK_DB_URL:jdbc:db2://localhost:50000/CBSA}
+    username: ${BANK_DB_USERNAME:}
+    password: ${BANK_DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+
+# Replaces the SORTCODE copybook (src/base/cobol_copy/SORTCODE.cpy):
+#   77 SORTCODE PIC 9(6) VALUE 987654.
+bank:
+  sortcode: ${BANK_SORTCODE:987654}
