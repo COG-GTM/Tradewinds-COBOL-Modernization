@@ -43,6 +43,7 @@ class DbcrfunControllerTest {
         ResponseEntity<Map> response = http.postForEntity("/api/dbcrfun", body, Map.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getCacheControl()).isEqualTo("no-store");
         assertThat(response.getBody())
                 .containsEntry("success", "Y")
                 .containsEntry("failCode", "0")

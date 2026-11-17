@@ -81,7 +81,7 @@ public class DbcrfunService {
         try {
             found = accountRepository.findById(new AccountId(sortcode, accNo));
         } catch (DataAccessException e) {
-            LOG.error("DBCRFUN: SELECT from ACCOUNT failed for {}/{}", sortcode, accNo, e);
+            LOG.error("DBCRFUN: SELECT from ACCOUNT failed", e);
             checkForStormDrain(e);
             requestRollback();
             return failure(sortcode, FAIL_DATASTORE);
@@ -91,6 +91,12 @@ public class DbcrfunService {
             return failure(sortcode, FAIL_NOT_FOUND);
         }
         Account account = found.get();
+        if (account.getAvailableBalance() == null || account.getActualBalance() == null) {
+            // No null indicators on the SELECT: DB2 returns SQLCODE -305 for a NULL balance (L286).
+            LOG.error("DBCRFUN: SELECT from ACCOUNT returned a NULL balance");
+            requestRollback();
+            return failure(sortcode, FAIL_DATASTORE);
+        }
 
         // L307: IF COMM-AMT < 0 (zero is handled as a credit).
         if (amt.signum() < 0) {
@@ -120,7 +126,7 @@ public class DbcrfunService {
         try {
             accountRepository.saveAndFlush(account);
         } catch (DataAccessException e) {
-            LOG.error("DBCRFUN: UPDATE of ACCOUNT failed for {}/{}", sortcode, accNo, e);
+            LOG.error("DBCRFUN: UPDATE of ACCOUNT failed", e);
             checkForStormDrain(e);
             requestRollback();
             return new DbcrfunResponse(SUCCESS_NO, FAIL_DATASTORE, sortcode, newAvailable, newActual);
@@ -130,7 +136,7 @@ public class DbcrfunService {
         try {
             writeToProctranDb2(sortcode, accNo, amt, origin);
         } catch (ProctranWriteException e) {
-            LOG.error("DBCRFUN: UNABLE TO WRITE TO PROCTRAN DB2 DATASTORE for {}/{}", sortcode, accNo, e);
+            LOG.error("DBCRFUN: UNABLE TO WRITE TO PROCTRAN DB2 DATASTORE", e);
             // L564: EXEC CICS SYNCPOINT ROLLBACK undoes the ACCOUNT update. The method still has to
             // return the COMMAREA, so instead of letting the exception escape the @Transactional
             // boundary the transaction is marked rollback-only and rolled back on return.

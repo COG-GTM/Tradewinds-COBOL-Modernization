@@ -54,6 +54,19 @@ class DbcrfunServiceMockTest {
     }
 
     @Test
+    void nullBalanceReturnsFailCode2LikeSqlcode305() {
+        Account account = account("CURRENT", "100.00");
+        account.setAvailableBalance(null);
+        when(accountRepository.findById(any())).thenReturn(Optional.of(account));
+
+        DbcrfunResponse response = service.applyTransaction(request("10.00", 0));
+
+        assertThat(response.success()).isEqualTo("N");
+        assertThat(response.failCode()).isEqualTo("2");
+        verify(accountRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
     void stormDrainMatchesSqlcode923AndSqlstate08Only() {
         assertThat(DbcrfunService.isConnectionLost(
                 new UncategorizedSQLException("select", "sql", new SQLException("lost", "57000", -923)))).isTrue();

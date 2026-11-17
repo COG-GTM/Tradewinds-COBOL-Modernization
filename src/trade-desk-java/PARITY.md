@@ -34,6 +34,7 @@ COMMAREA and the caller can read it.
 | 1 | L245-297, L283-284 | SELECT returns SQLCODE +100 → `N`/`1` | `findById` empty | `DbcrfunServiceTest.accountNotFoundReturnsFailCode1` |
 | 2 | L279-297, L286 | Other SELECT error → `N`/`2` | `catch (DataAccessException)` on lookup | `DbcrfunServiceTest.selectErrorReturnsFailCode2`, `DbcrfunServiceMockTest.selectConnectionLossReturnsFailCode2AndIsAStormDrainCondition` |
 | 2a | L293, L668-692 (`WHEN 923`) | Storm-drain warning on connection loss | `checkForStormDrain` / `isConnectionLost` (SQLCODE 923 or SQLSTATE class `08`) | `DbcrfunServiceMockTest.stormDrainMatchesSqlcode923AndSqlstate08Only` |
+| 2b | L245-286 (no null indicators) | NULL balance → SQLCODE -305 → `N`/`2` | null check after lookup | `DbcrfunServiceMockTest.nullBalanceReturnsFailCode2LikeSqlcode305` |
 | 3 | L307, L330-338 | Debit + facilType 496 + type `HOSPITAL`/`TENDER  ` → `N`/`4` | `amt < 0` block, `isRestrictedPayment` | `DbcrfunServiceTest.paymentDebitFromHospitalOrTenderAccountReturnsFailCode4` (HOSPITAL and TENDER) |
 | 4 | L340-350 | Debit + facilType 496 + `avail + amt < 0` → `N`/`3` | `amt < 0` block | `DbcrfunServiceTest.paymentDebitWithInsufficientFundsReturnsFailCode3` |
 | 5 | L344 (facilType ≠ 496) | Teller debit may overdraw | same block, condition false | `DbcrfunServiceTest.tellerDebitWithInsufficientFundsSucceedsAsOverdraft` |
@@ -63,6 +64,9 @@ COMMAREA and the caller can read it.
 - **Abend handling (L700-830, `AD2Z`, `AFCR`/`AFCS`/`AFCT`, `HROL`, `EXEC CICS LINK ABNDPROC`)**: CICS-specific. Unexpected exceptions propagate and Spring rolls the transaction back.
 - **Storm drain**: logged as a `WARN`. There is no CICS storm-drain state to set.
 - **`PROCTRAN_DATE` column type**: the DB2 DDL (`etc/install/base/db2jcl/INSTDB2.jcl`) declares `DATE`, but DBCRFUN binds a `PIC X(10)` host variable holding `DD.MM.YYYY`. `ProcTran.date` is a `String` with that format, and the H2 test schema uses `CHAR(10)`.
+- **Row lock**: `AccountRepository.findById` uses `PESSIMISTIC_WRITE` (`SELECT ... FOR UPDATE`). DBCRFUN does a plain SELECT followed by an absolute UPDATE, so two concurrent postings to one account can overwrite each other's balance change. The outputs stay the same.
+- **Logs**: error logs do not include the account number. The COBOL DISPLAYs do not include it either.
+- **HTTP**: responses carry `Cache-Control: no-store` because they contain balances.
 - **PROCTRAN key**: the legacy table has no primary key. `ProcTranId` (sortcode, number, date, time, ref) is only a JPA identity.
 
 ## `mvn test` results
@@ -70,13 +74,13 @@ COMMAREA and the caller can read it.
 Run in `src/trade-desk-java` with `mvn -B test` (Maven 3.9.9):
 
 ```
-[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.535 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.264 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceMockTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.058 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunControllerTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.tradewinds.tradedesk.config.CobolTextTest
-[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.784 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.275 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunServiceMockTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.050 s -- in com.tradewinds.tradedesk.dbcrfun.DbcrfunControllerTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in com.tradewinds.tradedesk.config.CobolTextTest
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
-[INFO] Total time:  5.521 s
+[INFO] Total time:  5.580 s
 ```
 
 The ERROR log lines in the full output are expected: some tests rename `ACCOUNT` or `PROCTRAN` on
