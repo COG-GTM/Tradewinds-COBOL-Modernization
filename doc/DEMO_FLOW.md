@@ -23,8 +23,12 @@ overdraft = credit limit, interest = trade discount, sort code = depot code).
    mkdir -p /tmp/site && rm -rf /tmp/site/webui-1.0 && cp -r build /tmp/site/webui-1.0
    python3 -m http.server 3000 -d /tmp/site            # http://localhost:3000/webui-1.0/
    ```
-3. Optional: the Spring Boot UIs (`src/Z-OS-Connect-Customer-Services-Interface`, `src/Z-OS-Connect-Payment-Interface`)
-   start with `mvn spring-boot:run` on port 19080 and show the same pharma forms.
+3. Optional: the Spring Boot Customer Services UI shows the same pharma forms on port 19080 (stop the payment UI first, they share the port):
+   ```sh
+   cd src/Z-OS-Connect-Customer-Services-Interface && mvn -q package -DskipTests
+   java -DCBSA_ZOSCONN_HOST=localhost -DCBSA_ZOSCONN_PORT=30701 -jar target/customerservices-1.0.war
+   # http://localhost:19080/customerservices-1.0/
+   ```
 4. Open the repo's DeepWiki and a fresh Devin session so the live steps start instantly.
 
 ## Act 1: the "before" (5 min)
