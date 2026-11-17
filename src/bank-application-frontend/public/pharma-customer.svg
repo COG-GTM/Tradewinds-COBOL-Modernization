@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" role="img" aria-label="Trade customer: a pharmacy storefront">
+  <rect width="800" height="340" fill="#defbe6"/>
+  <circle cx="120" cy="60" r="110" fill="#a7f0ba"/>
+  <rect x="220" y="110" width="360" height="200" fill="#fff" stroke="#161616" stroke-width="3"/>
+  <path d="M200 110h400l-20-50H220z" fill="#24a148" stroke="#161616" stroke-width="3"/>
+  <g fill="#fff"><path d="M240 110v-50M280 110v-50M320 110v-50M360 110v-50M400 110v-50M440 110v-50M480 110v-50M520 110v-50M560 110v-50" stroke="#198038" stroke-width="10"/></g>
+  <text x="400" y="150" text-anchor="middle" font-family="IBM Plex Sans, Arial, sans-serif" font-size="28" font-weight="600" fill="#161616">FARMACIA</text>
+  <rect x="250" y="180" width="110" height="130" fill="#d0e2ff" stroke="#161616" stroke-width="3"/>
+  <rect x="440" y="180" width="110" height="80" fill="#d0e2ff" stroke="#161616" stroke-width="3"/>
+  <g transform="translate(640 150)"><rect x="-18" y="-50" width="36" height="100" fill="#24a148"/><rect x="-50" y="-18" width="100" height="36" fill="#24a148"/></g>
+  <rect x="0" y="310" width="800" height="30" fill="#8d8d8d"/>
+</svg>

@@ -180,8 +180,8 @@ const CustomerDeletePage = () => {
                   <div className="right-part">
                     <img
                       className="bee"
-                      src={`${process.env.PUBLIC_URL}/Planning_Analytics-4-mobile.jpg`}
-                      alt="bee"
+                      src={`${process.env.PUBLIC_URL}/pharma-customer.svg`}
+                      alt="pharmacy illustration"
                     />
                   </div>
                 </div>

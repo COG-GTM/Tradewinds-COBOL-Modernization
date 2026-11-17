@@ -243,8 +243,8 @@ const CustomerDetailsPage = () => {
                     <img
                       className="customers"
                       width="30%"
-                      src={`${process.env.PUBLIC_URL}/Cloud_report.jpg`}
-                      alt="customer"
+                      src={`${process.env.PUBLIC_URL}/pharma-customer.svg`}
+                      alt="pharmacy illustration"
                     />
                   </div>
                 </div>
