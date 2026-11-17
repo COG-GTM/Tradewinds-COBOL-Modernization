@@ -27,9 +27,8 @@ BNK1TF   DFHMDI SIZE=(24,80),                                          *
                COLUMN=1,LINE=1
          DFHMDF POS=(1,1),LENGTH=7,INITIAL='BNK1TF ',                  *
                ATTRB=(NORM,PROT),COLOR=BLUE
-COMPANY  DFHMDF POS=(1,17),LENGTH=61,ATTRB=(NORM,PROT),COLOR=RED,      *
-               INITIAL='CICS Banking Sample Application - Transfer fund*
-               s.'
+COMPANY  DFHMDF POS=(1,23),LENGTH=36,ATTRB=(NORM,PROT),COLOR=RED,      *
+               INITIAL='Pharma Trade Desk - Transfer Credit.'
 **********************************************************************
          DFHMDF POS=(3,1),LENGTH=70,ATTRB=(NORM,PROT),COLOR=TURQUOISE, *
                INITIAL='Provide a FROM account, a TO account and an Amo*
@@ -57,27 +56,27 @@ FACCNO2  DFHMDF POS=(11,20),LENGTH=8,ATTRB=(NORM,NUM,PROT),            *
                COLOR=TURQUOISE,INITIAL='TO Account     :'
 TACCNO2  DFHMDF POS=(11,55),LENGTH=8,ATTRB=(NORM,PROT),COLOR=TURQUOISE
          DFHMDF POS=(12,1),LENGTH=16,ATTRB=(NORM,PROT),COLOR=TURQUOISE,*
-               INITIAL='Sort Code      :'
+               INITIAL='Depot Code     :'
 FSORTC   DFHMDF POS=(12,20),LENGTH=6,ATTRB=(NORM,NUM,PROT),            *
                COLOR=NEUTRAL,INITIAL='      '
          DFHMDF POS=(12,35),LENGTH=16,ATTRB=(NORM,PROT),               *
-               COLOR=TURQUOISE,INITIAL='Sort Code      :'
+               COLOR=TURQUOISE,INITIAL='Depot Code     :'
 TSORTC   DFHMDF POS=(12,55),LENGTH=6,ATTRB=(NORM,NUM,PROT),            *
                COLOR=NEUTRAL,INITIAL='      '
          DFHMDF POS=(13,1),LENGTH=16,ATTRB=(NORM,PROT),COLOR=TURQUOISE,*
-               INITIAL='Actual Balance :'
+               INITIAL='Ledger Balance :'
 FACTBAL  DFHMDF POS=(13,19),LENGTH=14,ATTRB=(NORM,PROT),               *
                COLOR=NEUTRAL
          DFHMDF POS=(13,35),LENGTH=16,ATTRB=(NORM,PROT),COLOR=TURQUOISE*
-               ,INITIAL='Actual Balance :'
+               ,INITIAL='Ledger Balance :'
 TACTBAL  DFHMDF POS=(13,54),LENGTH=14,ATTRB=(NORM,PROT),               *
                COLOR=NEUTRAL
          DFHMDF POS=(14,1),LENGTH=16,ATTRB=(NORM,PROT),COLOR=TURQUOISE,*
-               INITIAL='Avail Balance  :'
+               INITIAL='Avail Credit   :'
 FAVBAL   DFHMDF POS=(14,19),LENGTH=14,ATTRB=(NORM,PROT),               *
                COLOR=NEUTRAL
          DFHMDF POS=(14,35),LENGTH=18,ATTRB=(NORM,PROT),COLOR=TURQUOISE*
-               ,INITIAL='Avail Balance  :'
+               ,INITIAL='Avail Credit   :'
 TAVBAL   DFHMDF POS=(14,54),LENGTH=14,ATTRB=(NORM,PROT),               *
                COLOR=NEUTRAL
 ***********************************************************************

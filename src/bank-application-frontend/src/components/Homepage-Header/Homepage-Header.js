@@ -27,7 +27,7 @@ const HomepageHeader = () => {
         <Header aria-label="Carbon Tutorial">
           <SkipToContent />
           <HeaderName element={Link} to="./" prefix="IBM">
-            CICS Banking Sample Application
+            Menarini Pharma Trade Desk
           </HeaderName>
           <HeaderGlobalBar>
             <span

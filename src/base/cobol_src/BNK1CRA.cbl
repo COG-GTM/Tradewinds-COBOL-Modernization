@@ -603,8 +603,8 @@
 
                  WHEN '3'
                     MOVE SPACES TO MESSAGEO
-                    STRING 'Sorry insufficient funds available to pro'
-                           'cess the request.           '
+                    STRING 'Sorry insufficient credit available to pr'
+                           'ocess the request.          '
                            DELIMITED BY SIZE
                            INTO MESSAGEO
                     GO TO UCD999

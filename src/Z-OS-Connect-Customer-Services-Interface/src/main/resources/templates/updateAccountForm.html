@@ -51,27 +51,27 @@
                             Rate Error</td>
                     </tr>
                     <tr>
-                        <td>Interest Rate:</td>
+                        <td>Trade Discount %:</td>
                         <td><input class="bx--text-input" type="number" th:field="*{acctInterestRate}" /></td>
                         <td class="danger" th:if="${#fields.hasErrors('acctInterestRate')}"
-                            th:errors="*{acctInterestRate}">Interest Rate Error</td>
+                            th:errors="*{acctInterestRate}">Trade Discount % Error</td>
                     </tr>
                     <tr>
-                        <td>Overdraft Limit:</td>
+                        <td>Credit Limit:</td>
                         <td><input class="bx--text-input" type="number" th:field="*{acctOverdraft}" th:value="9" /></td>
                         <td class="danger" th:if="${#fields.hasErrors('acctOverdraft')}" th:errors="*{acctOverdraft}">
-                            Overdraft Limit Error</td>
+                            Credit Limit Error</td>
                     </tr>
                     <!-- These can't be updated at the moment but writing the code took effort so it's still here just in case they can be updated directly in the future -->
                     <!-- <tr>
-                    <td>Available Balance:</td>
+                    <td>Available Credit:</td>
                     <td><input class="bx--text-input" type="number" th:field="*{acctAvailableBalance}" /></td>
-                    <td class="danger" th:if="${#fields.hasErrors('acctAvailableBalance')}" th:errors="*{acctAvailableBalance}">Interest Rate Error</td>
+                    <td class="danger" th:if="${#fields.hasErrors('acctAvailableBalance')}" th:errors="*{acctAvailableBalance}">Trade Discount % Error</td>
                 </tr>
                 <tr>
-                    <td>Actual Balance:</td>
+                    <td>Ledger Balance:</td>
                     <td><input class="bx--text-input" type="number" th:field="*{acctActualBalance}" /></td>
-                    <td class="danger" th:if="${#fields.hasErrors('acctActualBalance')}" th:errors="*{acctActualBalance}">Interest Rate Error</td>
+                    <td class="danger" th:if="${#fields.hasErrors('acctActualBalance')}" th:errors="*{acctActualBalance}">Trade Discount % Error</td>
                 </tr> -->
                     <tr>
                         <td><button class="bx--btn bx--btn--primary" type="submit">Submit</button></td>

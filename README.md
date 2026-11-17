@@ -1,3 +1,8 @@
+> **Menarini Pharma Trade Desk demo fork.** This fork re-themes CBSA as a pharma distribution trade desk (pharmacies, hospitals
+> and wholesalers, trade accounts, invoices and payments) for a COBOL to Java modernization demo. It is synthetic and is not Menarini
+> code or data. See [doc/PHARMA_DOMAIN.md](doc/PHARMA_DOMAIN.md) for the glossary and [tools/bms_preview.py](tools/bms_preview.py) to
+> render the 3270 screens without CICS.
+
 # cics-banking-sample-application-cbsa
 The **C**ICS **B**ank **S**ample **A**pplication (CBSA) is an application which simulates the operation of a bank, from the point of view of the Bank Teller. CBSA has multiple uses
 here are a few examples:

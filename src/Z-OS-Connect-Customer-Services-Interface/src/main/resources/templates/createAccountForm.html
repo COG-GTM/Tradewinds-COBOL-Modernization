@@ -51,16 +51,16 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>Overdraft Limit:</td>
+                        <td>Credit Limit:</td>
                         <td><input class="bx--text-input" type="number" th:field="*{overdraftLimit}" /></td>
                         <td class="danger" th:if="${#fields.hasErrors('overdraftLimit')}" th:errors="*{overdraftLimit}">
-                            Overdraft Limit Error</td>
+                            Credit Limit Error</td>
                     </tr>
                     <tr>
-                        <td>Interest Rate:</td>
+                        <td>Trade Discount %:</td>
                         <td><input class="bx--text-input" type="number" th:field="*{interestRate}" step="0.01" /></td>
                         <td class="danger" th:if="${#fields.hasErrors('interestRate')}" th:errors="*{interestRate}">
-                            Interest Rate Error</td>
+                            Trade Discount % Error</td>
                     </tr>
                     <tr>
                         <td><button class="bx--btn bx--btn--primary" type="submit">Submit</button></td>

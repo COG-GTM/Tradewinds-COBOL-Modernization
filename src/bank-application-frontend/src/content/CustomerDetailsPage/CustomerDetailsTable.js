@@ -36,7 +36,7 @@ const headers = [
   },
   {
     key: "sortCode",
-    header: "Sort Code",
+    header: "Depot Code",
   },
   {
     key: "customerName",
@@ -48,11 +48,11 @@ const headers = [
   },
   {
     key: "formattedDOB",
-    header: "Date of Birth",
+    header: "Licence Date",
   },
   {
     key: "creditScore",
-    header: "Credit Score",
+    header: "Credit Rating",
   },
   {
     key: "formattedReviewDate",
@@ -65,12 +65,12 @@ const headers = [
  */
 const account_headers = [
   "Account Number",
-  "Sort Code",
+  "Depot Code",
   "Account Type",
-  "Interest Rate",
-  "Overdraft Limit",
-  "Available Balance",
-  "Actual Balance",
+  "Trade Discount %",
+  "Credit Limit",
+  "Available Credit",
+  "Ledger Balance",
   "Account Opened",
   "Last Statement Due",
 ];
@@ -301,8 +301,8 @@ let newDateOfBirth = currentDateOfBirth.substring(6,10) + "-" + currentDateOfBir
 
                       <NumberInput
                         className="sortcode-update"
-			                  iconDescription="Sort Code (cannot be changed)"
-                        label="Sort Code (cannot be changed)"
+			                  iconDescription="Depot Code (cannot be changed)"
+                        label="Depot Code (cannot be changed)"
                         min={0}
                         value={currentSortCode}
                         readOnly

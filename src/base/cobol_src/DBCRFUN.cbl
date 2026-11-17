@@ -327,9 +327,9 @@
       *       LOAN account then set an appropriate fail code (4)
       *       and finish up.
       *
-              IF (HV-ACCOUNT-ACC-TYPE = 'MORTGAGE'
+              IF (HV-ACCOUNT-ACC-TYPE = 'HOSPITAL'
               AND COMM-FACILTYPE = 496)
-              OR (HV-ACCOUNT-ACC-TYPE = 'LOAN    '
+              OR (HV-ACCOUNT-ACC-TYPE = 'TENDER  '
               AND COMM-FACILTYPE = 496)
                  MOVE 'N' TO COMM-SUCCESS
                  MOVE '4' TO COMM-FAIL-CODE
@@ -365,9 +365,9 @@
       *    account then set an appropriate fail code (4), remove
       *    the record lock and finish up.
       *
-           IF (HV-ACCOUNT-ACC-TYPE = 'MORTGAGE' AND
+           IF (HV-ACCOUNT-ACC-TYPE = 'HOSPITAL' AND
            COMM-FACILTYPE = 496)
-           OR (HV-ACCOUNT-ACC-TYPE = 'LOAN    '
+           OR (HV-ACCOUNT-ACC-TYPE = 'TENDER  '
            AND COMM-FACILTYPE = 496)
               MOVE 'N' TO COMM-SUCCESS
               MOVE '4' TO COMM-FAIL-CODE

@@ -816,7 +816,7 @@
            IF DOBDDL < 1 OR DOBDDI = '__'
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Please supply a valid Date of Birth DD' TO
+              MOVE 'Please supply a valid Licence Date DD' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBDDL
@@ -826,7 +826,7 @@
            IF DOBMML < 1 OR DOBMMI = '__'
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Please supply a valid Date of Birth MM' TO
+              MOVE 'Please supply a valid Licence Date MM' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBMML
@@ -836,7 +836,7 @@
            IF DOBYYL < 4 OR DOBYYI = '____'
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Please supply a valid Date of Birth YYYY' TO
+              MOVE 'Please supply a valid Licence Date YYYY' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBYYL
@@ -846,7 +846,7 @@
            IF DOBDDI NOT NUMERIC
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Non numeric Date of Birth DD entered      ' TO
+              MOVE 'Non numeric Licence Date DD entered      ' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBDDL
@@ -856,7 +856,7 @@
            IF DOBMMI NOT NUMERIC
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Non numeric Date of Birth MM entered      ' TO
+              MOVE 'Non numeric Licence Date MM entered      ' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBMML
@@ -866,7 +866,7 @@
            IF DOBYYI NOT NUMERIC
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Non numeric Date of Birth YYYY entered  ' TO
+              MOVE 'Non numeric Licence Date YYYY entered  ' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBYYL
@@ -878,7 +878,7 @@
            IF DOBDDI-NUM < 01 OR DOBDDI-NUM > 31
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Please supply a valid Date of Birth (DD)    ' TO
+              MOVE 'Please supply a valid Licence Date (DD)    ' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBDDL
@@ -889,7 +889,7 @@
            IF DOBMMI-NUM < 01 OR DOBMMI-NUM > 12
 
               MOVE SPACES TO MESSAGEO
-              MOVE 'Please supply a valid Date of Birth (MM)    ' TO
+              MOVE 'Please supply a valid Licence Date (MM)    ' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO DOBMML
@@ -1050,15 +1050,15 @@
               MOVE 'Sorry but unable to create Customer record '
                 TO MESSAGEO
               IF SUBPGM-FAIL-CODE = 'O'
-                MOVE 'Sorry, customer is too old. Please check D.O.B.'
+                MOVE 'Sorry, licence date is too old. Please check it.'
                   to messageo
               END-IF
               IF SUBPGM-FAIL-CODE = 'Y'
-                MOVE 'Sorry, customer D.O.B. is in the future.'
+                MOVE 'Sorry, licence date is in the future.'
                   to messageo
               END-IF
               IF SUBPGM-FAIL-CODE = 'Z'
-                MOVE 'Sorry, customer D.O.B. is invalid.'
+                MOVE 'Sorry, licence date is invalid.'
                   to messageo
               END-IF
               MOVE 'N' TO VALID-DATA-SW

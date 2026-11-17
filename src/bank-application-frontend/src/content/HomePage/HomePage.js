@@ -30,7 +30,7 @@ const HomePage = () => {
           </BreadcrumbItem>
         </Breadcrumb>
         <h1 className="landing-page__heading">
-          Welcome to CICS Banking Sample Application
+          Welcome to Menarini Pharma Trade Desk
         </h1>
       </Column>
       <Column lg={16} md={8} sm={4} className="landing-page__r2">
@@ -48,11 +48,12 @@ const HomePage = () => {
                   sm={4}
                   className="landing-page__tab-content">
                   <h2 className="landing-page__subheading">
-                    What is CICS Banking Sample Application(CBSA)?
+                    What is the Menarini Pharma Trade Desk?
                   </h2>
                   <p className="landing-page__p">
-                    CICS Banking Sample Application is an Open Source offering developed by the CICS Transaction Server
-                    CiP team. Any Open Source consumed can be found in the Notices.
+                    The Pharma Trade Desk is a synthetic demo of a pharma distribution back office: trade customers (pharmacies,
+                    hospitals, wholesalers), trade accounts, invoices and payments. It is built on the open-source IBM CICS Bank
+                    Sample Application (CBSA) and is not Menarini code or data.
                   </p>
 
 <p className="landing-page__p">
@@ -67,7 +68,7 @@ This will take you to the main part of the application.
                   <img
                     className="landing-page__illo"
                     src={`${process.env.PUBLIC_URL}/Use_cases_reduce_complexity.png`}
-                    alt="CICS Bank Sample Application"
+                    alt="Menarini Pharma Trade Desk"
                   />
                 </Column>
               </Grid>

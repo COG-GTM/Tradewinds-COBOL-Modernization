@@ -26,9 +26,8 @@ BNK1CD   DFHMDI SIZE=(24,80),                                          *
                COLUMN=1,LINE=1
          DFHMDF POS=(1,1),LENGTH=7,INITIAL='BNK1CD ',                  *
                ATTRB=(PROT,NORM),COLOR=BLUE
-COMPANY  DFHMDF POS=(1,15),LENGTH=61,ATTRB=(NORM,PROT),COLOR=RED,      *
-               INITIAL='CICS Banking Sample Application - Credit/Debit *
-               Funds.'
+COMPANY  DFHMDF POS=(1,20),LENGTH=41,ATTRB=(NORM,PROT),COLOR=RED,      *
+               INITIAL='Pharma Trade Desk - Post Payment/Invoice.'
 **********************************************************************
          DFHMDF POS=(3,1),LENGTH=61,ATTRB=(NORM,PROT),COLOR=TURQUOISE, *
                INITIAL='Provide an ACCOUNT number and an AMOUNT and the*
@@ -48,15 +47,15 @@ AMT      DFHMDF POS=(8,37),LENGTH=13,ATTRB=(NORM,UNPROT,FSET),         *
          DFHMDF POS=(8,51),LENGTH=1,ATTRB=(PROT,ASKIP),                *
                COLOR=GREEN,INITIAL=' '
          DFHMDF POS=(10,1),LENGTH=16,ATTRB=(NORM,PROT),COLOR=TURQUOISE,*
-               INITIAL='Sort Code: '
+               INITIAL='Depot Code:'
 SORTC    DFHMDF POS=(10,21),LENGTH=6,ATTRB=(NORM,NUM,PROT),            *
                COLOR=NEUTRAL,INITIAL='      '
          DFHMDF POS=(11,1),LENGTH=18,ATTRB=(NORM,PROT),COLOR=TURQUOISE,*
-               INITIAL='Available Balance:'
+               INITIAL='Available Credit :'
 AVBAL    DFHMDF POS=(11,20),LENGTH=14,ATTRB=(NORM,PROT),               *
                COLOR=NEUTRAL
          DFHMDF POS=(12,1),LENGTH=16,ATTRB=(NORM,PROT),COLOR=TURQUOISE,*
-               INITIAL='Actual Balance:'
+               INITIAL='Ledger Balance:'
 ACTBAL   DFHMDF POS=(12,20),LENGTH=14,ATTRB=(NORM,PROT),               *
                COLOR=NEUTRAL
 ***********************************************************************

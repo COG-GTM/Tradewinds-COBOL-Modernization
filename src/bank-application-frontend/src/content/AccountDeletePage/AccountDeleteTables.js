@@ -35,7 +35,7 @@ const headers = [
   },
   {
     key: 'sortCode',
-    header: 'Sort Code',
+    header: 'Depot Code',
   },
   {
     key: 'accountType',
@@ -43,19 +43,19 @@ const headers = [
   },
   {
     key: 'interestRate',
-    header: 'Interest Rate',
+    header: 'Trade Discount %',
   },
   {
     key: 'overdraft',
-    header: 'Overdraft',
+    header: 'Credit Limit',
   },
   {
     key: 'availableBalance',
-    header: 'Available Balance',
+    header: 'Available Credit',
   },
   {
     key: 'actualBalance',
-    header: 'Actual Balance',
+    header: 'Ledger Balance',
   },
   {
     key: 'dateOpened',
@@ -73,12 +73,12 @@ const headers = [
 
 const account_headers = [
   'Account Number',
-  'Sort Code',
+  'Depot Code',
   'Account Type',
-  'Interest Rate',
-  'Overdraft Limit',
-  'Available Balance',
-  'Actual Balance',
+  'Trade Discount %',
+  'Credit Limit',
+  'Available Credit',
+  'Ledger Balance',
   'Account Opened',
   'Last Statement Due',
   'Next Statement Due'

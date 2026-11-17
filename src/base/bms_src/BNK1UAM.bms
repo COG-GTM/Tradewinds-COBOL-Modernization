@@ -25,9 +25,8 @@ BNK1UA   DFHMDI SIZE=(24,80),                                          *
                COLUMN=1,LINE=1
          DFHMDF POS=(1,1),LENGTH=7,INITIAL='BNK1UA ',                  *
                ATTRB=(NORM,PROT),COLOR=BLUE
-COMPANY  DFHMDF POS=(1,17),LENGTH=55,ATTRB=(NORM,PROT),COLOR=RED,      *
-               INITIAL='CICS Banking Sample Application - Update Accoun*
-               t.'
+COMPANY  DFHMDF POS=(1,20),LENGTH=41,ATTRB=(NORM,PROT),COLOR=RED,      *
+               INITIAL='Pharma Trade Desk - Update Trade Account.'
 ***********************************************************************
          DFHMDF POS=(3,1),LENGTH=34,ATTRB=(NORM,PROT),COLOR=TURQUOISE, *
                INITIAL='Please provide an ACCOUNT number.'
@@ -43,7 +42,7 @@ CUSTNO   DFHMDF POS=(7,20),LENGTH=10,ATTRB=(NORM,PROT,FSET),           *
                COLOR=TURQUOISE
          DFHMDF POS=(7,32),LENGTH=1,ATTRB=(ASKIP,PROT)
          DFHMDF POS=(8,1),LENGTH=18,ATTRB=(NORM,PROT),                 *
-               COLOR=NEUTRAL,INITIAL=' Sort Code      :'
+               COLOR=NEUTRAL,INITIAL=' Depot Code     :'
 SORTC    DFHMDF POS=(8,20),LENGTH=6,ATTRB=(NORM,PROT,FSET),            *
                COLOR=TURQUOISE
          DFHMDF POS=(8,27),LENGTH=1,ATTRB=(ASKIP,PROT)
@@ -58,7 +57,7 @@ ACTYPE   DFHMDF POS=(10,20),LENGTH=8,                                  *
                ATTRB=(UNPROT,FSET,NORM),COLOR=GREEN,HILIGHT=UNDERLINE
          DFHMDF POS=(10,29),LENGTH=1,ATTRB=(ASKIP,PROT)
          DFHMDF POS=(11,1),LENGTH=18,ATTRB=(NORM,PROT),                *
-               COLOR=NEUTRAL,INITIAL=' Interest Rate  :'
+               COLOR=NEUTRAL,INITIAL=' Trade Disc. %  :'
 INTRT    DFHMDF POS=(11,20),LENGTH=7,                                  *
                ATTRB=(UNPROT,FSET,NORM),COLOR=GREEN,PICOUT='9999.99',  *
                HILIGHT=UNDERLINE
@@ -76,7 +75,7 @@ OPENMM   DFHMDF POS=(12,25),LENGTH=2,ATTRB=(NORM,PROT,FSET),           *
 OPENYY   DFHMDF POS=(12,30),LENGTH=4,ATTRB=(NORM,PROT,FSET),           *
                COLOR=TURQUOISE
          DFHMDF POS=(13,1),LENGTH=18,ATTRB=(NORM,PROT),                *
-               COLOR=NEUTRAL,INITIAL=' Overdraft limit:'
+               COLOR=NEUTRAL,INITIAL=' Credit limit   :'
 OVERDR   DFHMDF POS=(13,20),LENGTH=8,ATTRB=(NORM,UNPROT,FSET),         *
                COLOR=GREEN,HILIGHT=UNDERLINE
          DFHMDF POS=(13,29),LENGTH=1,ATTRB=(ASKIP,PROT)
@@ -106,11 +105,11 @@ NSTMTMM  DFHMDF POS=(15,25),LENGTH=2,ATTRB=(NORM,PROT,FSET),           *
 NSTMTYY  DFHMDF POS=(15,30),LENGTH=4,ATTRB=(NORM,PROT,FSET),           *
                COLOR=TURQUOISE
          DFHMDF POS=(16,1),LENGTH=17,ATTRB=(NORM,PROT),                *
-               COLOR=NEUTRAL,INITIAL=' Available Bal  :'
+               COLOR=NEUTRAL,INITIAL=' Available Cr.  :'
 AVBAL    DFHMDF POS=(16,19),LENGTH=14,ATTRB=(NORM,PROT,FSET),          *
                COLOR=TURQUOISE
          DFHMDF POS=(17,1),LENGTH=17,ATTRB=(NORM,PROT),                *
-               COLOR=NEUTRAL,INITIAL=' Actual Balance :'
+               COLOR=NEUTRAL,INITIAL=' Ledger Balance :'
 ACTBAL   DFHMDF POS=(17,19),LENGTH=14,ATTRB=(NORM,PROT,FSET),          *
                COLOR=TURQUOISE
 ***********************************************************************

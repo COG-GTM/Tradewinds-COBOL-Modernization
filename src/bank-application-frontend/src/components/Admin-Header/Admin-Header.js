@@ -37,7 +37,7 @@ const AdminHeader = () => {
             isActive={isSideNavExpanded}
           />
           <HeaderName element={Link} to="/" >
-            CICS Banking Sample Application
+            Menarini Pharma Trade Desk
           </HeaderName>
           <SideNav
             aria-label="Side navigation"

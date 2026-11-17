@@ -150,12 +150,12 @@ const AccountCreationPage = () => {
 
               <div style={{ width: 500 }}>
                 <Dropdown
-                  items2={["MORTGAGE", "ISA", "LOAN", "SAVING", "CURRENT"]}
+                  items2={["RX", "OTC", "EXPORT", "TENDER", "HOSPITAL"]}
                   id="default"
                   titleText="Account Type"
                   invalidText="Account Type is not valid"
                   label="Account Type"
-                  items={["MORTGAGE", "ISA", "LOAN", "SAVING", "CURRENT"]}
+                  items={["RX", "OTC", "EXPORT", "TENDER", "HOSPITAL"]}
                   onChange={({ selectedItem }) =>
                     setEnteredAccountType(selectedItem)
                   }
@@ -167,8 +167,8 @@ const AccountCreationPage = () => {
               <div style={{ width: 500 }}>
                 <TextInput
                   id="carbon-number"
-                  label="Overdraft Limit:"
-                  helperText="Please set the overdraft limit"
+                  label="Credit Limit:"
+                  helperText="Please set the credit limit"
                   invalidText="Number is not valid"
                   value={enteredOverdraftLimit}
                   onChange={enteredOverdraftLimitChangeHandler}
@@ -178,9 +178,9 @@ const AccountCreationPage = () => {
               <div style={{ width: 500 }}>
               <TextInput
                 id="interestRate"
-                label="Interest rate:"
+                label="Trade discount %:"
                 invalidText="Number is not valid"
-                helperText="Please enter the interest rate"
+                helperText="Please enter the trade discount"
                 value={enteredInterestRate}
                 onChange={enteredInterestRateChangeHandler}
               />
@@ -200,9 +200,9 @@ const AccountCreationPage = () => {
             <br />
             <br />
             <p>Account Number: {successText}</p>
-            <p>Sort Code: {sortCode}</p>
+            <p>Depot Code: {sortCode}</p>
             <p>Account Type: {enteredAccountType}</p>
-            <p>Overdraft Limit: {enteredOverdraftLimit}</p>
+            <p>Credit Limit: {enteredOverdraftLimit}</p>
             <ModalFooter>
               <HeaderName
                 className="white-background"

@@ -458,9 +458,9 @@
 
            IF ACCTYPI = '________' OR ACCTYPL < 1
               MOVE SPACES TO MESSAGEO
-              STRING 'Account Type should be ISA,CURRENT,LOAN,'
+              STRING 'Account Type should be RX,OTC,TENDER,'
                  DELIMITED BY SIZE,
-                    'SAVING or MORTGAGE' DELIMITED BY SIZE
+                    'EXPORT or HOSPITAL' DELIMITED BY SIZE
                  INTO MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               move -1 to acctypl
@@ -472,60 +472,60 @@
            IF ACCTYPL > 0
 
               EVALUATE ACCTYPI
-                 WHEN 'ISA_____'
-                    MOVE 'ISA     ' TO ACCTYPI
+                 WHEN 'OTC_____'
+                    MOVE 'OTC     ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'isa_____'
-                    MOVE 'ISA     ' TO ACCTYPI
+                 WHEN 'otc_____'
+                    MOVE 'OTC     ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'ISA     '
+                 WHEN 'OTC     '
                     CONTINUE
-                 WHEN 'isa     '
-                    MOVE 'ISA     ' TO ACCTYPI
+                 WHEN 'otc     '
+                    MOVE 'OTC     ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'CURRENT_'
-                    MOVE 'CURRENT ' TO ACCTYPI
+                 WHEN 'RX______'
+                    MOVE 'RX      ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'current_'
-                    MOVE 'CURRENT ' TO ACCTYPI
+                 WHEN 'rx______'
+                    MOVE 'RX      ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'CURRENT '
+                 WHEN 'RX      '
                     CONTINUE
-                 WHEN 'current '
-                    MOVE 'CURRENT ' TO ACCTYPI
+                 WHEN 'rx      '
+                    MOVE 'RX      ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'LOAN____'
-                    MOVE 'LOAN    ' TO ACCTYPI
+                 WHEN 'TENDER__'
+                    MOVE 'TENDER  ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'loan____'
-                    MOVE 'LOAN    ' TO ACCTYPI
+                 WHEN 'tender__'
+                    MOVE 'TENDER  ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'loan    '
-                    MOVE 'LOAN    ' TO ACCTYPI
+                 WHEN 'tender  '
+                    MOVE 'TENDER  ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'LOAN    '
+                 WHEN 'TENDER  '
                     CONTINUE
-                 WHEN 'SAVING__'
-                    MOVE 'SAVING  ' TO ACCTYPI
+                 WHEN 'EXPORT__'
+                    MOVE 'EXPORT  ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'saving__'
-                    MOVE 'SAVING  ' TO ACCTYPI
+                 WHEN 'export__'
+                    MOVE 'EXPORT  ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'saving  '
-                    MOVE 'SAVING  ' TO ACCTYPI
+                 WHEN 'export  '
+                    MOVE 'EXPORT  ' TO ACCTYPI
                     CONTINUE
-                 WHEN 'SAVING  '
+                 WHEN 'EXPORT  '
                     CONTINUE
-                 WHEN 'MORTGAGE'
+                 WHEN 'HOSPITAL'
                     CONTINUE
-                 WHEN 'mortgage'
-                    MOVE 'MORTGAGE' TO ACCTYPI
+                 WHEN 'hospital'
+                    MOVE 'HOSPITAL' TO ACCTYPI
                     CONTINUE
                  WHEN OTHER
                     MOVE SPACES TO MESSAGEO
-                    STRING 'Account Type should be ISA,CURRENT,LOAN,'
+                    STRING 'Account Type should be RX,OTC,TENDER,'
                        DELIMITED BY SIZE,
-                       'SAVING or MORTGAGE' DELIMITED BY SIZE
+                       'EXPORT or HOSPITAL' DELIMITED BY SIZE
                        INTO MESSAGEO
                     MOVE 'N' TO VALID-DATA-SW
                     MOVE -1 TO ACCTYPL
@@ -537,7 +537,7 @@
 
            IF INTRTL = ZERO
               MOVE SPACES TO MESSAGEO
-              STRING 'Please supply a numeric interest rate'
+              STRING 'Please supply a numeric discount %'
                     DELIMITED BY SIZE,
               INTO MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
@@ -574,7 +574,7 @@
 
               IF WS-NUM-COUNT-TOTAL < INTRTL
                  MOVE SPACES TO MESSAGEO
-                 STRING 'Please supply a numeric interest rate'
+                 STRING 'Please supply a numeric discount %'
                       DELIMITED BY SIZE,
                  INTO MESSAGEO
                  MOVE 'N' TO VALID-DATA-SW
@@ -593,7 +593,7 @@
 
               IF WS-NUM-COUNT-POINT > 1
                  MOVE SPACES TO MESSAGEO
-                 STRING 'Use one decimal point for interest rate only'
+                 STRING 'Use one decimal point for discount % only'
                       DELIMITED BY SIZE,
                  INTO MESSAGEO
                  MOVE 'N' TO VALID-DATA-SW
@@ -658,11 +658,11 @@
            COMPUTE INTRTI-COMP-1 = FUNCTION NUMVAL(INTRTI)
 
       *
-      *    Validate the interest rate
+      *    Validate the discount %
       *
            IF INTRTI-COMP-1 < 0
               MOVE SPACES TO MESSAGEO
-              STRING 'Please supply a zero or positive interest rate'
+              STRING 'Please supply a zero or positive discount %'
                     DELIMITED BY SIZE,
               INTO MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
@@ -672,7 +672,7 @@
 
            IF INTRTI-COMP-1 > 9999.99
               MOVE SPACES TO MESSAGEO
-              STRING 'Please supply an interest rate less than 9999.99%'
+              STRING 'Please supply an discount % less than 9999.99%'
                     DELIMITED BY SIZE,
               INTO MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
@@ -700,7 +700,7 @@
               WS-NUM-COUNT-TOTAL FOR ALL '9'.
            IF WS-NUM-COUNT-TOTAL < OVERDRL
               MOVE SPACES TO MESSAGEO
-              MOVE 'Overdraft Limit must be numeric positive int' TO
+              MOVE 'Credit Limit must be numeric positive int' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO OVERDRL
@@ -723,7 +723,7 @@
       *
            IF OVERDRI NOT NUMERIC
               MOVE SPACES TO MESSAGEO
-              MOVE 'The Overdraft Limit must be numeric ' TO
+              MOVE 'The Credit Limit must be numeric ' TO
                  MESSAGEO
               MOVE 'N' TO VALID-DATA-SW
               MOVE -1 TO OVERDRL
